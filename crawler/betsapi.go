@@ -152,6 +152,73 @@ func (betsapi *BetsapiCrawler) GetInPlayEvents(sportId string) []types.Event {
 	return inPlayEvents
 }
 
+func (betsapi *BetsapiCrawler) GetUpcomingEvents(sportId, leagueId, teamId, countryCode, day, page string) ([]types.Event, error) {
+	var upcomingEvents []types.Event
+	req, err := http.NewRequest("GET", UpcomingEventsUrl, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	//encode query parameters
+	q := req.URL.Query()
+	q.Add("token", API_TOKEN)
+	q.Add("sport_id", sportId)
+	q.Add("league_id", leagueId)
+	q.Add("team_id", teamId)
+	q.Add("cc", countryCode)
+	q.Add("day", day)
+	q.Add("page", page)
+
+	req.URL.RawQuery = q.Encode()
+	resp, err := betsapi.Client.Do(req)
+	if err != nil {
+		log.Error(err)
+	}
+
+	var betsapiResponse types.BetsapEventsPagerResponse
+	if resp.StatusCode == 200 {
+		body := resp.Body
+		data, err := ioutil.ReadAll(body)
+		if err != nil {
+			return nil, err
+		}
+
+		err = json.Unmarshal(data, &betsapiResponse)
+		if err != nil {
+			return nil, err
+		}
+
+		if betsapiResponse.Success == 1 {
+			log.Info("Total events: ", betsapiResponse.Pager.Total)
+			upcomingEvents = append(upcomingEvents, betsapiResponse.Results...)
+
+			actualPage := betsapiResponse.Pager.Page
+			perPage := betsapiResponse.Pager.PerPage
+			total := betsapiResponse.Pager.Total
+
+			if actualPage == 100 {
+				return upcomingEvents, errors.Errorf("Error %d: max page limit", resp.StatusCode)
+			}
+
+			if actualPage*perPage < total {
+				nextPage := strconv.Itoa(betsapiResponse.Pager.Page + 1)
+				nextPageEvents, err := betsapi.GetUpcomingEvents(sportId, leagueId, teamId, countryCode, day, nextPage)
+				if err != nil {
+					return upcomingEvents, err
+				}
+
+				upcomingEvents = append(upcomingEvents, nextPageEvents...)
+			}
+
+			return upcomingEvents, nil
+		} else {
+			return nil, errors.Errorf("Error: %d: unsuccessful API response: /events/upcoming", resp.StatusCode)
+		}
+	} else {
+		return nil, errors.Errorf("Error: %d: request: /events/upcoming", resp.StatusCode)
+	}
+}
+
 //Check events that not started or where max 15m lasted
 func (betsapi *BetsapiCrawler) GetStartingEvents(sportId string, minuteThreshold int64) []types.Event {
 	log.Info("Getting starting events...")
@@ -364,7 +431,7 @@ func (betsapi *BetsapiCrawler) GetEndedEvents(sportId, leagueId, teamId, country
 		log.Error(err)
 	}
 
-	var betsapiResponse types.BetsapiEndedEventsResponse
+	var betsapiResponse types.BetsapEventsPagerResponse
 	if resp.StatusCode == 200 {
 		body := resp.Body
 		data, err := ioutil.ReadAll(body)

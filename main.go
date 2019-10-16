@@ -11,6 +11,4 @@ func main() {
 	if err != nil{
 		log.Fatal(err)
 	}
-	betsapiCrawler.GetFootballEventsStats()
-	betsapiCrawler.GetHotFootballEvents()
 }

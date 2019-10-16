@@ -41,7 +41,7 @@ type BetsapiStatsResponse struct {
 	Results []Event `json:"results"`
 }
 
-type BetsapiEndedEventsResponse struct {
+type BetsapEventsPagerResponse struct {
 	Success int     `json:"success"`
 	Pager   Pager   `json:"pager"`
 	Results []Event `json:"results"`

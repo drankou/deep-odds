@@ -179,3 +179,15 @@ func TestBetsapiCrawler_GetEventHistory(t *testing.T) {
 
 	t.Logf("Event history: %+v", eventHistory)
 }
+
+func TestBetsapiCrawler_GetUpcomingEvents(t *testing.T) {
+	betsapi := BetsapiCrawler{}
+	err := betsapi.Init()
+	if err != nil {
+		t.Fatal(err)
+	}
+	log.SetLevel(log.DebugLevel)
+
+	upcomingEvents := betsapi.GetEndedEvents(types.SoccerId, "","","by","","1")
+	t.Logf("Upcoming events: %+v", upcomingEvents)
+}
