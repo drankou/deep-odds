@@ -126,19 +126,17 @@ func (betsapi *BetsapiCrawler) Init() error {
 }
 
 //Returns in-play events defined by sportId,
-func (betsapi *BetsapiCrawler) GetInPlayEvents(sportId string) []types.Event {
+func (betsapi *BetsapiCrawler) GetInPlayEvents(sportId string) ([]types.Event, error) {
 	log.Info("Getting In-Play events...")
-	var inPlayEvents []types.Event
-
 	//check in-play events in cache
 	if val, exist := betsapi.Cache.Load(fmt.Sprintf("inplay_%s", sportId)); exist {
 		log.Debugln("InPlay: Returning value from cache")
-		return val.([]types.Event)
+		return val.([]types.Event), nil
 	}
 
 	req, err := http.NewRequest("GET", InPlayEventsUrl, nil)
 	if err != nil {
-		log.Error(err)
+		return nil, err
 	}
 
 	//encode query parameters
@@ -149,7 +147,7 @@ func (betsapi *BetsapiCrawler) GetInPlayEvents(sportId string) []types.Event {
 
 	resp, err := betsapi.Client.Do(req)
 	if err != nil {
-		log.Error(err)
+		return nil, err
 	}
 
 	var betsapiResponse types.BetsapiInplayResponse
@@ -157,12 +155,12 @@ func (betsapi *BetsapiCrawler) GetInPlayEvents(sportId string) []types.Event {
 		body := resp.Body
 		data, err := ioutil.ReadAll(body)
 		if err != nil {
-			log.Error(err)
+			return nil, err
 		}
 
 		err = json.Unmarshal(data, &betsapiResponse)
 		if err != nil {
-			log.Error(err)
+			return nil, err
 		}
 
 		if betsapiResponse.Success == 1 {
@@ -170,15 +168,13 @@ func (betsapi *BetsapiCrawler) GetInPlayEvents(sportId string) []types.Event {
 			log.Debugln("InPlay: Storing value to cache")
 			betsapi.Cache.Store(fmt.Sprintf("inplay_%s", sportId), betsapiResponse.Results)
 
-			return betsapiResponse.Results
+			return betsapiResponse.Results, nil
 		} else {
-			log.Errorf("Error: %d: unsuccessful API response: /events/inplay", resp.StatusCode)
+			return nil, errors.Errorf("Error: %d: unsuccessful API response: /events/inplay", resp.StatusCode)
 		}
 	} else {
-		log.Errorf("Error: %d: request: /events/inplay", resp.StatusCode)
+		return nil, errors.Errorf("Error: %d: request: /events/inplay", resp.StatusCode)
 	}
-
-	return inPlayEvents
 }
 
 func (betsapi *BetsapiCrawler) GetUpcomingEvents(sportId, leagueId, teamId, countryCode, day, page string) ([]types.Event, error) {
@@ -250,7 +246,7 @@ func (betsapi *BetsapiCrawler) GetUpcomingEvents(sportId, leagueId, teamId, coun
 }
 
 //Check events that not started or where max 15m lasted
-func (betsapi *BetsapiCrawler) GetStartingEvents(sportId string, minuteThreshold int64) []types.Event {
+func (betsapi *BetsapiCrawler) GetStartingEvents(sportId string, minuteThreshold int64) ([]types.Event, error) {
 	log.Info("Getting starting events...")
 	var startingEvents []types.Event
 	var startingEventBySportId []types.Event
@@ -265,10 +261,14 @@ func (betsapi *BetsapiCrawler) GetStartingEvents(sportId string, minuteThreshold
 			}
 		}
 
-		return startingEventBySportId
+		return startingEventBySportId, nil
 	}
 
-	inPlayEvents := betsapi.GetInPlayEvents(sportId)
+	inPlayEvents, err := betsapi.GetInPlayEvents(sportId)
+	if err != nil {
+		return nil, err
+	}
+
 	for _, event := range inPlayEvents {
 		minutes, _ := event.Timer.Minutes.Int64()
 		if event.TimeStatus == "0" || minutes < minuteThreshold {
@@ -283,13 +283,13 @@ func (betsapi *BetsapiCrawler) GetStartingEvents(sportId string, minuteThreshold
 	log.Debugln("Starting: storing value to cache")
 	betsapi.Cache.Store(fmt.Sprintf("starting_%d", minuteThreshold), startingEvents)
 
-	return startingEvents
+	return startingEvents, nil
 }
 
-func (betsapi *BetsapiCrawler) GetEventView(eventId string) interface{} {
+func (betsapi *BetsapiCrawler) GetEventView(eventId string) (interface{}, error) {
 	req, err := http.NewRequest("GET", EventViewUrl, nil)
 	if err != nil {
-		log.Error(err)
+		return nil, err
 	}
 
 	//encode query parameters
@@ -301,7 +301,7 @@ func (betsapi *BetsapiCrawler) GetEventView(eventId string) interface{} {
 	betsapi.RateLimiter.rateBlock()
 	resp, err := betsapi.Client.Do(req)
 	if err != nil {
-		log.Error(err)
+		return nil, err
 	}
 
 	var betsapiResponse types.BetsapiStatsResponse
@@ -309,14 +309,12 @@ func (betsapi *BetsapiCrawler) GetEventView(eventId string) interface{} {
 		body := resp.Body
 		data, err := ioutil.ReadAll(body)
 		if err != nil {
-			log.Error(err)
-			return nil
+			return nil, err
 		}
 
 		err = json.Unmarshal(data, &betsapiResponse)
 		if err != nil {
-			log.Error(err)
-			return nil
+			return nil, err
 		}
 
 		if betsapiResponse.Success == 1 {
@@ -328,30 +326,29 @@ func (betsapi *BetsapiCrawler) GetEventView(eventId string) interface{} {
 					var footballEventView types.BetsapiFootballStatsResponse
 					err = json.Unmarshal(data, &footballEventView)
 					if err != nil {
-						log.Error(err)
-						return nil
+						return nil, err
 					}
 
 					if len(footballEventView.Results) > 0 {
-						return footballEventView.Results[0]
+						return footballEventView.Results[0], nil
 					}
 				case types.BasketballId:
-					return nil
+					return nil, nil
 				case types.TennisId:
-					return nil
+					return nil, nil
 				default:
-					log.Error("Unsupported sport id for event view")
+					return nil, errors.New("Unsupported sport id for event view")
 				}
 			}
 
 		} else {
-			log.Errorf("Error: %d: unsuccessful API response: /events/view", resp.StatusCode)
+			return nil, errors.Errorf("Error: %d: unsuccessful API response: /events/view", resp.StatusCode)
 		}
 	} else {
-		log.Errorf("Error: %d: request: /event/view", resp.StatusCode)
+		return nil, errors.Errorf("Error: %d: request: /event/view", resp.StatusCode)
 	}
 
-	return nil
+	return nil, nil
 }
 
 func (betsapi *BetsapiCrawler) GetEventHistory(eventId string, qty string) (*types.EventHistory, error) {
@@ -443,11 +440,11 @@ func (betsapi *BetsapiCrawler) GetEventOddsSummary() {
 	//Ignore, prematch odds by bookmakers
 }
 
-func (betsapi *BetsapiCrawler) GetEndedEvents(sportId, leagueId, teamId, countryCode, day, page string) []types.Event {
+func (betsapi *BetsapiCrawler) GetEndedEvents(sportId, leagueId, teamId, countryCode, day, page string) ([]types.Event, error) {
 	var endedEvents []types.Event
 	req, err := http.NewRequest("GET", EndedEventsUrl, nil)
 	if err != nil {
-		log.Error(err)
+		return nil, err
 	}
 
 	//encode query parameters
@@ -465,7 +462,7 @@ func (betsapi *BetsapiCrawler) GetEndedEvents(sportId, leagueId, teamId, country
 	betsapi.RateLimiter.rateBlock()
 	resp, err := betsapi.Client.Do(req)
 	if err != nil {
-		log.Error(err)
+		return nil, err
 	}
 
 	var betsapiResponse types.BetsapEventsPagerResponse
@@ -473,14 +470,12 @@ func (betsapi *BetsapiCrawler) GetEndedEvents(sportId, leagueId, teamId, country
 		body := resp.Body
 		data, err := ioutil.ReadAll(body)
 		if err != nil {
-			log.Error(err)
-			return nil
+			return nil, err
 		}
 
 		err = json.Unmarshal(data, &betsapiResponse)
 		if err != nil {
-			log.Error(err)
-			return nil
+			return nil, err
 		}
 
 		if betsapiResponse.Success == 1 {
@@ -492,28 +487,32 @@ func (betsapi *BetsapiCrawler) GetEndedEvents(sportId, leagueId, teamId, country
 			log.Infof("%d/%d", perPage*actualPage, total)
 			if actualPage == 100 {
 				log.Warn("Warning: max page limit", resp.StatusCode)
-				return endedEvents
+				return endedEvents, nil
 			}
 
 			if actualPage*perPage < total {
 				nextPage := strconv.Itoa(betsapiResponse.Pager.Page + 1)
-				endedEvents = append(endedEvents, betsapi.GetEndedEvents(sportId, leagueId, teamId, countryCode, day, nextPage)...)
+				nextEvents, err := betsapi.GetEndedEvents(sportId, leagueId, teamId, countryCode, day, nextPage)
+				if err != nil {
+					return endedEvents, err
+				}
+				endedEvents = append(endedEvents, nextEvents...)
 			}
 		} else {
-			log.Errorf("Error: %d: unsuccessful API response: /events/ended", resp.StatusCode)
+			return nil, errors.Errorf("Error: %d: unsuccessful API response: /events/ended", resp.StatusCode)
 		}
 	} else {
-		log.Errorf("Error: %d: request: /events/ended", resp.StatusCode)
+		return nil, errors.Errorf("Error: %d: request: /events/ended", resp.StatusCode)
 	}
 
-	return endedEvents
+	return endedEvents, nil
 }
 
 //soccer only
-func (betsapi *BetsapiCrawler) GetEventStatsTrend(eventId string) *types.StatsTrend {
+func (betsapi *BetsapiCrawler) GetEventStatsTrend(eventId string) (*types.StatsTrend, error) {
 	req, err := http.NewRequest("GET", EventStatsTrendUrl, nil)
 	if err != nil {
-		log.Error(err)
+		return nil, err
 	}
 
 	//encode query parameters
@@ -526,7 +525,7 @@ func (betsapi *BetsapiCrawler) GetEventStatsTrend(eventId string) *types.StatsTr
 	betsapi.RateLimiter.rateBlock()
 	resp, err := betsapi.Client.Do(req)
 	if err != nil {
-		log.Error(err)
+		return nil, err
 	}
 
 	var betsapiResponse types.BetsapiStatsTrendResponse
@@ -534,26 +533,22 @@ func (betsapi *BetsapiCrawler) GetEventStatsTrend(eventId string) *types.StatsTr
 		body := resp.Body
 		data, err := ioutil.ReadAll(body)
 		if err != nil {
-			log.Error(err)
-			return nil
+			return nil, err
 		}
 
 		err = json.Unmarshal(data, &betsapiResponse)
 		if err != nil {
-			log.Error(err)
-			return nil
+			return nil, err
 		}
 
 		if betsapiResponse.Success == 1 {
-			return &betsapiResponse.Results
+			return &betsapiResponse.Results, nil
 		} else {
-			log.Errorf("Error: %d: unsuccessful API response: /event/stats_trend", resp.StatusCode)
+			return nil, errors.Errorf("Error: %d: unsuccessful API response: /event/stats_trend", resp.StatusCode)
 		}
 	} else {
-		log.Errorf("Error: %d: request: /event/stats_trend", resp.StatusCode)
+		return nil, errors.Errorf("Error: %d: request: /event/stats_trend", resp.StatusCode)
 	}
-
-	return nil
 }
 
 func (betsapi *BetsapiCrawler) GetEventLineup(eventId string) {
@@ -564,12 +559,12 @@ func (betsapi *BetsapiCrawler) GetEventVideos(eventId string) {
 
 }
 
-func (betsapi *BetsapiCrawler) GetLeagues(sportId string, countryCode string, page string) []types.FootballLeague {
+func (betsapi *BetsapiCrawler) GetLeagues(sportId string, countryCode string, page string) ([]types.FootballLeague, error) {
 	var leagues []types.FootballLeague
 
 	req, err := http.NewRequest("GET", LeagueUrl, nil)
 	if err != nil {
-		log.Error(err)
+		return nil, err
 	}
 
 	//encode query parameters
@@ -584,7 +579,7 @@ func (betsapi *BetsapiCrawler) GetLeagues(sportId string, countryCode string, pa
 	betsapi.RateLimiter.rateBlock()
 	resp, err := betsapi.Client.Do(req)
 	if err != nil {
-		log.Error(err)
+		return nil, err
 	}
 
 	var betsapiResponse types.BetsapiLeagueResponse
@@ -592,14 +587,12 @@ func (betsapi *BetsapiCrawler) GetLeagues(sportId string, countryCode string, pa
 		body := resp.Body
 		data, err := ioutil.ReadAll(body)
 		if err != nil {
-			log.Error(err)
-			return nil
+			return nil, err
 		}
 
 		err = json.Unmarshal(data, &betsapiResponse)
 		if err != nil {
-			log.Error(err)
-			return nil
+			return nil, err
 		}
 
 		if betsapiResponse.Success == 1 {
@@ -610,16 +603,20 @@ func (betsapi *BetsapiCrawler) GetLeagues(sportId string, countryCode string, pa
 
 			if actualPage*perPage < total {
 				nextPage := strconv.Itoa(betsapiResponse.Pager.Page + 1)
-				leagues = append(leagues, betsapi.GetLeagues(sportId, countryCode, nextPage)...)
+				nextLeagues, err := betsapi.GetLeagues(sportId, countryCode, nextPage)
+				if err != nil {
+					return leagues, err
+				}
+				leagues = append(leagues, nextLeagues...)
 			}
 		} else {
-			log.Errorf("Error: %d: unsuccessful API response: /event/league", resp.StatusCode)
+			return nil, errors.Errorf("Error: %d: unsuccessful API response: /event/league", resp.StatusCode)
 		}
 	} else {
-		log.Errorf("Error: %d: request: /event/league", resp.StatusCode)
+		return nil, errors.Errorf("Error: %d: request: /event/league", resp.StatusCode)
 	}
 
-	return leagues
+	return leagues, nil
 }
 
 func (betsapi *BetsapiCrawler) GetLeagueTable(leagueId string) {
