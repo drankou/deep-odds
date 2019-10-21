@@ -1,4 +1,4 @@
-package crawler
+package betsapi
 
 import (
 	"betsapiScrapper/types"
@@ -146,6 +146,19 @@ func TestBetsapiCrawler_GetEndedEvents(t *testing.T) {
 
 	endedEvents := betsapi.GetEndedEvents(types.SoccerId, "","","by","","1")
 	t.Logf("Ended events: %+v", endedEvents)
+}
+
+func TestBetsapiCrawler_GetEndedEvents_Day(t *testing.T) {
+	betsapi := BetsapiCrawler{}
+	err := betsapi.Init()
+	if err != nil {
+		t.Fatal(err)
+	}
+	log.SetLevel(log.DebugLevel)
+
+	date := "20190610"
+	endedEvents := betsapi.GetEndedEvents(types.SoccerId, "","","",date,"1")
+	t.Logf("Number of ended events on %s: %d", date, len(endedEvents))
 }
 
 func TestBetsapiCrawler_GetEventOdds(t *testing.T) {

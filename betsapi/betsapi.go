@@ -1,4 +1,4 @@
-package crawler
+package betsapi
 
 import (
 	"betsapiScrapper/types"
@@ -10,6 +10,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"sync"
+	"time"
 )
 
 const API_URL string = "https://api.betsapi.com" //https://app.bsportsfan.com
@@ -73,9 +75,32 @@ const (
 	TennisRanking = API_URL + "/v1/tennis/ranking?type_id="
 )
 
+type BetsapiRateLimiter struct {
+	*sync.Mutex
+	rate time.Duration
+	last time.Time
+}
+
+func (b *BetsapiRateLimiter) init() {
+	b.Mutex = &sync.Mutex{}
+	b.last = time.Now()
+	b.rate = 1 * time.Second
+}
+
+func (b *BetsapiRateLimiter) rateBlock() {
+	b.Lock()
+	defer b.Unlock()
+
+	if time.Since(b.last) < b.rate {
+		<-time.After(b.last.Add(b.rate).Sub(time.Now()))
+	}
+	b.last = time.Now()
+}
+
 type BetsapiCrawler struct {
 	Client           *http.Client
 	Context          context.Context
+	RateLimiter      *BetsapiRateLimiter
 	SportId          string
 	Cache            *types.Cache
 	InPlayEvents     []types.Event
@@ -93,6 +118,10 @@ func (betsapi *BetsapiCrawler) Init() error {
 	betsapi.Cache.ResetInterval = "every 1m"
 	betsapi.Cache.ResetFunc = betsapi.Cache.Clear
 
+	betsapi.RateLimiter = &BetsapiRateLimiter{}
+	betsapi.RateLimiter.init()
+
+	log.Info("Betsapi crawler initialized")
 	return nil
 }
 
@@ -170,6 +199,7 @@ func (betsapi *BetsapiCrawler) GetUpcomingEvents(sportId, leagueId, teamId, coun
 	q.Add("page", page)
 
 	req.URL.RawQuery = q.Encode()
+	betsapi.RateLimiter.rateBlock()
 	resp, err := betsapi.Client.Do(req)
 	if err != nil {
 		log.Error(err)
@@ -268,6 +298,7 @@ func (betsapi *BetsapiCrawler) GetEventView(eventId string) interface{} {
 	q.Add("event_id", eventId)
 	req.URL.RawQuery = q.Encode()
 
+	betsapi.RateLimiter.rateBlock()
 	resp, err := betsapi.Client.Do(req)
 	if err != nil {
 		log.Error(err)
@@ -336,6 +367,8 @@ func (betsapi *BetsapiCrawler) GetEventHistory(eventId string, qty string) (*typ
 	q.Add("qty", qty)
 
 	req.URL.RawQuery = q.Encode()
+
+	betsapi.RateLimiter.rateBlock()
 	resp, err := betsapi.Client.Do(req)
 	if err != nil {
 		return nil, err
@@ -376,6 +409,8 @@ func (betsapi *BetsapiCrawler) GetEventOdds(eventId string) (*types.Odds, error)
 	q.Add("event_id", eventId)
 
 	req.URL.RawQuery = q.Encode()
+
+	betsapi.RateLimiter.rateBlock()
 	resp, err := betsapi.Client.Do(req)
 	if err != nil {
 		return nil, err
@@ -426,6 +461,8 @@ func (betsapi *BetsapiCrawler) GetEndedEvents(sportId, leagueId, teamId, country
 	q.Add("page", page)
 
 	req.URL.RawQuery = q.Encode()
+
+	betsapi.RateLimiter.rateBlock()
 	resp, err := betsapi.Client.Do(req)
 	if err != nil {
 		log.Error(err)
@@ -447,13 +484,12 @@ func (betsapi *BetsapiCrawler) GetEndedEvents(sportId, leagueId, teamId, country
 		}
 
 		if betsapiResponse.Success == 1 {
-			log.Info("Total events: ", betsapiResponse.Pager.Total)
 			endedEvents = append(endedEvents, betsapiResponse.Results...)
 
 			actualPage := betsapiResponse.Pager.Page
 			perPage := betsapiResponse.Pager.PerPage
 			total := betsapiResponse.Pager.Total
-
+			log.Infof("%d/%d", perPage*actualPage, total)
 			if actualPage == 100 {
 				log.Warn("Warning: max page limit", resp.StatusCode)
 				return endedEvents
@@ -486,6 +522,8 @@ func (betsapi *BetsapiCrawler) GetEventStatsTrend(eventId string) *types.StatsTr
 	q.Add("event_id", eventId)
 
 	req.URL.RawQuery = q.Encode()
+
+	betsapi.RateLimiter.rateBlock()
 	resp, err := betsapi.Client.Do(req)
 	if err != nil {
 		log.Error(err)
@@ -542,6 +580,8 @@ func (betsapi *BetsapiCrawler) GetLeagues(sportId string, countryCode string, pa
 	q.Add("sport_id", sportId)
 
 	req.URL.RawQuery = q.Encode()
+
+	betsapi.RateLimiter.rateBlock()
 	resp, err := betsapi.Client.Do(req)
 	if err != nil {
 		log.Error(err)
@@ -602,7 +642,7 @@ func (betsapi *BetsapiCrawler) GetPlayerInfo(playerId string) {
 
 }
 
-func (betsapi *BetsapiCrawler) GetTennisRankong(typeId string) {
+func (betsapi *BetsapiCrawler) GetTennisRanking(typeId string) {
 
 }
 

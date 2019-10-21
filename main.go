@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	betsapiCrawler := crawler.BetsapiCrawler{}
+	betsapiCrawler := betsapi.BetsapiCrawler{}
 	err := betsapiCrawler.Init()
 	if err != nil{
 		log.Fatal(err)
