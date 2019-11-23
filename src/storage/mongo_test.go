@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"betsapiScrapper/types"
+	"betsapiScrapper/src/types"
 	"os"
 	"testing"
 )

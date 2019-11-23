@@ -1,7 +1,7 @@
 package betsapi
 
 import (
-	"betsapiScrapper/types"
+	"betsapiScrapper/src/types"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -97,7 +97,7 @@ func (b *BetsapiRateLimiter) rateBlock() {
 	b.last = time.Now()
 }
 
-type BetsapiCrawler struct {
+type BetsapiWrapper struct {
 	Client           *http.Client
 	Context          context.Context
 	RateLimiter      *BetsapiRateLimiter
@@ -109,7 +109,7 @@ type BetsapiCrawler struct {
 	BasketballEvents []types.BasketballEvent
 }
 
-func (betsapi *BetsapiCrawler) Init() error {
+func (betsapi *BetsapiWrapper) Init() error {
 	betsapi.Client = &http.Client{}
 	betsapi.Context = context.Background()
 
@@ -126,7 +126,7 @@ func (betsapi *BetsapiCrawler) Init() error {
 }
 
 //Returns in-play events defined by sportId,
-func (betsapi *BetsapiCrawler) GetInPlayEvents(sportId string) ([]types.Event, error) {
+func (betsapi *BetsapiWrapper) GetInPlayEvents(sportId string) ([]types.Event, error) {
 	log.Info("Getting In-Play events...")
 	//check in-play events in cache
 	if val, exist := betsapi.Cache.Load(fmt.Sprintf("inplay_%s", sportId)); exist {
@@ -177,7 +177,7 @@ func (betsapi *BetsapiCrawler) GetInPlayEvents(sportId string) ([]types.Event, e
 	}
 }
 
-func (betsapi *BetsapiCrawler) GetUpcomingEvents(sportId, leagueId, teamId, countryCode, day, page string) ([]types.Event, error) {
+func (betsapi *BetsapiWrapper) GetUpcomingEvents(sportId, leagueId, teamId, countryCode, day, page string) ([]types.Event, error) {
 	var upcomingEvents []types.Event
 	req, err := http.NewRequest("GET", UpcomingEventsUrl, nil)
 	if err != nil {
@@ -246,7 +246,7 @@ func (betsapi *BetsapiCrawler) GetUpcomingEvents(sportId, leagueId, teamId, coun
 }
 
 //Check events that not started or where max 15m lasted
-func (betsapi *BetsapiCrawler) GetStartingEvents(sportId string, minuteThreshold int64) ([]types.Event, error) {
+func (betsapi *BetsapiWrapper) GetStartingEvents(sportId string, minuteThreshold int64) ([]types.Event, error) {
 	log.Info("Getting starting events...")
 	var startingEvents []types.Event
 	var startingEventBySportId []types.Event
@@ -286,7 +286,7 @@ func (betsapi *BetsapiCrawler) GetStartingEvents(sportId string, minuteThreshold
 	return startingEvents, nil
 }
 
-func (betsapi *BetsapiCrawler) GetEventView(eventId string) (interface{}, error) {
+func (betsapi *BetsapiWrapper) GetEventView(eventId string) (*types.Event, error) {
 	req, err := http.NewRequest("GET", EventViewUrl, nil)
 	if err != nil {
 		return nil, err
@@ -330,7 +330,7 @@ func (betsapi *BetsapiCrawler) GetEventView(eventId string) (interface{}, error)
 					}
 
 					if len(footballEventView.Results) > 0 {
-						return footballEventView.Results[0], nil
+						return &footballEventView.Results[0].Event, nil
 					}
 				case types.BasketballId:
 					return nil, nil
@@ -351,7 +351,7 @@ func (betsapi *BetsapiCrawler) GetEventView(eventId string) (interface{}, error)
 	return nil, nil
 }
 
-func (betsapi *BetsapiCrawler) GetEventHistory(eventId string, qty string) (*types.EventHistory, error) {
+func (betsapi *BetsapiWrapper) GetEventHistory(eventId string, qty string) (*types.EventHistory, error) {
 	req, err := http.NewRequest("GET", EventHistoryUrl, nil)
 	if err != nil {
 		return nil, err
@@ -394,7 +394,7 @@ func (betsapi *BetsapiCrawler) GetEventHistory(eventId string, qty string) (*typ
 	}
 }
 
-func (betsapi *BetsapiCrawler) GetEventOdds(eventId string) (*types.Odds, error) {
+func (betsapi *BetsapiWrapper) GetEventOdds(eventId string) (*types.Odds, error) {
 	req, err := http.NewRequest("GET", EventOddsUrl, nil)
 	if err != nil {
 		return nil, err
@@ -436,11 +436,11 @@ func (betsapi *BetsapiCrawler) GetEventOdds(eventId string) (*types.Odds, error)
 	}
 }
 
-func (betsapi *BetsapiCrawler) GetEventOddsSummary() {
+func (betsapi *BetsapiWrapper) GetEventOddsSummary() {
 	//Ignore, prematch odds by bookmakers
 }
 
-func (betsapi *BetsapiCrawler) GetEndedEvents(sportId, leagueId, teamId, countryCode, day, page string) ([]types.Event, error) {
+func (betsapi *BetsapiWrapper) GetEndedEvents(sportId, leagueId, teamId, countryCode, day, page string) ([]types.Event, error) {
 	var endedEvents []types.Event
 	req, err := http.NewRequest("GET", EndedEventsUrl, nil)
 	if err != nil {
@@ -509,7 +509,7 @@ func (betsapi *BetsapiCrawler) GetEndedEvents(sportId, leagueId, teamId, country
 }
 
 //soccer only
-func (betsapi *BetsapiCrawler) GetEventStatsTrend(eventId string) (*types.StatsTrend, error) {
+func (betsapi *BetsapiWrapper) GetEventStatsTrend(eventId string) (*types.StatsTrend, error) {
 	req, err := http.NewRequest("GET", EventStatsTrendUrl, nil)
 	if err != nil {
 		return nil, err
@@ -551,15 +551,15 @@ func (betsapi *BetsapiCrawler) GetEventStatsTrend(eventId string) (*types.StatsT
 	}
 }
 
-func (betsapi *BetsapiCrawler) GetEventLineup(eventId string) {
+func (betsapi *BetsapiWrapper) GetEventLineup(eventId string) {
 
 }
 
-func (betsapi *BetsapiCrawler) GetEventVideos(eventId string) {
+func (betsapi *BetsapiWrapper) GetEventVideos(eventId string) {
 
 }
 
-func (betsapi *BetsapiCrawler) GetLeagues(sportId string, countryCode string, page string) ([]types.FootballLeague, error) {
+func (betsapi *BetsapiWrapper) GetLeagues(sportId string, countryCode string, page string) ([]types.FootballLeague, error) {
 	var leagues []types.FootballLeague
 
 	req, err := http.NewRequest("GET", LeagueUrl, nil)
@@ -619,31 +619,31 @@ func (betsapi *BetsapiCrawler) GetLeagues(sportId string, countryCode string, pa
 	return leagues, nil
 }
 
-func (betsapi *BetsapiCrawler) GetLeagueTable(leagueId string) {
+func (betsapi *BetsapiWrapper) GetLeagueTable(leagueId string) {
 
 }
 
-func (betsapi *BetsapiCrawler) GetLeagueTopList(leagueId string) {
+func (betsapi *BetsapiWrapper) GetLeagueTopList(leagueId string) {
 
 }
 
-func (betsapi *BetsapiCrawler) GetTeams(sportId string) {
+func (betsapi *BetsapiWrapper) GetTeams(sportId string) {
 
 }
 
-func (betsapi *BetsapiCrawler) GetTeamSquad(teamId string) {
+func (betsapi *BetsapiWrapper) GetTeamSquad(teamId string) {
 
 }
 
-func (betsapi *BetsapiCrawler) GetPlayerInfo(playerId string) {
+func (betsapi *BetsapiWrapper) GetPlayerInfo(playerId string) {
 
 }
 
-func (betsapi *BetsapiCrawler) GetTennisRanking(typeId string) {
+func (betsapi *BetsapiWrapper) GetTennisRanking(typeId string) {
 
 }
 
-//func (betsapi *BetsapiCrawler) GetHotFootballEvents() {
+//func (betsapi *BetsapiWrapper) GetHotFootballEvents() {
 //	for _, event := range betsapi.FootballEvents {
 //		if isDangerousAttacks(event.FootballStatistics.DangerousAttacks) && isShots(event.OnTarget, event.OffTarget) {
 //			prettifyFootballEventOutput(event)
@@ -691,12 +691,12 @@ func (betsapi *BetsapiCrawler) GetTennisRanking(typeId string) {
 //	}
 //}
 
-var betsapiCrawlerInstance *BetsapiCrawler
+var betsapiCrawlerInstance *BetsapiWrapper
 var getBetsapiCrawlerOnce sync.Once
 
-func GetBetsapiCrawler() *BetsapiCrawler {
+func GetBetsapiWrapper() *BetsapiWrapper {
 	getBetsapiCrawlerOnce.Do(func() {
-		betsapiCrawlerInstance = &BetsapiCrawler{}
+		betsapiCrawlerInstance = &BetsapiWrapper{}
 		err := betsapiCrawlerInstance.Init()
 		if err != nil {
 			log.Panicf("Cannot init betsapi crawler: %v", err)

@@ -1,6 +1,6 @@
 package utils
 
-import "betsapiScrapper/types"
+import "betsapiScrapper/src/types"
 
 func UpdateStringSlice(idxsToDelete []int, slice []string) []string {
 	var newSlice []string

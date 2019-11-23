@@ -12,6 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"go.mongodb.org/mongo-driver/mongo/writeconcern"
 	"gopkg.in/square/go-jose.v2/json"
+	"os"
 	"reflect"
 	"strings"
 	"sync"
@@ -326,4 +327,15 @@ func (m *MongoWrapper) getCollection(tableName string, ignoreAcknowledgement boo
 	} else {
 		return m.database.Collection(tableName)
 	}
+}
+
+var mongoInstance *MongoWrapper
+var getMongoInstanceOnce sync.Once
+
+func GetMongoWrapper() *MongoWrapper {
+	getMongoInstanceOnce.Do(func() {
+		mongoInstance = &MongoWrapper{}
+		mongoInstance.Connect(os.Getenv("MONGO_CONNECTION_STRING"), DefaultMongoDatabase)
+	})
+	return mongoInstance
 }
