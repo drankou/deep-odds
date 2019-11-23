@@ -1,14 +1,14 @@
 package main
 
 import (
-	"betsapiScrapper/crawler"
+	"betsapiScrapper/betsapi"
 	"log"
 )
 
 func main() {
 	betsapiCrawler := betsapi.BetsapiCrawler{}
 	err := betsapiCrawler.Init()
-	if err != nil{
+	if err != nil {
 		log.Fatal(err)
 	}
 }

@@ -128,7 +128,7 @@ func TestBetsapiCrawler_GetEventView(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	footballEvent := result.(types.FootballEvent)
+	footballEvent := result.(types.FootballEventResults)
 	t.Logf("%+v", footballEvent)
 }
 
@@ -170,7 +170,7 @@ func TestBetsapiCrawler_GetEndedEvents(t *testing.T) {
 	}
 	log.SetLevel(log.DebugLevel)
 
-	endedEvents, err := betsapi.GetEndedEvents(types.SoccerId, "", "", "by", "", "1")
+	endedEvents, err := betsapi.GetEndedEvents(types.SoccerId, "", "", "kw", "", "1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -185,12 +185,16 @@ func TestBetsapiCrawler_GetEndedEvents_Day(t *testing.T) {
 	}
 	log.SetLevel(log.DebugLevel)
 
-	date := "20190610"
-	endedEvents, err := betsapi.GetEndedEvents(types.SoccerId, "", "", "", date, "1")
+	date := "20191123"
+	endedEvents, err := betsapi.GetEndedEvents(types.SoccerId, "", "", "kw", date, "1")
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("Number of ended events on %s: %d", date, len(endedEvents))
+	for _, event := range endedEvents{
+		event.Clean()
+		t.Logf("%+v", event)
+	}
 }
 
 func TestBetsapiCrawler_GetEventOdds(t *testing.T) {
