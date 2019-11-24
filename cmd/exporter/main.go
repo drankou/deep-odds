@@ -27,7 +27,7 @@ func main() {
 
 
 	for i := 1; i < 1665; i++{
-		leagueId := strconv.FormatInt(i, 10)
+		leagueId := strconv.FormatInt(int64(i), 10)
 		betsapiExporter.ExportFootballEventsByLeague(leagueId)
 
 	}
