@@ -9,13 +9,14 @@ import (
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strconv"
 	"sync"
 	"time"
 )
 
 const API_URL string = "https://api.betsapi.com"
-const API_TOKEN string = "25493-YejsbOXuvVD4Ue"
+var API_TOKEN = os.Getenv("BETSAPI_TOKEN")
 
 const (
 	//https://betsapi.com/docs/events/inplay.html
