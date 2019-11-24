@@ -16,7 +16,6 @@ import (
 )
 
 const API_URL string = "https://api.betsapi.com"
-var API_TOKEN = os.Getenv("BETSAPI_TOKEN")
 
 const (
 	//https://betsapi.com/docs/events/inplay.html
@@ -142,7 +141,7 @@ func (betsapi *BetsapiWrapper) GetInPlayEvents(sportId string) ([]types.Event, e
 
 	//encode query parameters
 	q := req.URL.Query()
-	q.Add("token", API_TOKEN)
+	q.Add("token", os.Getenv("BETSAPI_TOKEN"))
 	q.Add("sport_id", sportId)
 	req.URL.RawQuery = q.Encode()
 
@@ -187,7 +186,7 @@ func (betsapi *BetsapiWrapper) GetUpcomingEvents(sportId, leagueId, teamId, coun
 
 	//encode query parameters
 	q := req.URL.Query()
-	q.Add("token", API_TOKEN)
+	q.Add("token", os.Getenv("BETSAPI_TOKEN"))
 	q.Add("sport_id", sportId)
 	q.Add("league_id", leagueId)
 	q.Add("team_id", teamId)
@@ -295,7 +294,7 @@ func (betsapi *BetsapiWrapper) GetEventView(eventId string) (*types.Event, error
 
 	//encode query parameters
 	q := req.URL.Query()
-	q.Add("token", API_TOKEN)
+	q.Add("token", os.Getenv("BETSAPI_TOKEN"))
 	q.Add("event_id", eventId)
 	req.URL.RawQuery = q.Encode()
 
@@ -360,7 +359,7 @@ func (betsapi *BetsapiWrapper) GetEventHistory(eventId string, qty string) (*typ
 
 	//encode query parameters
 	q := req.URL.Query()
-	q.Add("token", API_TOKEN)
+	q.Add("token", os.Getenv("BETSAPI_TOKEN"))
 	q.Add("event_id", eventId)
 	q.Add("qty", qty)
 
@@ -403,7 +402,7 @@ func (betsapi *BetsapiWrapper) GetEventOdds(eventId string) (*types.Odds, error)
 
 	//encode query parameters
 	q := req.URL.Query()
-	q.Add("token", API_TOKEN)
+	q.Add("token", os.Getenv("BETSAPI_TOKEN"))
 	q.Add("event_id", eventId)
 
 	req.URL.RawQuery = q.Encode()
@@ -450,7 +449,7 @@ func (betsapi *BetsapiWrapper) GetEndedEvents(sportId, leagueId, teamId, country
 
 	//encode query parameters
 	q := req.URL.Query()
-	q.Add("token", API_TOKEN)
+	q.Add("token", os.Getenv("BETSAPI_TOKEN"))
 	q.Add("sport_id", sportId)
 	q.Add("league_id", leagueId)
 	q.Add("team_id", teamId)
@@ -518,7 +517,7 @@ func (betsapi *BetsapiWrapper) GetEventStatsTrend(eventId string) (*types.StatsT
 
 	//encode query parameters
 	q := req.URL.Query()
-	q.Add("token", API_TOKEN)
+	q.Add("token", os.Getenv("BETSAPI_TOKEN"))
 	q.Add("event_id", eventId)
 
 	req.URL.RawQuery = q.Encode()
@@ -572,7 +571,7 @@ func (betsapi *BetsapiWrapper) GetLeagues(sportId string, countryCode string, pa
 	q := req.URL.Query()
 	q.Add("cc", countryCode)
 	q.Add("page", page)
-	q.Add("token", API_TOKEN)
+	q.Add("token", os.Getenv("BETSAPI_TOKEN"))
 	q.Add("sport_id", sportId)
 
 	req.URL.RawQuery = q.Encode()
