@@ -1,7 +1,7 @@
 package main
 
 import (
-	"betsapiScrapper/src/exporter"
+	"betsapi_scrapper/exporter"
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"strconv"

@@ -7,7 +7,7 @@ import (
 )
 
 func TestExporter_Init(t *testing.T) {
-	os.Setenv("MONGO_CONNECTION_STRING", "mongodb://localhost:27017")
+	os.Setenv("MONGO_CONNECTION_STRING", "mongodb+srv://alex:rffBz9nRs8H8N@betsapi-data-ksacs.gcp.mongodb.net/test?retryWrites=true&w=majority")
 
 	e := Exporter{}
 	err := e.Init()

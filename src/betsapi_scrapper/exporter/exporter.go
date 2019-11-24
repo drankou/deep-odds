@@ -1,9 +1,9 @@
 package exporter
 
 import (
-	"betsapiScrapper/src/betsapi"
-	"betsapiScrapper/src/storage"
-	"betsapiScrapper/src/types"
+	"betsapi_scrapper/betsapi"
+	"betsapi_scrapper/storage"
+	"betsapi_scrapper/types"
 	log "github.com/sirupsen/logrus"
 )
 

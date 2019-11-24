@@ -1,7 +1,7 @@
 package betsapi
 
 import (
-	"betsapiScrapper/src/types"
+	"betsapi_scrapper/types"
 	"context"
 	"encoding/json"
 	"fmt"
