@@ -28,13 +28,17 @@ func (odds *Odds) Clean() {
 }
 
 type Result struct {
-	Id      string `json:"id" bson:"id"`
-	HomeOdd string `json:"home_od" bson:"home_odds"`
-	DrawOdd string `json:"draw_od" bson:"draw_odds"`
-	AwayOdd string `json:"away_od" bson:"away_odds"`
+	Id string `json:"id" bson:"id"`
+	ResultOdds
 	Score   string `json:"ss" bson:"score"`
 	Minute  string `json:"time_str" bson:"minute"`
 	AddTime string `json:"add_time" bson:"add_time"`
+}
+
+type ResultOdds struct {
+	HomeOdd string `json:"home_od" bson:"home_odds"`
+	DrawOdd string `json:"draw_od" bson:"draw_odds"`
+	AwayOdd string `json:"away_od" bson:"away_odds"`
 }
 
 func RemoveDuplicitResultOdds(resultOdds []Result) []Result {
@@ -50,14 +54,29 @@ func RemoveDuplicitResultOdds(resultOdds []Result) []Result {
 	return resultList
 }
 
+//TODO missing minutes fixed with near values
+func AddMissingResultOdds(resultOdds []Result) []Result {
+	var resultList []Result
+	minuteOdds := make(map[string]ResultOdds)
+	for _, entry := range resultOdds {
+		minuteOdds[entry.Minute] = entry.ResultOdds
+	}
+
+	return resultList
+}
+
 type AsianHandicapResult struct {
-	Id       string `json:"id" bson:"id"`
+	Id string `json:"id" bson:"id"`
+	AsianHandicapResultOdds
+	Score   string `json:"ss" bson:"score"`
+	Minute  string `json:"time_str" bson:"minute"`
+	AddTime string `json:"add_time" bson:"add_time"`
+}
+
+type AsianHandicapResultOdds struct {
 	HomeOdd  string `json:"home_od" bson:"home_odds"`
 	Handicap string `json:"handicap" bson:"handicap"`
 	AwayOdd  string `json:"away_od" bson:"away_odds"`
-	Score    string `json:"ss" bson:"score"`
-	Minute   string `json:"time_str" bson:"minute"`
-	AddTime  string `json:"add_time" bson:"add_time"`
 }
 
 func RemoveDuplicitAsianHandicapResult(resultOdds []AsianHandicapResult) []AsianHandicapResult {
@@ -74,13 +93,17 @@ func RemoveDuplicitAsianHandicapResult(resultOdds []AsianHandicapResult) []Asian
 }
 
 type AsianHandicapTotal struct {
-	Id       string `json:"id" bson:"id"`
+	Id string `json:"id" bson:"id"`
+	AsianHandicapTotalOdds
+	Score   string `json:"ss" bson:"score"`
+	Minute  string `json:"time_str" bson:"minute"`
+	AddTime string `json:"add_time" bson:"add_time"`
+}
+
+type AsianHandicapTotalOdds struct {
 	OverOdd  string `json:"over_od" bson:"over_odds"`
 	Handicap string `json:"handicap" bson:"handicap"`
 	UnderOdd string `json:"under_od" bson:"under_odds"`
-	Score    string `json:"ss" bson:"score"`
-	Minute   string `json:"time_str" bson:"minute"`
-	AddTime  string `json:"add_time" bson:"add_time"`
 }
 
 func RemoveDuplicitAsianHandicapTotal(resultOdds []AsianHandicapTotal) []AsianHandicapTotal {

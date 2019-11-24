@@ -21,9 +21,7 @@ func (e *Exporter) Init() error {
 	return nil
 }
 
-func (e *Exporter) GetFootballEventsByLeague(leagueId string) []*types.FootballEvent {
-	var fooballEvents []*types.FootballEvent
-
+func (e *Exporter) ExportFootballEventsByLeague(leagueId string) {
 	events, err := e.Betsapi.GetEndedEvents(types.SoccerId, leagueId, "", "", "", "")
 	if err != nil {
 		log.Errorf("Exporter: ended events: %s", err)
@@ -33,14 +31,18 @@ func (e *Exporter) GetFootballEventsByLeague(leagueId string) []*types.FootballE
 
 	//fill additional info about events
 	for _, event := range events {
-		footballEvent := e.EventToFootballEvent(&event)
-		fooballEvents = append(fooballEvents, footballEvent)
-	}
+		footballEvent := e.GetFootballEventById(event.Id)
 
-	return fooballEvents
+		//save event to mongo
+		err := e.SaveFootballEventToMongo(footballEvent)
+		if err != nil {
+			log.Errorf("Mongo error: %s", err)
+		}
+	}
 }
 
 func (e *Exporter) GetFootballEventById(eventId string) *types.FootballEvent {
+	//calling event view because ended events could return event with missing data
 	event, err := e.Betsapi.GetEventView(eventId)
 	if err != nil {
 		log.Errorf("Exporter: event view: %s", err)
@@ -49,9 +51,13 @@ func (e *Exporter) GetFootballEventById(eventId string) *types.FootballEvent {
 	//fill additional info about event
 	footballEvent := e.EventToFootballEvent(event)
 
+	//clean unnecessary data
+	footballEvent.Clean()
+
 	return footballEvent
 }
 
+//Request for stats, odds and history of given event
 func (e *Exporter) EventToFootballEvent(event *types.Event) *types.FootballEvent {
 	statsTrend, err := e.Betsapi.GetEventStatsTrend(event.Id)
 	if err != nil {
@@ -80,11 +86,13 @@ func (e *Exporter) EventToFootballEvent(event *types.Event) *types.FootballEvent
 	return footballEvent
 }
 
-func (e *Exporter) SaveFootballEvent(footballEvent types.FootballEvent) {
+func (e *Exporter) SaveFootballEventToMongo(footballEvent *types.FootballEvent) error {
 	_, err := e.Mongo.Insert("football_event", footballEvent)
 	if err != nil {
-		log.Error(err)
+		return err
 	}
 
 	log.Info("mongo: entry inserted: ", footballEvent.Event.Id)
+
+	return nil
 }

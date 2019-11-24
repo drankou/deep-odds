@@ -4,7 +4,10 @@ import (
 	"betsapiScrapper/src/exporter"
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
+	"strconv"
 )
+
+const LeaguesTotal = 1665
 
 func main() {
 	//Load environmental variables
@@ -21,4 +24,11 @@ func main() {
 	}
 
 	log.Info("Exporter initialized")
+
+
+	for i := 1; i < 1665; i++{
+		leagueId := strconv.FormatInt(i, 10)
+		betsapiExporter.ExportFootballEventsByLeague(leagueId)
+
+	}
 }

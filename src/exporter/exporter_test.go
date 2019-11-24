@@ -25,15 +25,17 @@ func TestExporter_GetFootballEventById(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	footballEvent := e.GetFootballEventById("1679316")
+	footballEvent := e.GetFootballEventById("196381")
 	if footballEvent == nil {
 		t.Fatal("Empty result")
 	}
 
+	footballEvent.Clean()
 	log.Printf("Event:%+v", footballEvent.Event)
 	log.Printf("Odds:%+v", footballEvent.Odds)
 	log.Printf("History:%+v", footballEvent.History)
 	log.Printf("StatsTrend:%+v", footballEvent.StatsTrend)
+	e.SaveFootballEventToMongo(footballEvent)
 }
 
 func TestExporter_GetFootballEventsByLeague(t *testing.T) {
@@ -45,8 +47,5 @@ func TestExporter_GetFootballEventsByLeague(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	footballEvents := e.GetFootballEventsByLeague("176")
-	if len(footballEvents) == 0 {
-		t.Fatal("Empty result")
-	}
+	e.ExportFootballEventsByLeague("94")
 }
