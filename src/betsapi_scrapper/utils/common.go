@@ -1,7 +1,5 @@
 package utils
 
-import "betsapi_scrapper/types"
-
 func UpdateStringSlice(idxsToDelete []int, slice []string) []string {
 	var newSlice []string
 	var start int
@@ -28,20 +26,6 @@ func UpdateIntSlice(idxsToDelete []int, slice []int) []int {
 	newSlice = append(newSlice, slice[start:]...)
 
 	return newSlice
-}
-
-// Remove duplicities and empty strings from list of keywords
-func RemoveDuplicitOdds(odds []types.IOdds) []types.IOdds {
-	var resultList []types.IOdds
-	keys := make(map[string]bool)
-	for _, entry := range odds {
-		if _, value := keys[entry.GetTime()]; !value && entry.GetTime() != "" && entry.GetHome() != "-" && entry.GetAway() != "-" && entry.GetValue() != "-" {
-			keys[entry.GetTime()] = true
-			resultList = append(resultList, entry)
-		}
-	}
-
-	return resultList
 }
 
 // Remove duplicities and empty strings from list of keywords

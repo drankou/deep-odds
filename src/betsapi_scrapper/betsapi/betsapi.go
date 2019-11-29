@@ -348,7 +348,7 @@ func (betsapi *BetsapiWrapper) GetEventView(eventId string) (*types.Event, error
 		return nil, errors.Errorf("Error: %d: request: /event/view", resp.StatusCode)
 	}
 
-	return nil, nil
+	return nil, errors.Errorf("Error: %d: request: /event/view", resp.StatusCode)
 }
 
 func (betsapi *BetsapiWrapper) GetEventHistory(eventId string, qty string) (*types.EventHistory, error) {

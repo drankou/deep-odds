@@ -33,10 +33,12 @@ func (e *Exporter) ExportFootballEventsByLeague(leagueId string) {
 	for _, event := range events {
 		footballEvent := e.GetFootballEventById(event.Id)
 
-		//save event to mongo
-		err := e.SaveFootballEventToMongo(footballEvent)
-		if err != nil {
-			log.Errorf("Mongo error: %s", err)
+		if footballEvent != nil{
+			//save event to mongo
+			err := e.SaveFootballEventToMongo(footballEvent)
+			if err != nil {
+				log.Errorf("Mongo error: %s", err)
+			}
 		}
 	}
 }
@@ -46,6 +48,7 @@ func (e *Exporter) GetFootballEventById(eventId string) *types.FootballEvent {
 	event, err := e.Betsapi.GetEventView(eventId)
 	if err != nil {
 		log.Errorf("Exporter: event view: %s", err)
+		return nil
 	}
 
 	//fill additional info about event
