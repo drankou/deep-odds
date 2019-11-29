@@ -484,7 +484,7 @@ func (betsapi *BetsapiWrapper) GetEndedEvents(sportId, leagueId, teamId, country
 			actualPage := betsapiResponse.Pager.Page
 			perPage := betsapiResponse.Pager.PerPage
 			total := betsapiResponse.Pager.Total
-			log.Infof("Ended events: %d/%d", perPage*actualPage, total)
+			log.Debugf("Ended events: %d/%d", perPage*actualPage, total)
 			if actualPage == 100 {
 				log.Warn("Warning: max page limit", resp.StatusCode)
 				return endedEvents, nil

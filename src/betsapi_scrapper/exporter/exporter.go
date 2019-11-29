@@ -27,6 +27,7 @@ func (e *Exporter) ExportFootballEventsByLeague(leagueId string) {
 		log.Errorf("Exporter: ended events: %s", err)
 	}
 
+	log.Info("Crawling ended events for league: %s", leagueId)
 	log.Info("Number of ended events for league: ", len(events))
 
 	//fill additional info about events
