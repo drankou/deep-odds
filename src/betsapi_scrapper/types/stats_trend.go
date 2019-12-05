@@ -8,7 +8,7 @@ type StatsTrend struct {
 	OnTarget         StatsTrendValue `json:"on_target" bson:"on_target"`
 	Corners          StatsTrendValue `json:"corners" bson:"corners"`
 	Goals            StatsTrendValue `json:"goals" bson:"goals"`
-	YellowCards      StatsTrendValue `json:"yellow_cards" bson:"yellow_cards"`
+	YellowCards      StatsTrendValue `json:"yellowcards" bson:"yellow_cards"`
 	RedCards         StatsTrendValue `json:"redcards" bson:"red_cards"`
 	Substitutions    StatsTrendValue `json:"substitutions" bson:"substitutions"`
 }
