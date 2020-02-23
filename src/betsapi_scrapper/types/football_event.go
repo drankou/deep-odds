@@ -2,10 +2,17 @@ package types
 
 //aggregated data about football event
 type FootballEvent struct {
-	Event      *Event        `json:"event" bson:"event"`
-	History    *EventHistory `json:"history" bson:"history"`
-	Odds       *Odds         `json:"odds" bson:"odds"`
-	StatsTrend *StatsTrend   `json:"stats_trend" bson:"stats_trend"`
+	Event      *Event        `json:"event,omitempty" bson:"event"`
+	History    *EventHistory `json:"history,omitempty" bson:"history"`
+	Odds       *Odds         `json:"odds,omitempty" bson:"odds"`
+	StatsTrend *StatsTrend   `json:"stats_trend,omitempty" bson:"stats_trend"`
+}
+
+type NewFootballEvent struct {
+	Event      *NewEvent        `json:"event,omitempty" bson:"event"`
+	History    *NewEventHistory `json:"history,omitempty" bson:"history"`
+	Odds       *NewOdds         `json:"odds,omitempty" bson:"odds"`
+	StatsTrend *NewStatsTrend   `json:"stats_trend,omitempty" bson:"stats_trend"`
 }
 
 func (f *FootballEvent) Clean() {
@@ -24,4 +31,15 @@ func (f *FootballEvent) Clean() {
 	if f.StatsTrend != nil {
 		f.StatsTrend.Clean()
 	}
+}
+
+func (f *FootballEvent) ToNew() *NewFootballEvent {
+	new := &NewFootballEvent{
+		Event:      f.Event.ToNew(),
+		History:    f.History.ToNew(),
+		Odds:       f.Odds.ToNew(),
+		StatsTrend: f.StatsTrend.ToNew(),
+	}
+
+	return new
 }
