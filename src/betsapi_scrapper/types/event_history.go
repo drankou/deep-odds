@@ -7,19 +7,23 @@ type EventHistory struct {
 }
 
 func (eventHistory *EventHistory) ToNew() *NewEventHistory {
+	if eventHistory == nil{
+		return nil
+	}
+
 	var h2h []*NewEvent
-	for _, h2hEvent := range eventHistory.H2H {
-		h2h = append(h2h, h2hEvent.ToNew())
+	for i := range eventHistory.H2H {
+		h2h = append(h2h, eventHistory.H2H[i].ToNew())
 	}
 
 	var home []*NewEvent
-	for _, homeEvent := range eventHistory.H2H {
-		home = append(h2h, homeEvent.ToNew())
+	for i := range eventHistory.Home {
+		home = append(h2h, eventHistory.Home[i].ToNew())
 	}
 
 	var away []*NewEvent
-	for _, awayEvent := range eventHistory.H2H {
-		away = append(h2h, awayEvent.ToNew())
+	for i := range eventHistory.Away {
+		away = append(h2h, eventHistory.Away[i].ToNew())
 	}
 
 	return &NewEventHistory{

@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -270,7 +271,7 @@ func (betsapi *BetsapiWrapper) GetStartingEvents(sportId string, minuteThreshold
 	}
 
 	for _, event := range inPlayEvents {
-		minutes, _ := event.Timer.Minutes.Int64()
+		minutes, _ := strconv.ParseInt(event.Timer.Minutes, 10, 64)
 		if event.TimeStatus == "0" || minutes < minuteThreshold {
 			startingEvents = append(startingEvents, event)
 			if event.SportId == sportId {
@@ -420,6 +421,9 @@ func (betsapi *BetsapiWrapper) GetEventOdds(eventId string) (*types.Odds, error)
 		if err != nil {
 			return nil, err
 		}
+
+		//replace "-" in odds to get Unmarshaling compatibility
+		data = []byte(strings.Replace(string(data), `"-"`, `"-1"`, -1))
 
 		err = json.Unmarshal(data, &betsapiResponse)
 		if err != nil {

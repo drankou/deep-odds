@@ -4,6 +4,7 @@ import (
 	"betsapi_scrapper/betsapi"
 	"betsapi_scrapper/storage"
 	"betsapi_scrapper/types"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -34,7 +35,7 @@ func (e *Exporter) ExportFootballEventsByLeague(leagueId string) {
 	for _, event := range events {
 		footballEvent := e.GetFootballEventById(event.Id)
 
-		if footballEvent != nil{
+		if footballEvent != nil {
 			//save event to mongo
 			err := e.SaveFootballEventToMongo(footballEvent)
 			if err != nil {
@@ -88,6 +89,18 @@ func (e *Exporter) EventToFootballEvent(event *types.Event) *types.FootballEvent
 	}
 
 	return footballEvent
+}
+
+func (e *Exporter) UpdateFootballEventStatsTrend(footballEvent *types.FootballEvent) error {
+	statsTrend, err := e.Betsapi.GetEventStatsTrend(footballEvent.Event.Id)
+	if err != nil {
+		return errors.Errorf("Exporter: event stats: %s: eventId: %s", err, footballEvent.Event.Id)
+	}
+
+	log.Info("mongo: entry updated: ", footballEvent.Event.Id)
+	footballEvent.StatsTrend = statsTrend
+
+	return nil
 }
 
 func (e *Exporter) SaveFootballEventToMongo(footballEvent *types.FootballEvent) error {

@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"betsapi_scrapper/types"
 	"context"
 	"errors"
 	"fmt"
@@ -9,12 +10,9 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"go.mongodb.org/mongo-driver/mongo/writeconcern"
-	"gopkg.in/square/go-jose.v2/json"
 	"os"
 	"reflect"
-	"strings"
 	"sync"
 	"time"
 )
@@ -45,7 +43,7 @@ func (m *MongoWrapper) Connect(connectionString string, database string) {
 	// since the above note, we need to check the connection with ping functionality, after this point the db state
 	// could be described as ready
 	pingCtx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	pingErr := client.Ping(pingCtx, readpref.PrimaryPreferred())
+	pingErr := client.Ping(pingCtx, nil)
 	if pingErr != nil {
 		log.Fatalf("mongo - cannot connect(2): %v", pingErr)
 	}
@@ -55,22 +53,7 @@ func (m *MongoWrapper) Connect(connectionString string, database string) {
 	m.database = m.client.Database(database)
 }
 
-func (m *MongoWrapper) prepareInsertionData(data interface{}) (map[string]interface{}, error) {
-	jsoned, marshalErr := json.Marshal(data)
-	if marshalErr != nil {
-		return nil, marshalErr
-	}
-
-	mapFormat := map[string]interface{}{}
-	unmarshalErr := json.Unmarshal(jsoned, &mapFormat)
-	if unmarshalErr != nil {
-		return nil, unmarshalErr
-	}
-	return mapFormat, nil
-}
-
 func (m *MongoWrapper) Insert(tableName string, data interface{}) (interface{}, error) {
-
 	collection := m.getCollection(tableName, false)
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 
@@ -80,68 +63,6 @@ func (m *MongoWrapper) Insert(tableName string, data interface{}) (interface{}, 
 	} else {
 		return res.InsertedID, nil
 	}
-}
-
-func (m *MongoWrapper) InsertInterface(tableName string, data interface{}) (interface{}, error) {
-
-	collection := m.getCollection(tableName, false)
-	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
-
-	res, insertErr := collection.InsertOne(ctx, data)
-	if insertErr != nil {
-		return "", insertErr
-	} else {
-		return res.InsertedID, nil
-	}
-}
-
-func (m *MongoWrapper) InsertBulk(tableName string, data []interface{}) (interface{}, error) {
-	var dictDatas []interface{}
-	for _, singleItem := range data {
-		dictDatas = append(dictDatas, singleItem)
-	}
-
-	collection := m.getCollection(tableName, false)
-	ctx := context.Background()
-
-	bulkOrdered := false //continue if dupl error
-
-	for i := 0; i < 3; i++ {
-		res, insertErr := collection.InsertMany(ctx, dictDatas, &options.InsertManyOptions{Ordered: &bulkOrdered})
-		if insertErr != nil && strings.Contains(insertErr.Error(), "unable to write wire message to network") {
-			log.Info(i, "# try")
-			continue
-		} else if insertErr == mongo.ErrUnacknowledgedWrite {
-			return 0, nil
-		} else if insertErr != nil {
-			return "", insertErr
-		} else {
-			return res.InsertedIDs, nil
-		}
-	}
-	return 0, errors.New("cannot write command InsertMany")
-}
-
-func (m *MongoWrapper) InsertBulkInterface(tableName string, data []interface{}) (interface{}, error) {
-	collection := m.getCollection(tableName, false)
-	ctx := context.Background()
-
-	bulkOrdered := false  //continue if dupl error
-
-	for i := 0; i < 3; i++ {
-		res, insertErr := collection.InsertMany(ctx, data, &options.InsertManyOptions{Ordered: &bulkOrdered})
-		if insertErr != nil && strings.Contains(insertErr.Error(), "unable to write wire message to network") {
-			log.Info(i, "# try")
-			continue
-		} else if insertErr == mongo.ErrUnacknowledgedWrite {
-			return 0, nil
-		} else if insertErr != nil {
-			return "", insertErr
-		} else {
-			return res.InsertedIDs, nil
-		}
-	}
-	return 0, errors.New("cannot write command InsertMany")
 }
 
 func (m *MongoWrapper) CreateCollection(tableName string) *mongo.Collection {
@@ -322,11 +243,40 @@ func (m *MongoWrapper) DeleteMany(tableName string, filter interface{}) (int64, 
 }
 
 func (m *MongoWrapper) getCollection(tableName string, ignoreAcknowledgement bool) *mongo.Collection {
+	if os.Getenv("ENVIRONMENT") != "prod" {
+		tableName = "dev-" + tableName
+	}
+
 	if ignoreAcknowledgement {
 		return m.database.Collection(tableName, &options.CollectionOptions{WriteConcern: writeconcern.New(writeconcern.W(0), writeconcern.J(false))})
 	} else {
 		return m.database.Collection(tableName)
 	}
+}
+
+func (m *MongoWrapper) GetFootballEvents(filter map[string]interface{}) ([]*types.FootballEvent, error) {
+	entries, err := m.ReadAll("football_event", reflect.TypeOf(types.FootballEvent{}), filter)
+	if err != nil {
+		return nil, err
+	}
+
+	events := entriesToEvents(entries)
+
+	return events, err
+}
+
+func entriesToEvents(entries []interface{}) []*types.FootballEvent {
+	var events []*types.FootballEvent
+	for _, entry := range entries {
+		event, ok := entry.(*types.FootballEvent)
+		if !ok {
+			log.Error("wrong type assertion")
+			continue
+		}
+		events = append(events, event)
+	}
+
+	return events
 }
 
 var mongoInstance *MongoWrapper

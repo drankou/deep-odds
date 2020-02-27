@@ -21,6 +21,10 @@ type Event struct {
 }
 
 func (event *Event) ToNew() *NewEvent {
+	if event == nil{
+		return nil
+	}
+
 	timestamp, err := strconv.ParseInt(event.Time, 10, 64)
 	if err != nil {
 		logrus.Error(err)
@@ -28,8 +32,19 @@ func (event *Event) ToNew() *NewEvent {
 	}
 
 	var eventViewEvents []*EventViewEvent
-	for _, eventView := range event.Events {
-		eventViewEvents = append(eventViewEvents, &eventView)
+	for i := range event.Events {
+		eventViewEvents = append(eventViewEvents, &event.Events[i])
+	}
+
+	timeStatus, err := strconv.ParseInt(event.TimeStatus, 10, 64)
+	if err != nil {
+		logrus.Error(err)
+		return nil
+	}
+
+	var newTimer *NewTimer
+	if timeStatus < 2 {
+		newTimer = event.Timer.ToNew()
 	}
 
 	return &NewEvent{
@@ -41,7 +56,7 @@ func (event *Event) ToNew() *NewEvent {
 		HomeTeam:   &event.HomeTeam,
 		AwayTeam:   &event.AwayTeam,
 		League:     &event.League,
-		Timer:      event.Timer.ToNew(),
+		Timer:      newTimer,
 		ExtraInfo:  event.ExtraInfo.ToNew(),
 		Events:     eventViewEvents,
 		HasLineup:  event.HasLineup,
@@ -49,18 +64,18 @@ func (event *Event) ToNew() *NewEvent {
 }
 
 type NewEvent struct {
-	Id         string            `json:"id" bson:"id"`
-	Time       int64             `json:"time,string" bson:"time"`
-	SportId    string            `json:"sport_id" bson:"sport_id"`
-	TimeStatus string            `json:"time_status" bson:"time_status"`
-	Score      string            `json:"ss" bson:"score"`
-	HomeTeam   *Team             `json:"home" bson:"home_team"`
-	AwayTeam   *Team             `json:"away" bson:"away_team"`
-	League     *League           `json:"league" bson:"league"`
-	Timer      *NewTimer         `json:"timer" bson:"-"`
-	ExtraInfo  *NewExtraInfo     `json:"extra,omitempty" bson:"extra_info"`
-	Events     []*EventViewEvent `json:"events,omitempty"`
-	HasLineup  int               `json:"has_lineup,omitempty" bson:"has_lineup"`
+	Id         string            `json:"id" bson:"id,omitempty"`
+	Time       int64             `json:"time,string" bson:"time,omitempty"`
+	SportId    string            `json:"sport_id" bson:"sport_id,omitempty"`
+	TimeStatus string            `json:"time_status" bson:"time_status,omitempty"`
+	Score      string            `json:"ss" bson:"score,omitempty"`
+	HomeTeam   *Team             `json:"home" bson:"home_team,omitempty"`
+	AwayTeam   *Team             `json:"away" bson:"away_team,omitempty"`
+	League     *League           `json:"league" bson:"league,omitempty"`
+	Timer      *NewTimer         `json:"timer" bson:"-,omitempty"`
+	ExtraInfo  *NewExtraInfo     `json:"extra,omitempty" bson:"extra_info,omitempty"`
+	Events     []*EventViewEvent `json:"events,omitempty" bson:"events,omitempty"`
+	HasLineup  int               `json:"has_lineup,omitempty" bson:"has_lineup,omitempty"`
 }
 
 func (event *Event) Clean() {
@@ -74,16 +89,16 @@ func (event *Event) Clean() {
 }
 
 type Team struct {
-	Id   string `json:"id" bson:"id"`
-	Name string `json:"name" bson:"name"`
+	Id   string `json:"id" bson:"id,omitempty"`
+	Name string `json:"name" bson:"name,omitempty"`
 	//ImageId     json.Number `json:"image_id" bson:"-"`
-	CountryCode string `json:"cc" bson:"country_code"`
+	CountryCode string `json:"cc" bson:"country_code,omitempty"`
 }
 
 type League struct {
-	Id          string `json:"id" bson:"id"`
-	Name        string `json:"name" bson:"name"`
-	CountryCode string `json:"cc" bson:"country_code"`
+	Id          string `json:"id" bson:"id,omitempty"`
+	Name        string `json:"name" bson:"name,omitempty"`
+	CountryCode string `json:"cc" bson:"country_code,omitempty"`
 }
 
 type Timer struct {
@@ -96,20 +111,17 @@ type Timer struct {
 func (timer *Timer) ToNew() *NewTimer {
 	active, err := strconv.ParseInt(timer.Active, 10, 64)
 	if err != nil {
-		logrus.Error(err)
-		return nil
+		logrus.Error("timer.active", err)
 	}
 
 	minutes, err := strconv.ParseInt(timer.Minutes, 10, 64)
 	if err != nil {
-		logrus.Error(err)
-		return nil
+		logrus.Error("timer.minutes", err)
 	}
 
 	seconds, err := strconv.ParseInt(timer.Seconds, 10, 64)
 	if err != nil {
-		logrus.Error(err)
-		return nil
+		logrus.Error("timer.seconds", err)
 	}
 
 	return &NewTimer{
@@ -122,9 +134,9 @@ func (timer *Timer) ToNew() *NewTimer {
 
 type NewTimer struct {
 	Active    int64 `json:"tt,string" bson:"-"`
-	Minutes   int64 `json:"tm,string" bson:"minutes"`
-	Seconds   int64 `json:"ts,string" bson:"seconds"`
-	AddedTime int64 `json:"ta" bson:"added_time"`
+	Minutes   int64 `json:"tm,string" bson:"minutes,omitempty"`
+	Seconds   int64 `json:"ts,string" bson:"seconds,omitempty"`
+	AddedTime int64 `json:"ta" bson:"added_time,omitempty"`
 }
 
 type EventViewEvent struct {
@@ -144,6 +156,10 @@ type ExtraInfo struct {
 }
 
 func (info *ExtraInfo) ToNew() *NewExtraInfo {
+	if info == nil{
+		return nil
+	}
+
 	var homeManager *Manager
 	if info.HomeManager.Name != "" {
 		homeManager = &info.HomeManager
@@ -161,14 +177,12 @@ func (info *ExtraInfo) ToNew() *NewExtraInfo {
 
 	homePos, err := strconv.ParseInt(info.HomePosition, 10, 64)
 	if err != nil {
-		logrus.Error(err)
-		return nil
+		homePos = 0
 	}
 
 	awayPos, err := strconv.ParseInt(info.AwayPosition, 10, 64)
 	if err != nil {
-		logrus.Error(err)
-		return nil
+		homePos = 0
 	}
 
 	return &NewExtraInfo{

@@ -19,6 +19,10 @@ type StatsTrend struct {
 }
 
 func (stats *StatsTrend) ToNew() *NewStatsTrend {
+	if stats == nil{
+		return nil
+	}
+
 	return &NewStatsTrend{
 		Attacks:          stats.Attacks.ToNew(),
 		DangerousAttacks: stats.DangerousAttacks.ToNew(),
@@ -84,14 +88,12 @@ type StatsTrendTick struct {
 func (stt *StatsTrendTick) ToNew() *NewStatsTrendTick {
 	time, err := strconv.ParseInt(stt.Time, 10, 64)
 	if err != nil {
-		logrus.Error(err)
-		return nil
+		logrus.Error("stt.time", err)
 	}
 
 	value, err := strconv.ParseInt(stt.Value, 10, 64)
 	if err != nil {
-		logrus.Error(err)
-		return nil
+		logrus.Error("stt.value",err)
 	}
 
 	return &NewStatsTrendTick{

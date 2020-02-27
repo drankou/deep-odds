@@ -17,6 +17,10 @@ type Odds struct {
 }
 
 func (odds *Odds) ToNew() *NewOdds {
+	if odds == nil{
+		return nil
+	}
+
 	return &NewOdds{
 		FullTimeResult:         ResultSliceToPointers(odds.FullTimeResult),
 		AsianHandicap:          AsianHandicapResultSliceToPointers(odds.AsianHandicap),
@@ -94,12 +98,12 @@ type Result struct {
 func (result *Result) ToNew() *NewResult {
 	minute, err := strconv.ParseInt(result.Minute, 10, 64)
 	if err != nil {
-		logrus.Error(err)
+		logrus.Error("Result.minute:", err)
 	}
 
 	addTime, err := strconv.ParseInt(result.AddTime, 10, 64)
 	if err != nil {
-		logrus.Error(err)
+		logrus.Error("Result.addtime:", err)
 	}
 
 	return &NewResult{
@@ -114,9 +118,9 @@ func (result *Result) ToNew() *NewResult {
 }
 
 type NewResult struct {
-	Id string `json:"id,omitempty" bson:"-"`
+	Id             string `json:"id,omitempty" bson:"-"`
 	*NewResultOdds `bson:"odds"`
-	*NewOddsInfo `bson:"odds_info"`
+	*NewOddsInfo   `bson:"odds_info"`
 }
 
 type ResultOdds struct {
@@ -128,20 +132,17 @@ type ResultOdds struct {
 func (resultOdds *ResultOdds) ToNew() *NewResultOdds {
 	homeOdds, err := strconv.ParseFloat(resultOdds.HomeOdd, 64)
 	if err != nil {
-		logrus.Error(err)
-		return nil
+		homeOdds = -1
 	}
 
 	awayOdds, err := strconv.ParseFloat(resultOdds.AwayOdd, 64)
 	if err != nil {
-		logrus.Error(err)
-		return nil
+		awayOdds = -1
 	}
 
 	drawOdds, err := strconv.ParseFloat(resultOdds.DrawOdd, 64)
 	if err != nil {
-		logrus.Error(err)
-		return nil
+		drawOdds = -1
 	}
 
 	return &NewResultOdds{
@@ -250,12 +251,12 @@ type AsianHandicapResult struct {
 func (asianRes *AsianHandicapResult) ToNew() *NewAsianHandicapResult {
 	minute, err := strconv.ParseInt(asianRes.Minute, 10, 64)
 	if err != nil {
-		logrus.Error(err)
+		logrus.Error("asianResult.minute:", err)
 	}
 
 	addTime, err := strconv.ParseInt(asianRes.AddTime, 10, 64)
 	if err != nil {
-		logrus.Error(err)
+		logrus.Error("asianResult.addtime:",err)
 	}
 
 	return &NewAsianHandicapResult{
@@ -270,9 +271,9 @@ func (asianRes *AsianHandicapResult) ToNew() *NewAsianHandicapResult {
 }
 
 type NewAsianHandicapResult struct {
-	Id string `json:"id,omitempty" bson:"-"`
+	Id                          string `json:"id,omitempty" bson:"-"`
 	*NewAsianHandicapResultOdds `bson:"odds"`
-	*NewOddsInfo `bson:"odds_info"`
+	*NewOddsInfo                `bson:"odds_info"`
 }
 
 type AsianHandicapResultOdds struct {
@@ -284,14 +285,12 @@ type AsianHandicapResultOdds struct {
 func (odds *AsianHandicapResultOdds) ToNew() *NewAsianHandicapResultOdds {
 	homeOdds, err := strconv.ParseFloat(odds.HomeOdd, 64)
 	if err != nil {
-		logrus.Error(err)
-		return nil
+		homeOdds = -1
 	}
 
 	awayOdds, err := strconv.ParseFloat(odds.AwayOdd, 64)
 	if err != nil {
-		logrus.Error(err)
-		return nil
+		awayOdds = -1
 	}
 
 	return &NewAsianHandicapResultOdds{
@@ -331,12 +330,12 @@ type AsianHandicapTotal struct {
 func (asianTotal *AsianHandicapTotal) ToNew() *NewAsianHandicapTotal {
 	minute, err := strconv.ParseInt(asianTotal.Minute, 10, 64)
 	if err != nil {
-		logrus.Error(err)
+		logrus.Error("asianTotal.minute:", err)
 	}
 
 	addTime, err := strconv.ParseInt(asianTotal.AddTime, 10, 64)
 	if err != nil {
-		logrus.Error(err)
+		logrus.Error("asianTotal.addtime:", err)
 	}
 
 	return &NewAsianHandicapTotal{
@@ -351,9 +350,9 @@ func (asianTotal *AsianHandicapTotal) ToNew() *NewAsianHandicapTotal {
 }
 
 type NewAsianHandicapTotal struct {
-	Id string `json:"id" bson:"-"`
+	Id                         string `json:"id" bson:"-"`
 	*NewAsianHandicapTotalOdds `bson:"odds"`
-	*NewOddsInfo `bson:"odds_info"`
+	*NewOddsInfo               `bson:"odds_info"`
 }
 
 type OddsInfo struct {
@@ -365,14 +364,12 @@ type OddsInfo struct {
 func (oddsInfo *OddsInfo) ToNew() *NewOddsInfo {
 	minute, err := strconv.ParseInt(oddsInfo.Minute, 10, 64)
 	if err != nil {
-		logrus.Error(err)
-		return nil
+		logrus.Error("oddsInfo.minute", err)
 	}
 
 	addTime, err := strconv.ParseInt(oddsInfo.AddTime, 10, 64)
 	if err != nil {
-		logrus.Error(err)
-		return nil
+		logrus.Error("oddsInfo.addtime", err)
 	}
 
 	return &NewOddsInfo{
@@ -397,14 +394,12 @@ type AsianHandicapTotalOdds struct {
 func (odds *AsianHandicapTotalOdds) ToNew() *NewAsianHandicapTotalOdds {
 	homeOdds, err := strconv.ParseFloat(odds.OverOdd, 64)
 	if err != nil {
-		logrus.Error(err)
-		return nil
+		homeOdds = -1
 	}
 
 	awayOdds, err := strconv.ParseFloat(odds.UnderOdd, 64)
 	if err != nil {
-		logrus.Error(err)
-		return nil
+		homeOdds = -1
 	}
 
 	return &NewAsianHandicapTotalOdds{
