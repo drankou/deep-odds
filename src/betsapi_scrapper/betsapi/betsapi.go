@@ -271,8 +271,7 @@ func (betsapi *BetsapiWrapper) GetStartingEvents(sportId string, minuteThreshold
 	}
 
 	for _, event := range inPlayEvents {
-		minutes, _ := strconv.ParseInt(event.Timer.Minutes, 10, 64)
-		if event.TimeStatus == "0" || minutes < minuteThreshold {
+		if event.TimeStatus == "0" || event.Timer.Minutes < minuteThreshold {
 			startingEvents = append(startingEvents, event)
 			if event.SportId == sportId {
 				startingEventBySportId = append(startingEventBySportId, event)
@@ -646,54 +645,6 @@ func (betsapi *BetsapiWrapper) GetPlayerInfo(playerId string) {
 func (betsapi *BetsapiWrapper) GetTennisRanking(typeId string) {
 
 }
-
-//func (betsapi *BetsapiWrapper) GetHotFootballEvents() {
-//	for _, event := range betsapi.FootballEvents {
-//		if isDangerousAttacks(event.FootballStatistics.DangerousAttacks) && isShots(event.OnTarget, event.OffTarget) {
-//			prettifyFootballEventOutput(event)
-//		}
-//	}
-//}
-//
-//func prettifyFootballEventOutput(event types.FootballEventResults) {
-//	fmt.Printf("League: %s\n", event.League.Name)
-//	fmt.Printf("Match: %s - %s\n", event.HomeTeam.Name, event.AwayTeam.Name)
-//	fmt.Printf("Score: %s\n", event.Score)
-//	fmt.Printf("========== Statistics =========\n")
-//	fmt.Printf("Attacks: %s - %s\n", event.Attacks[0], event.Attacks[1])
-//	fmt.Printf("Dangerous attacks: %s - %s\n", event.DangerousAttacks[0], event.DangerousAttacks[1])
-//	fmt.Printf("Shots on target: %s - %s\n", event.OnTarget[0], event.OnTarget[1])
-//	fmt.Printf("Shots off target: %s - %s\n", event.OffTarget[0], event.OffTarget[1])
-//	fmt.Printf("Corners: %s - %s\n", event.Corners[0], event.Corners[1])
-//	fmt.Printf("-------------------------------\n")
-//}
-//
-//func isDangerousAttacks(dangerousAttacks [2]string) bool {
-//	homeDangAttacks, _ := strconv.Atoi(dangerousAttacks[0])
-//	awayDangAttacks, _ := strconv.Atoi(dangerousAttacks[1])
-//
-//	if ((homeDangAttacks - awayDangAttacks) >= 7) || ((awayDangAttacks - homeDangAttacks) >= 7) {
-//		return true
-//	} else {
-//		return false
-//	}
-//}
-//
-//func isShots(shotsOnTarget [2]string, shotsOffTarget [2]string) bool {
-//	homeOnTarget, _ := strconv.Atoi(shotsOnTarget[0])
-//	awayOnTarget, _ := strconv.Atoi(shotsOnTarget[1])
-//
-//	homeOffTarget, _ := strconv.Atoi(shotsOffTarget[0])
-//	awayOffTarget, _ := strconv.Atoi(shotsOffTarget[1])
-//
-//	if ((homeOnTarget - awayOnTarget) >= 2) || ((awayOnTarget - homeOnTarget) >= 2) ||
-//		(((homeOnTarget - awayOnTarget) >= 1) || ((awayOnTarget - homeOnTarget) >= 1) &&
-//			((homeOffTarget-awayOffTarget >= 3) || (awayOffTarget-homeOffTarget >= 3))) {
-//		return true
-//	} else {
-//		return false
-//	}
-//}
 
 var betsapiCrawlerInstance *BetsapiWrapper
 var getBetsapiCrawlerOnce sync.Once
