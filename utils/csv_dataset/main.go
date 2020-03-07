@@ -40,14 +40,14 @@ func BasicCsvDataset() {
 		},
 	}
 
-	eventChan, err := mongo.StreamAll("football_event_new", reflect.TypeOf(types.NewFootballEvent{}), where)
+	eventChan, err := mongo.StreamAll("football_event", reflect.TypeOf(types.FootballEvent{}), where)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for event := range eventChan {
 		var base []string
-		footballEvent := event.(*types.NewFootballEvent)
+		footballEvent := event.(*types.FootballEvent)
 		statsTrend := types.AddMissingStatsTrend(footballEvent.StatsTrend)
 
 		score := footballEvent.Event.Score
