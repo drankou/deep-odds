@@ -177,3 +177,28 @@ func TestDumpBsonOddsForMock(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestDumpFootballEventForMock(t *testing.T) {
+	os.Setenv("MONGO_CONNECTION_STRING", "mongodb://localhost:27017")
+	mongo := GetMongoWrapper()
+
+	filter := map[string]interface{}{}
+
+	entry, err := mongo.ReadOne("football_event", reflect.TypeOf(types.FootballEvent{}), filter)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	footballEvent := entry.(*types.FootballEvent)
+
+	log.Print("EventId: ", footballEvent.Event.Id)
+	data, err := bson.Marshal(footballEvent)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = ioutil.WriteFile(path.Join(utils.GetAbsPathToRoot(), "mock_data", "football_event.bson"), data, 0644)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
