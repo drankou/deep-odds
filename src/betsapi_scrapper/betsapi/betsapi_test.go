@@ -2,7 +2,7 @@ package betsapi
 
 import (
 	"betsapi_scrapper/types"
-	log "github.com/sirupsen/logrus"
+	"os"
 	"testing"
 )
 
@@ -15,33 +15,24 @@ func TestBetsapiCrawler_Init(t *testing.T) {
 }
 
 func TestBetsapiCrawler_GetInPlayEvents(t *testing.T) {
-	betsapi := BetsapiWrapper{}
-	err := betsapi.Init()
-	if err != nil {
-		t.Fatal(err)
-	}
+	os.Setenv("BETSAPI_TOKEN", "25493-JGWujvhpW6upWr")
+	betsapi := GetBetsapiWrapper()
 
 	sportId := types.SoccerId
-
 	inPlayEvents, err := betsapi.GetInPlayEvents(sportId)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if len(inPlayEvents) == 0 {
-		t.Errorf("There are no in play events for given sport id")
+		t.Fatal("There are no in play events for given sport id")
 	}
 
 	t.Logf("Number of in-play events: %d", len(inPlayEvents))
 }
 
 func TestBetsapiCrawler_GetInPlayEvents_Cached(t *testing.T) {
-	betsapi := BetsapiWrapper{}
-	err := betsapi.Init()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	log.SetLevel(log.DebugLevel)
+	os.Setenv("BETSAPI_TOKEN", "25493-JGWujvhpW6upWr")
+	betsapi := GetBetsapiWrapper()
 
 	inPlayEvents, err := betsapi.GetInPlayEvents(types.SoccerId)
 	if err != nil {
@@ -65,14 +56,10 @@ func TestBetsapiCrawler_GetInPlayEvents_Cached(t *testing.T) {
 }
 
 func TestBetsapiCrawler_GetStartingEvents(t *testing.T) {
-	betsapi := BetsapiWrapper{}
-	err := betsapi.Init()
-	if err != nil {
-		t.Fatal(err)
-	}
+	os.Setenv("BETSAPI_TOKEN", "25493-JGWujvhpW6upWr")
+	betsapi := GetBetsapiWrapper()
 
 	sportId := types.SoccerId
-
 	startingEvents, err := betsapi.GetStartingEvents(sportId, 10)
 	if err != nil {
 		t.Fatal(err)
@@ -85,15 +72,10 @@ func TestBetsapiCrawler_GetStartingEvents(t *testing.T) {
 }
 
 func TestBetsapiCrawler_GetStartingEvents_Cached(t *testing.T) {
-	betsapi := BetsapiWrapper{}
-	err := betsapi.Init()
-	if err != nil {
-		t.Fatal(err)
-	}
-	log.SetLevel(log.DebugLevel)
+	os.Setenv("BETSAPI_TOKEN", "25493-JGWujvhpW6upWr")
+	betsapi := GetBetsapiWrapper()
 
 	sportId := types.SoccerId
-
 	startingEvents, err := betsapi.GetStartingEvents(sportId, 10)
 	if err != nil {
 		t.Fatal(err)
@@ -116,12 +98,8 @@ func TestBetsapiCrawler_GetStartingEvents_Cached(t *testing.T) {
 }
 
 func TestBetsapiCrawler_GetEventView(t *testing.T) {
-	betsapi := BetsapiWrapper{}
-	err := betsapi.Init()
-	if err != nil {
-		t.Fatal(err)
-	}
-	log.SetLevel(log.DebugLevel)
+	os.Setenv("BETSAPI_TOKEN", "25493-JGWujvhpW6upWr")
+	betsapi := GetBetsapiWrapper()
 
 	eventId := "92149"
 	result, err := betsapi.GetEventView(eventId)
@@ -132,12 +110,8 @@ func TestBetsapiCrawler_GetEventView(t *testing.T) {
 }
 
 func TestBetsapiCrawler_GetLeagues(t *testing.T) {
-	betsapi := BetsapiWrapper{}
-	err := betsapi.Init()
-	if err != nil {
-		t.Fatal(err)
-	}
-	log.SetLevel(log.DebugLevel)
+	os.Setenv("BETSAPI_TOKEN", "25493-JGWujvhpW6upWr")
+	betsapi := GetBetsapiWrapper()
 
 	allLeagues, err := betsapi.GetLeagues(types.SoccerId, "", "")
 	if err != nil {
@@ -147,12 +121,8 @@ func TestBetsapiCrawler_GetLeagues(t *testing.T) {
 }
 
 func TestBetsapiCrawler_GetEventStatsTrend(t *testing.T) {
-	betsapi := BetsapiWrapper{}
-	err := betsapi.Init()
-	if err != nil {
-		t.Fatal(err)
-	}
-	log.SetLevel(log.DebugLevel)
+	os.Setenv("BETSAPI_TOKEN", "25493-JGWujvhpW6upWr")
+	betsapi := GetBetsapiWrapper()
 
 	statsTrend, err := betsapi.GetEventStatsTrend("1981616")
 	if err != nil {
@@ -162,12 +132,8 @@ func TestBetsapiCrawler_GetEventStatsTrend(t *testing.T) {
 }
 
 func TestBetsapiCrawler_GetEndedEvents(t *testing.T) {
-	betsapi := BetsapiWrapper{}
-	err := betsapi.Init()
-	if err != nil {
-		t.Fatal(err)
-	}
-	log.SetLevel(log.DebugLevel)
+	os.Setenv("BETSAPI_TOKEN", "25493-JGWujvhpW6upWr")
+	betsapi := GetBetsapiWrapper()
 
 	endedEvents, err := betsapi.GetEndedEvents(types.SoccerId, "", "", "kw", "", "1")
 	if err != nil {
@@ -177,12 +143,8 @@ func TestBetsapiCrawler_GetEndedEvents(t *testing.T) {
 }
 
 func TestBetsapiCrawler_GetEndedEvents_Day(t *testing.T) {
-	betsapi := BetsapiWrapper{}
-	err := betsapi.Init()
-	if err != nil {
-		t.Fatal(err)
-	}
-	log.SetLevel(log.DebugLevel)
+	os.Setenv("BETSAPI_TOKEN", "25493-JGWujvhpW6upWr")
+	betsapi := GetBetsapiWrapper()
 
 	date := "20191123"
 	endedEvents, err := betsapi.GetEndedEvents(types.SoccerId, "", "", "kw", date, "1")
@@ -190,19 +152,15 @@ func TestBetsapiCrawler_GetEndedEvents_Day(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Logf("Number of ended events on %s: %d", date, len(endedEvents))
-	for _, event := range endedEvents{
+	for _, event := range endedEvents {
 		event.Clean()
 		t.Logf("%+v", event)
 	}
 }
 
 func TestBetsapiCrawler_GetEventOdds(t *testing.T) {
-	betsapi := BetsapiWrapper{}
-	err := betsapi.Init()
-	if err != nil {
-		t.Fatal(err)
-	}
-	log.SetLevel(log.DebugLevel)
+	os.Setenv("BETSAPI_TOKEN", "25493-JGWujvhpW6upWr")
+	betsapi := GetBetsapiWrapper()
 
 	eventOdds, err := betsapi.GetEventOdds("1989042")
 	if err != nil {
@@ -213,12 +171,8 @@ func TestBetsapiCrawler_GetEventOdds(t *testing.T) {
 }
 
 func TestBetsapiCrawler_GetEventHistory(t *testing.T) {
-	betsapi := BetsapiWrapper{}
-	err := betsapi.Init()
-	if err != nil {
-		t.Fatal(err)
-	}
-	log.SetLevel(log.DebugLevel)
+	os.Setenv("BETSAPI_TOKEN", "25493-JGWujvhpW6upWr")
+	betsapi := GetBetsapiWrapper()
 
 	eventHistory, err := betsapi.GetEventHistory("1989042", "")
 	if err != nil {
@@ -229,12 +183,8 @@ func TestBetsapiCrawler_GetEventHistory(t *testing.T) {
 }
 
 func TestBetsapiCrawler_GetUpcomingEvents(t *testing.T) {
-	betsapi := BetsapiWrapper{}
-	err := betsapi.Init()
-	if err != nil {
-		t.Fatal(err)
-	}
-	log.SetLevel(log.DebugLevel)
+	os.Setenv("BETSAPI_TOKEN", "25493-JGWujvhpW6upWr")
+	betsapi := GetBetsapiWrapper()
 
 	upcomingEvents, err := betsapi.GetUpcomingEvents(types.SoccerId, "", "", "by", "", "1")
 	if err != nil {
