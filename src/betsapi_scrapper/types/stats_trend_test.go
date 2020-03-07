@@ -64,3 +64,49 @@ func TestAddMissingStatsTrend(t *testing.T) {
 		panic(err)
 	}
 }
+
+func TestYellowCardsFromEvents(t *testing.T){
+	data, err := ioutil.ReadFile(path.Join(utils.GetAbsPathToRoot(), "mock_data", "football_event.bson"))
+	var footballEvent FootballEvent
+	err = bson.Unmarshal(data, &footballEvent)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	result := yellowCardsStatsFromEvents(&footballEvent)
+
+	log.Print("Home")
+	log.Print(len(result.Home))
+	for _, stats := range result.Home{
+		log.Printf("%+v", stats)
+	}
+
+	log.Print("Away")
+	log.Print(len(result.Away))
+	for _, stats := range result.Away{
+		log.Printf("%+v", stats)
+	}
+}
+
+func TestCornersFromEvents(t *testing.T){
+	data, err := ioutil.ReadFile(path.Join(utils.GetAbsPathToRoot(), "mock_data", "football_event.bson"))
+	var footballEvent FootballEvent
+	err = bson.Unmarshal(data, &footballEvent)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	result := cornersStatsFromEvents(&footballEvent)
+
+	log.Print("Home")
+	log.Print(len(result.Home))
+	for _, stats := range result.Home{
+		log.Printf("%+v", stats)
+	}
+
+	log.Print("Away")
+	log.Print(len(result.Away))
+	for _, stats := range result.Away{
+		log.Printf("%+v", stats)
+	}
+}
