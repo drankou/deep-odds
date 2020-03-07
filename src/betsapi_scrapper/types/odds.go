@@ -2,6 +2,7 @@ package types
 
 import (
 	"github.com/sirupsen/logrus"
+	"sort"
 	"strconv"
 )
 
@@ -17,7 +18,7 @@ type Odds struct {
 }
 
 func (odds *Odds) ToNew() *NewOdds {
-	if odds == nil{
+	if odds == nil {
 		return nil
 	}
 
@@ -71,7 +72,7 @@ type NewOdds struct {
 	FirstHalfResult        []*NewResult              `json:"1_8" bson:"first_half"`
 }
 
-func (odds *Odds) Clean() {
+func (odds *NewOdds) Clean() {
 	//result
 	odds.FullTimeResult = RemoveDuplicitResultOdds(odds.FullTimeResult)
 	odds.FirstHalfResult = RemoveDuplicitResultOdds(odds.FirstHalfResult)
@@ -158,87 +159,107 @@ type NewResultOdds struct {
 	AwayOdd float64 `json:"away_od,string" bson:"away_odds"`
 }
 
-func RemoveDuplicitResultOdds(resultOdds []Result) []Result {
-	var resultList []Result
-	keys := make(map[string]bool)
-	for _, entry := range resultOdds {
-		if _, value := keys[entry.Minute]; !value && entry.Minute != "" && entry.HomeOdd != "-" && entry.AwayOdd != "-" && entry.DrawOdd != "-" {
+func RemoveDuplicitResultOdds(resultOdds []*NewResult) []*NewResult {
+	var resultList []*NewResult
+	keys := make(map[int64]bool)
+	for i, entry := range resultOdds {
+		if _, value := keys[entry.Minute]; !value && (entry.HomeOdd != -1 || entry.AwayOdd != -1 || entry.DrawOdd != -1) {
 			keys[entry.Minute] = true
-			resultList = append(resultList, entry)
+			resultList = append(resultList, resultOdds[i])
 		}
 	}
 
 	return resultList
 }
 
-//func AddMissingResultOdds(resultOdds []Result) []Result {
-//	var resultList []Result
-//
-//	minuteOdds := make(map[int]*Result)
-//	var minutes []int
-//	for i, entry := range resultOdds {
-//		minute := int(entry.Minute)
-//		minutes = append(minutes, minute)
-//		minuteOdds[minute] = &resultOdds[i]
-//	}
-//	sort.Ints(minutes)
-//
-//	//check if first available minute is 0 - start of the match
-//	if len(minutes) > 0 && minutes[0] != 0 {
-//		// create first minute odds from the first available minute data
-//		nextMinuteWithOdds := *minuteOdds[minutes[0]]
-//		unixTime := nextMinuteWithOdds.AddTime
-//		unixTime -= int64(minutes[0]) * 60
-//
-//		firstMinuteOdds := &Result{
-//			Id:         nextMinuteWithOdds.Id + "0",
-//			ResultOdds: nextMinuteWithOdds.ResultOdds,
-//			OddsInfo: OddsInfo{
-//				Score:   "0-0",
-//				Minute:  0,
-//				AddTime: unixTime,
-//			},
-//		}
-//
-//		minuteOdds[0] = firstMinuteOdds
-//		minutes = append(minutes, 0)
-//	}
-//
-//	lastMinute := 90
-//	//TODO get last minute of the match
-//	for i := 1; i <= lastMinute; i++ {
-//		//check if minute presented in the minute->odds map
-//		if minuteOdds[i] == nil {
-//			//create minute odds with data from previous minute
-//			previousMinute := i - 1
-//			previousMinuteOdds := *minuteOdds[previousMinute]
-//
-//			unixTime := previousMinuteOdds.AddTime
-//			unixTime += 60
-//
-//			newMinuteOdds := &Result{
-//				Id:         previousMinuteOdds.Id + strconv.Itoa(i),
-//				ResultOdds: previousMinuteOdds.ResultOdds,
-//				OddsInfo: OddsInfo{
-//					Score:   previousMinuteOdds.Score,
-//					Minute:  int32(i),
-//					AddTime: unixTime,
-//				},
-//			}
-//
-//			minuteOdds[i] = newMinuteOdds
-//			minutes = append(minutes, i)
-//		}
-//	}
-//
-//	sort.Ints(minutes)
-//
-//	for _, minute := range minutes {
-//		resultList = append(resultList, *minuteOdds[minute])
-//	}
-//
-//	return resultList
-//}
+func AddMissingResultOdds(resultOdds []*NewResult) []*NewResult {
+	var resultList []*NewResult
+
+	minuteOdds := make(map[int64]*NewResult)
+	var minutes []int64
+	for i, entry := range resultOdds {
+		minute := entry.Minute
+		minutes = append(minutes, minute)
+		minuteOdds[minute] = resultOdds[i]
+	}
+
+	sort.Slice(minutes, func(i, j int) bool { return minutes[i] < minutes[j] })
+
+	//check if first available minute is 0 - start of the match
+	if len(minutes) > 0 && minutes[0] != 0 {
+		// create first minute odds from the first available minute data
+		nextMinuteWithOdds := minuteOdds[minutes[0]]
+		unixTime := nextMinuteWithOdds.AddTime
+		unixTime -= minutes[0] * 60
+
+		var firstMinuteOdds *NewResult
+		if nextMinuteWithOdds.Score == "0-0" {
+			firstMinuteOdds = &NewResult{
+				Id:            nextMinuteWithOdds.Id + "0",
+				NewResultOdds: nextMinuteWithOdds.NewResultOdds,
+				NewOddsInfo: &NewOddsInfo{
+					Score:   nextMinuteWithOdds.Score,
+					Minute:  0,
+					AddTime: unixTime,
+				},
+			}
+		} else {
+			uknownOdds := &NewResultOdds{
+				HomeOdd: -1,
+				DrawOdd: -1,
+				AwayOdd: -1,
+			}
+
+			firstMinuteOdds = &NewResult{
+				Id:            nextMinuteWithOdds.Id + "0",
+				NewResultOdds: uknownOdds,
+				NewOddsInfo: &NewOddsInfo{
+					Score:   "0-0",
+					Minute:  0,
+					AddTime: unixTime,
+				},
+			}
+		}
+
+		minuteOdds[0] = firstMinuteOdds
+		minutes = append(minutes, 0)
+	}
+
+	lastMinute := int64(90)
+	//TODO get last minute of the match
+	for i := int64(1); i <= lastMinute; i++ {
+		//check if minute presented in the minute->odds map
+		if minuteOdds[i] == nil {
+			//create minute odds with data from previous minute
+			previousMinute := i - 1
+			previousMinuteOdds := minuteOdds[previousMinute]
+
+			unixTime := previousMinuteOdds.AddTime
+			unixTime += 60
+
+			newMinuteOdds := &NewResult{
+				Id:            previousMinuteOdds.Id + strconv.FormatInt(i, 10),
+				NewResultOdds: previousMinuteOdds.NewResultOdds,
+				NewOddsInfo: &NewOddsInfo{
+					Score:   previousMinuteOdds.Score,
+					Minute:  i,
+					AddTime: unixTime,
+				},
+			}
+
+			minuteOdds[i] = newMinuteOdds
+			minutes = append(minutes, i)
+		}
+	}
+
+	sort.Slice(minutes, func(i, j int) bool { return minutes[i] < minutes[j] })
+
+	for _, minute := range minutes {
+		resultList = append(resultList, minuteOdds[minute])
+	}
+
+	return resultList
+}
 
 type AsianHandicapResult struct {
 	Id string `json:"id" bson:"id"`
@@ -256,7 +277,7 @@ func (asianRes *AsianHandicapResult) ToNew() *NewAsianHandicapResult {
 
 	addTime, err := strconv.ParseInt(asianRes.AddTime, 10, 64)
 	if err != nil {
-		logrus.Error("asianResult.addtime:",err)
+		logrus.Error("asianResult.addtime:", err)
 	}
 
 	return &NewAsianHandicapResult{
@@ -306,14 +327,103 @@ type NewAsianHandicapResultOdds struct {
 	AwayOdd  float64 `json:"away_od,string" bson:"away_odds"`
 }
 
-func RemoveDuplicitAsianHandicapResult(resultOdds []AsianHandicapResult) []AsianHandicapResult {
-	var resultList []AsianHandicapResult
-	keys := make(map[string]bool)
-	for _, entry := range resultOdds {
-		if _, value := keys[entry.Minute]; !value && entry.Minute != "" && entry.HomeOdd != "-" && entry.AwayOdd != "-" && entry.Handicap != "-" {
+func RemoveDuplicitAsianHandicapResult(resultOdds []*NewAsianHandicapResult) []*NewAsianHandicapResult {
+	var resultList []*NewAsianHandicapResult
+	keys := make(map[int64]bool)
+	for i, entry := range resultOdds {
+		if _, value := keys[entry.Minute]; !value && (entry.HomeOdd != -1 || entry.AwayOdd != -1) {
 			keys[entry.Minute] = true
-			resultList = append(resultList, entry)
+			resultList = append(resultList, resultOdds[i])
 		}
+	}
+
+	return resultList
+}
+
+func AddMissingAsianResultOdds(asianResultOdds []*NewAsianHandicapResult) []*NewAsianHandicapResult {
+	var resultList []*NewAsianHandicapResult
+
+	minuteOdds := make(map[int64]*NewAsianHandicapResult)
+	var minutes []int64
+	for i, entry := range asianResultOdds {
+		minute := entry.Minute
+		minutes = append(minutes, minute)
+		minuteOdds[minute] = asianResultOdds[i]
+	}
+
+	sort.Slice(minutes, func(i, j int) bool { return minutes[i] < minutes[j] })
+
+	//check if first available minute is 0 - start of the match
+	if len(minutes) > 0 && minutes[0] != 0 {
+		// create first minute odds from the first available minute data
+		nextMinuteWithOdds := minuteOdds[minutes[0]]
+		unixTime := nextMinuteWithOdds.AddTime
+		unixTime -= minutes[0] * 60
+
+		var firstMinuteOdds *NewAsianHandicapResult
+		if nextMinuteWithOdds.Score == "0-0" {
+			firstMinuteOdds = &NewAsianHandicapResult{
+				Id:                         nextMinuteWithOdds.Id + "0",
+				NewAsianHandicapResultOdds: nextMinuteWithOdds.NewAsianHandicapResultOdds,
+				NewOddsInfo: &NewOddsInfo{
+					Score:   nextMinuteWithOdds.Score,
+					Minute:  0,
+					AddTime: unixTime,
+				},
+			}
+		} else {
+			uknownOdds := &NewAsianHandicapResultOdds{
+				HomeOdd:  -1,
+				Handicap: "-1",
+				AwayOdd:  -1,
+			}
+
+			firstMinuteOdds = &NewAsianHandicapResult{
+				Id:                         nextMinuteWithOdds.Id + "0",
+				NewAsianHandicapResultOdds: uknownOdds,
+				NewOddsInfo: &NewOddsInfo{
+					Score:   "0-0",
+					Minute:  0,
+					AddTime: unixTime,
+				},
+			}
+		}
+
+		minuteOdds[0] = firstMinuteOdds
+		minutes = append(minutes, 0)
+	}
+
+	lastMinute := int64(90)
+	//TODO get last minute of the match
+	for i := int64(1); i <= lastMinute; i++ {
+		//check if minute presented in the minute->odds map
+		if minuteOdds[i] == nil {
+			//create minute odds with data from previous minute
+			previousMinute := i - 1
+			previousMinuteOdds := minuteOdds[previousMinute]
+
+			unixTime := previousMinuteOdds.AddTime
+			unixTime += 60
+
+			newMinuteOdds := &NewAsianHandicapResult{
+				Id:            previousMinuteOdds.Id + strconv.FormatInt(i, 10),
+				NewAsianHandicapResultOdds: previousMinuteOdds.NewAsianHandicapResultOdds,
+				NewOddsInfo: &NewOddsInfo{
+					Score:   previousMinuteOdds.Score,
+					Minute:  i,
+					AddTime: unixTime,
+				},
+			}
+
+			minuteOdds[i] = newMinuteOdds
+			minutes = append(minutes, i)
+		}
+	}
+
+	sort.Slice(minutes, func(i, j int) bool { return minutes[i] < minutes[j] })
+
+	for _, minute := range minutes {
+		resultList = append(resultList, minuteOdds[minute])
 	}
 
 	return resultList
@@ -415,14 +525,103 @@ type NewAsianHandicapTotalOdds struct {
 	UnderOdd float64 `json:"under_od,string" bson:"under_odds"`
 }
 
-func RemoveDuplicitAsianHandicapTotal(resultOdds []AsianHandicapTotal) []AsianHandicapTotal {
-	var resultList []AsianHandicapTotal
-	keys := make(map[string]bool)
+func RemoveDuplicitAsianHandicapTotal(resultOdds []*NewAsianHandicapTotal) []*NewAsianHandicapTotal {
+	var resultList []*NewAsianHandicapTotal
+	keys := make(map[int64]bool)
 	for _, entry := range resultOdds {
-		if _, value := keys[entry.Minute]; !value && entry.Minute != "" && entry.OverOdd != "-" && entry.UnderOdd != "-" && entry.Handicap != "-" {
+		if _, value := keys[entry.Minute]; !value && (entry.OverOdd != -1 || entry.UnderOdd != -1) {
 			keys[entry.Minute] = true
 			resultList = append(resultList, entry)
 		}
+	}
+
+	return resultList
+}
+
+func AddMissingAsianTotalOdds(asianTotalOdds []*NewAsianHandicapTotal) []*NewAsianHandicapTotal {
+	var resultList []*NewAsianHandicapTotal
+
+	minuteOdds := make(map[int64]*NewAsianHandicapTotal)
+	var minutes []int64
+	for i, entry := range asianTotalOdds {
+		minute := entry.Minute
+		minutes = append(minutes, minute)
+		minuteOdds[minute] = asianTotalOdds[i]
+	}
+
+	sort.Slice(minutes, func(i, j int) bool { return minutes[i] < minutes[j] })
+
+	//check if first available minute is 0 - start of the match
+	if len(minutes) > 0 && minutes[0] != 0 {
+		// create first minute odds from the first available minute data
+		nextMinuteWithOdds := minuteOdds[minutes[0]]
+		unixTime := nextMinuteWithOdds.AddTime
+		unixTime -= minutes[0] * 60
+
+		var firstMinuteOdds *NewAsianHandicapTotal
+		if nextMinuteWithOdds.Score == "0-0" {
+			firstMinuteOdds = &NewAsianHandicapTotal{
+				Id:                         nextMinuteWithOdds.Id + "0",
+				NewAsianHandicapTotalOdds: nextMinuteWithOdds.NewAsianHandicapTotalOdds,
+				NewOddsInfo: &NewOddsInfo{
+					Score:   nextMinuteWithOdds.Score,
+					Minute:  0,
+					AddTime: unixTime,
+				},
+			}
+		} else {
+			uknownOdds := &NewAsianHandicapTotalOdds{
+				OverOdd:  -1,
+				Handicap: "-1",
+				UnderOdd:  -1,
+			}
+
+			firstMinuteOdds = &NewAsianHandicapTotal{
+				Id:                         nextMinuteWithOdds.Id + "0",
+				NewAsianHandicapTotalOdds: uknownOdds,
+				NewOddsInfo: &NewOddsInfo{
+					Score:   "0-0",
+					Minute:  0,
+					AddTime: unixTime,
+				},
+			}
+		}
+
+		minuteOdds[0] = firstMinuteOdds
+		minutes = append(minutes, 0)
+	}
+
+	lastMinute := int64(90)
+	//TODO get last minute of the match
+	for i := int64(1); i <= lastMinute; i++ {
+		//check if minute presented in the minute->odds map
+		if minuteOdds[i] == nil {
+			//create minute odds with data from previous minute
+			previousMinute := i - 1
+			previousMinuteOdds := minuteOdds[previousMinute]
+
+			unixTime := previousMinuteOdds.AddTime
+			unixTime += 60
+
+			newMinuteOdds := &NewAsianHandicapTotal{
+				Id:            previousMinuteOdds.Id + strconv.FormatInt(i, 10),
+				NewAsianHandicapTotalOdds: previousMinuteOdds.NewAsianHandicapTotalOdds,
+				NewOddsInfo: &NewOddsInfo{
+					Score:   previousMinuteOdds.Score,
+					Minute:  i,
+					AddTime: unixTime,
+				},
+			}
+
+			minuteOdds[i] = newMinuteOdds
+			minutes = append(minutes, i)
+		}
+	}
+
+	sort.Slice(minutes, func(i, j int) bool { return minutes[i] < minutes[j] })
+
+	for _, minute := range minutes {
+		resultList = append(resultList, minuteOdds[minute])
 	}
 
 	return resultList
