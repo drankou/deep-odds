@@ -13,7 +13,7 @@ import (
 
 func TestAddMissingStatsTrend(t *testing.T) {
 	data, err := ioutil.ReadFile(path.Join(utils.GetAbsPathToRoot(), "mock_data", "stats_trend.bson"))
-	var statsTrend NewStatsTrend
+	var statsTrend StatsTrend
 	err = bson.Unmarshal(data, &statsTrend)
 	if err != nil {
 		log.Fatal(err)

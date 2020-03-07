@@ -13,7 +13,7 @@ import (
 func TestRemoveDuplicitResultOdds(t *testing.T) {
 	data, err := ioutil.ReadFile(path.Join(utils.GetAbsPathToRoot(), "mock_data", "odds.bson"))
 
-	var odds NewOdds
+	var odds Odds
 	err = bson.Unmarshal(data, &odds)
 	if err != nil {
 		log.Fatal(err)
@@ -30,7 +30,7 @@ func TestRemoveDuplicitResultOdds(t *testing.T) {
 func TestAddMissingResultOdds(t *testing.T) {
 	data, err := ioutil.ReadFile(path.Join(utils.GetAbsPathToRoot(), "mock_data", "odds.bson"))
 
-	var odds NewOdds
+	var odds Odds
 	err = bson.Unmarshal(data, &odds)
 	if err != nil {
 		log.Fatal(err)
@@ -42,7 +42,7 @@ func TestAddMissingResultOdds(t *testing.T) {
 	for _, odd := range fullTimeResultOdds {
 		log.Print("minute: ", odd.Minute)
 		log.Print("score: ", odd.Score)
-		log.Printf("%+v", odd.NewResultOdds)
+		log.Printf("%+v", odd.ResultOdds)
 		log.Print(strings.Repeat("-", 20))
 	}
 }
@@ -50,7 +50,7 @@ func TestAddMissingResultOdds(t *testing.T) {
 func TestAddMissingAsianResultOdds(t *testing.T) {
 	data, err := ioutil.ReadFile(path.Join(utils.GetAbsPathToRoot(), "mock_data", "odds.bson"))
 
-	var odds NewOdds
+	var odds Odds
 	err = bson.Unmarshal(data, &odds)
 	if err != nil {
 		log.Fatal(err)
@@ -61,7 +61,7 @@ func TestAddMissingAsianResultOdds(t *testing.T) {
 	for _, odd := range asianHandicapResultOdds {
 		log.Print("minute: ", odd.Minute)
 		log.Print("score: ", odd.Score)
-		log.Printf("%+v", odd.NewAsianHandicapResultOdds)
+		log.Printf("%+v", odd.AsianHandicapResultOdds)
 		log.Print(strings.Repeat("-", 20))
 	}
 }
@@ -69,7 +69,7 @@ func TestAddMissingAsianResultOdds(t *testing.T) {
 func TestAddMissingAsianTotalOdds(t *testing.T) {
 	data, err := ioutil.ReadFile(path.Join(utils.GetAbsPathToRoot(), "mock_data", "odds.bson"))
 
-	var odds NewOdds
+	var odds Odds
 	err = bson.Unmarshal(data, &odds)
 	if err != nil {
 		log.Fatal(err)
@@ -80,7 +80,7 @@ func TestAddMissingAsianTotalOdds(t *testing.T) {
 	for _, odds := range asianHandicapTotal {
 		log.Print("minute: ", odds.Minute)
 		log.Print("score: ", odds.Score)
-		log.Printf("%+v", odds.NewAsianHandicapTotalOdds)
+		log.Printf("%+v", odds.AsianHandicapTotalOdds)
 		log.Print(strings.Repeat("-", 20))
 	}
 }
