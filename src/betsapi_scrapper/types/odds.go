@@ -15,6 +15,7 @@ type Odds struct {
 	FirstHalfAsianCorners  []*AsianHandicapTotal  `json:"1_7" bson:"first_half_asian_corners"`
 	FirstHalfResult        []*Result              `json:"1_8" bson:"first_half"`
 }
+
 func (odds *Odds) Clean() {
 	//result
 	odds.FullTimeResult = RemoveDuplicitResultOdds(odds.FullTimeResult)
@@ -69,23 +70,62 @@ func AddMissingResultOdds(resultOdds []*Result) []*Result {
 
 	sort.Slice(minutes, func(i, j int) bool { return minutes[i] < minutes[j] })
 
+	if len(minutes) == 0 {
+		uknownOdds := &ResultOdds{
+			HomeOdd: -1,
+			DrawOdd: -1,
+			AwayOdd: -1,
+		}
+
+		firstMinuteOdds := &Result{
+			Id:         "-1",
+			ResultOdds: uknownOdds,
+			OddsInfo: &OddsInfo{
+				Score:  "0-0",
+				Minute: 0,
+			},
+		}
+
+		minuteOdds[0] = firstMinuteOdds
+		minutes = append(minutes, 0)
+	}
+
 	//check if first available minute is 0 - start of the match
 	if len(minutes) > 0 && minutes[0] != 0 {
 		// create first minute odds from the first available minute data
 		nextMinuteWithOdds := minuteOdds[minutes[0]]
-		unixTime := nextMinuteWithOdds.AddTime
-		unixTime -= minutes[0] * 60
-
 		var firstMinuteOdds *Result
-		if nextMinuteWithOdds.Score == "0-0" {
-			firstMinuteOdds = &Result{
-				Id:         nextMinuteWithOdds.Id + "0",
-				ResultOdds: nextMinuteWithOdds.ResultOdds,
-				OddsInfo: &OddsInfo{
-					Score:   nextMinuteWithOdds.Score,
-					Minute:  0,
-					AddTime: unixTime,
-				},
+
+		if nextMinuteWithOdds != nil {
+			unixTime := nextMinuteWithOdds.AddTime
+			unixTime -= minutes[0] * 60
+
+			if nextMinuteWithOdds.Score == "0-0" {
+				firstMinuteOdds = &Result{
+					Id:         nextMinuteWithOdds.Id + "0",
+					ResultOdds: nextMinuteWithOdds.ResultOdds,
+					OddsInfo: &OddsInfo{
+						Score:   nextMinuteWithOdds.Score,
+						Minute:  0,
+						AddTime: unixTime,
+					},
+				}
+			} else {
+				uknownOdds := &ResultOdds{
+					HomeOdd: -1,
+					DrawOdd: -1,
+					AwayOdd: -1,
+				}
+
+				firstMinuteOdds = &Result{
+					Id:         nextMinuteWithOdds.Id + "0",
+					ResultOdds: uknownOdds,
+					OddsInfo: &OddsInfo{
+						Score:   "0-0",
+						Minute:  0,
+						AddTime: unixTime,
+					},
+				}
 			}
 		} else {
 			uknownOdds := &ResultOdds{
@@ -95,12 +135,11 @@ func AddMissingResultOdds(resultOdds []*Result) []*Result {
 			}
 
 			firstMinuteOdds = &Result{
-				Id:         nextMinuteWithOdds.Id + "0",
+				Id:         "-1",
 				ResultOdds: uknownOdds,
 				OddsInfo: &OddsInfo{
-					Score:   "0-0",
-					Minute:  0,
-					AddTime: unixTime,
+					Score:  "0-0",
+					Minute: 0,
 				},
 			}
 		}
@@ -325,7 +364,7 @@ func AddMissingAsianTotalOdds(asianTotalOdds []*AsianHandicapTotal) []*AsianHand
 			uknownOdds := &AsianHandicapTotalOdds{
 				OverOdd:  -1,
 				Handicap: "-1",
-				UnderOdd:  -1,
+				UnderOdd: -1,
 			}
 
 			firstMinuteOdds = &AsianHandicapTotal{
