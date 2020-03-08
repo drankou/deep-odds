@@ -73,7 +73,7 @@ func TestYellowCardsFromEvents(t *testing.T){
 		log.Fatal(err)
 	}
 
-	result := yellowCardsStatsFromEvents(&footballEvent)
+	result := YellowCardsStatsFromEvents(&footballEvent)
 
 	log.Print("Home")
 	log.Print(len(result.Home))
@@ -96,7 +96,7 @@ func TestCornersFromEvents(t *testing.T){
 		log.Fatal(err)
 	}
 
-	result := cornersStatsFromEvents(&footballEvent)
+	result := CornersStatsFromEvents(&footballEvent)
 
 	log.Print("Home")
 	log.Print(len(result.Home))

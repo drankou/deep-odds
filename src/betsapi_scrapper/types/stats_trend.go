@@ -97,7 +97,7 @@ func addMissingStatsTrendTicks(ticks []*StatsTrendTick) []*StatsTrendTick {
 	return res
 }
 
-func yellowCardsStatsFromEvents(footballEvent *FootballEvent) *StatsTrendValue {
+func YellowCardsStatsFromEvents(footballEvent *FootballEvent) *StatsTrendValue {
 	result := &StatsTrendValue{
 		Home: []*StatsTrendTick{},
 		Away: []*StatsTrendTick{},
@@ -112,13 +112,12 @@ func yellowCardsStatsFromEvents(footballEvent *FootballEvent) *StatsTrendValue {
 			minute, _ = strconv.ParseInt(minuteStr, 10, 64)
 		}
 
-		eventDescription := strings.Split(event.Text, `-`)[1]
-		teamName := strings.Split(event.Text, `-`)[2]
-		if strings.Contains(eventDescription, "Yellow Card") {
+		if strings.Contains(event.Text, "Yellow Card") {
 			newTick := &StatsTrendTick{
 				Time: minute,
 			}
 
+			teamName := strings.Split(event.Text, `-`)[2]
 			if strings.Contains(teamName, footballEvent.Event.HomeTeam.Name) {
 				result.Home = append(result.Home, newTick)
 			} else {
@@ -133,7 +132,7 @@ func yellowCardsStatsFromEvents(footballEvent *FootballEvent) *StatsTrendValue {
 	return result
 }
 
-func sortAndFillValue(ticks []*StatsTrendTick) []*StatsTrendTick{
+func sortAndFillValue(ticks []*StatsTrendTick) []*StatsTrendTick {
 	sort.Slice(ticks, func(i, j int) bool { return ticks[i].Time < ticks[j].Time })
 
 	for i := range ticks {
@@ -143,7 +142,7 @@ func sortAndFillValue(ticks []*StatsTrendTick) []*StatsTrendTick{
 	return ticks
 }
 
-func cornersStatsFromEvents(footballEvent *FootballEvent) *StatsTrendValue {
+func CornersStatsFromEvents(footballEvent *FootballEvent) *StatsTrendValue {
 	result := &StatsTrendValue{
 		Home: []*StatsTrendTick{},
 		Away: []*StatsTrendTick{},
@@ -158,13 +157,12 @@ func cornersStatsFromEvents(footballEvent *FootballEvent) *StatsTrendValue {
 			minute, _ = strconv.ParseInt(minuteStr, 10, 64)
 		}
 
-		eventDescription := strings.Split(event.Text, `-`)[1]
-		teamName := strings.Split(event.Text, `-`)[2]
-		if strings.Contains(eventDescription, " Corner ") {
+		if strings.Contains(event.Text, " Corner ") {
 			newTick := &StatsTrendTick{
 				Time: minute,
 			}
 
+			teamName := strings.Split(event.Text, `-`)[2]
 			if strings.Contains(teamName, footballEvent.Event.HomeTeam.Name) {
 				result.Home = append(result.Home, newTick)
 			} else {
