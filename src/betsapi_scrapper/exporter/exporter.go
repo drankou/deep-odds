@@ -4,8 +4,10 @@ import (
 	"betsapi_scrapper/betsapi"
 	"betsapi_scrapper/storage"
 	"betsapi_scrapper/types"
+	"fmt"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	"time"
 )
 
 //represents endpoint for all requests on betsapi data
@@ -91,6 +93,52 @@ func (e *Exporter) EventToFootballEvent(event *types.Event) *types.FootballEvent
 	return footballEvent
 }
 
+func (e *Exporter) ExportFootballEventsFromDate(from int64, to int64) {
+	//format YYYYMMDD, eg: 20180814 (min 20160901)
+
+	for timestamp := from; timestamp < to; timestamp += 86400 {
+		year, month, day := time.Unix(timestamp, 0).Truncate(24 * time.Hour).Date()
+
+		var monthStr string
+		var dayStr string
+
+		if month < 10 {
+			monthStr = fmt.Sprintf("0%d", month)
+		} else {
+			monthStr = fmt.Sprintf("%d", month)
+		}
+
+		if day < 10 {
+			dayStr = fmt.Sprintf("0%d", day)
+		} else {
+			dayStr = fmt.Sprintf("%d", day)
+		}
+
+		betsapiDay := fmt.Sprintf("%d%s%s", year, monthStr, dayStr)
+		log.Print(betsapiDay)
+
+		events, err := e.Betsapi.GetEndedEvents(types.SoccerId, "", "", "", betsapiDay, "")
+		if err != nil {
+			log.Errorf("Exporter: ended events: %s", err)
+		}
+
+		log.Infof("Number of ended events for %s: %d", betsapiDay, len(events))
+
+		//fill additional info about events
+		for _, event := range events {
+			footballEvent := e.GetFootballEventById(event.Id)
+
+			if footballEvent != nil {
+				//save event to mongo
+				err := e.SaveFootballEventToMongo(footballEvent)
+				if err != nil {
+					log.Errorf("Mongo error: %s", err)
+				}
+			}
+		}
+	}
+}
+
 func (e *Exporter) UpdateFootballEventStatsTrend(footballEvent *types.FootballEvent) error {
 	statsTrend, err := e.Betsapi.GetEventStatsTrend(footballEvent.Event.Id)
 	if err != nil {
@@ -109,7 +157,7 @@ func (e *Exporter) SaveFootballEventToMongo(footballEvent *types.FootballEvent) 
 		return err
 	}
 
-	log.Info("mongo: entry inserted: ", footballEvent.Event.Id)
+	//log.Info("mongo: entry inserted: ", footballEvent.Event.Id)
 
 	return nil
 }
