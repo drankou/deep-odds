@@ -9,7 +9,7 @@ import (
 type StatsTrend struct {
 	Attacks          *StatsTrendValue `json:"attacks" bson:"attacks"`
 	DangerousAttacks *StatsTrendValue `json:"dangerous_attacks" bson:"dangerous_attacks"`
-	Possession       *StatsTrendValue `json:"possesion" bson:"possesion"`
+	Possession       *StatsTrendValue `json:"possession" bson:"possession"`
 	OffTarget        *StatsTrendValue `json:"off_target" bson:"off_target"`
 	OnTarget         *StatsTrendValue `json:"on_target" bson:"on_target"`
 	Corners          *StatsTrendValue `json:"corners" bson:"corners"`
@@ -49,6 +49,10 @@ func AddMissingStatsTrend(statsTrend *StatsTrend) *StatsTrend {
 }
 
 func addMissingStatsTrendValues(value *StatsTrendValue) *StatsTrendValue {
+	if value == nil {
+		value = &StatsTrendValue{}
+	}
+
 	return &StatsTrendValue{
 		Home: addMissingStatsTrendTicks(value.Home),
 		Away: addMissingStatsTrendTicks(value.Away),
@@ -67,7 +71,7 @@ func addMissingStatsTrendTicks(ticks []*StatsTrendTick) []*StatsTrendTick {
 	sort.Slice(minutes, func(i, j int) bool { return minutes[i] < minutes[j] })
 
 	//check if first available minute is 0 - start of the match
-	if len(minutes) > 0 && minutes[0] != 0 {
+	if (len(minutes) > 0 && minutes[0] != 0) || len(minutes) == 0 {
 		// add first minute value
 		minuteValue[0] = 0
 		minutes = append(minutes, 0)

@@ -7,15 +7,15 @@ type EventHistory struct {
 }
 
 func (eventHistory *EventHistory) Clean() {
-	//for _, event := range eventHistory.H2H {
-	//	event.Clean()
-	//}
-	//
-	//for _, event := range eventHistory.Home {
-	//	event.Clean()
-	//}
-	//
-	//for _, event := range eventHistory.Away {
-	//	event.Clean()
-	//}
+	for _, event := range eventHistory.H2H {
+		event.Clean()
+	}
+
+	for _, event := range eventHistory.Home {
+		event.Clean()
+	}
+
+	for _, event := range eventHistory.Away {
+		event.Clean()
+	}
 }

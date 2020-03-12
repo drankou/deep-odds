@@ -10,18 +10,18 @@ type FootballEvent struct {
 }
 
 func (f *FootballEvent) Clean() {
-	//if f.Event != nil {
-	//	f.Event.Clean()
-	//}
-	//
-	//if f.History != nil {
-	//	f.History.Clean()
-	//}
-	//
-	////if f.Odds != nil {
-	////	f.Odds.Clean()
-	////}
-	//
+	if f.Event != nil {
+		f.Event.Clean()
+	}
+
+	if f.History != nil {
+		f.History.Clean()
+	}
+
+	if f.Odds != nil {
+		f.Odds.Clean()
+	}
+
 	//if f.StatsTrend != nil {
 	//	f.StatsTrend.Clean()
 	//}
