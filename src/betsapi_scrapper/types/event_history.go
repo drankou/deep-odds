@@ -1,21 +1,15 @@
 package types
 
-type EventHistory struct {
-	H2H  []*Event `json:"h2h,omitempty" bson:"h2h"`
-	Home []*Event `json:"home,omitempty" bson:"home"`
-	Away []*Event `json:"away,omitempty" bson:"away"`
-}
-
-func (eventHistory *EventHistory) Clean() {
-	for _, event := range eventHistory.H2H {
+func (m *EventHistory) Clean() {
+	for _, event := range m.GetH2H() {
 		event.Clean()
 	}
 
-	for _, event := range eventHistory.Home {
+	for _, event := range m.GetHome() {
 		event.Clean()
 	}
 
-	for _, event := range eventHistory.Away {
+	for _, event := range m.GetAway() {
 		event.Clean()
 	}
 }

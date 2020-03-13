@@ -2,24 +2,17 @@ package types
 
 //aggregated data about football event
 
-type FootballEvent struct {
-	Event      *Event        `json:"event,omitempty" bson:"event"`
-	History    *EventHistory `json:"history,omitempty" bson:"history"`
-	Odds       *Odds         `json:"odds,omitempty" bson:"odds"`
-	StatsTrend *StatsTrend   `json:"stats_trend,omitempty" bson:"stats_trend"`
-}
-
-func (f *FootballEvent) Clean() {
-	if f.Event != nil {
-		f.Event.Clean()
+func (m *FootballEvent) Clean() {
+	if m.GetEvent() != nil {
+		m.GetEvent().Clean()
 	}
 
-	if f.History != nil {
-		f.History.Clean()
+	if m.GetHistory() != nil {
+		m.GetHistory().Clean()
 	}
 
-	if f.Odds != nil {
-		f.Odds.Clean()
+	if m.GetOdds() != nil {
+		m.GetOdds().Clean()
 	}
 
 	//if f.StatsTrend != nil {

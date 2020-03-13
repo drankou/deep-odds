@@ -1,0 +1,241 @@
+syntax = "proto3";
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+option go_package = ".;types";
+
+service Betsapi {
+    rpc GetInPlayEvents (InPlayEventsRequest) returns (stream Event) {
+    }
+
+    rpc GetUpcomingEvents (UpcomingEventsRequest) returns (stream Event) {
+    }
+
+    rpc GetStartingEvents (StartingEventsRequest) returns (stream Event) {
+    }
+
+    rpc GetEndedEvents (EndedEventsRequest) returns (stream Event) {
+    }
+
+    rpc GetEventView (EventViewRequest) returns (Event) {
+    }
+
+    rpc GetEventHistory (EventHistoryRequest) returns (EventHistory) {
+    }
+
+    rpc GetEventOdds (EventOddsRequest) returns (Odds) {
+    }
+
+    rpc GetEventStatsTrend (EventStatsTrendRequest) returns (StatsTrend) {
+    }
+
+    rpc GetLeagues (LeaguesRequest) returns (stream League) {
+    }
+}
+
+message LeaguesRequest {
+
+}
+
+message InPlayEventsRequest {
+    string sport_id = 1;
+}
+
+message UpcomingEventsRequest {
+    string sport_id = 1;
+    string league_id = 2;
+    string team_id = 3;
+    string country_code = 4;
+    string day = 5;
+    string page = 6;
+}
+
+message StartingEventsRequest {
+    string sport_id = 1;
+    int64 minute_threshold = 2;
+}
+
+message EndedEventsRequest {
+    string sport_id = 1;
+    string league_id = 2;
+    string team_id = 3;
+    string country_code = 4;
+    string day = 5;
+    string page = 6;
+}
+
+message EventViewRequest {
+    string event_id = 1;
+}
+
+message EventOddsRequest {
+    string event_id = 1;
+}
+
+message EventStatsTrendRequest {
+    string event_id = 1;
+}
+
+// ------------- Event ---------------- //
+message Event {
+    string id = 1 [(gogoproto.jsontag) = "id", (gogoproto.moretags) = "bson:\"id,omitempty\""];
+    int64 time = 2 [(gogoproto.jsontag) = "time,string", (gogoproto.moretags) = "bson:\"time,omitempty\""];
+    string sport_id = 3 [(gogoproto.jsontag) = "sport_id", (gogoproto.moretags) = "bson:\"sport_id,omitempty\""];
+    string time_status = 4 [(gogoproto.jsontag) = "time_status", (gogoproto.moretags) = "bson:\"time_status,omitempty\""];
+    string score = 5 [(gogoproto.jsontag) = "ss", (gogoproto.moretags) = "bson:\"score,omitempty\""];
+    Team home_team = 6 [(gogoproto.jsontag) = "home", (gogoproto.moretags) = "bson:\"home_team,omitempty\""];
+    Team away_team = 7 [(gogoproto.jsontag) = "away", (gogoproto.moretags) = "bson:\"away_team,omitempty\""];
+    League league = 8 [(gogoproto.jsontag) = "league", (gogoproto.moretags) = "bson:\"league,omitempty\""];
+    Timer timer = 9 [(gogoproto.jsontag) = "timer", (gogoproto.moretags) = "bson:\"-\""];
+    ExtraInfo extra_info = 10 [(gogoproto.jsontag) = "extra,omitempty", (gogoproto.moretags) = "bson:\"extra_info,omitempty\""];
+    repeated EventViewEvent events = 11 [(gogoproto.jsontag) = "events,omitempty", (gogoproto.moretags) = "bson:\"events,omitempty\""];
+    int32 has_lineup = 12 [(gogoproto.jsontag) = "has_lineup,omitempty", (gogoproto.moretags) = "bson:\"has_lineup,omitempty\""];
+}
+
+message Team {
+    string id = 1 [(gogoproto.jsontag) = "id", (gogoproto.moretags) = "bson:\"id,omitempty\""];
+    string name = 2 [(gogoproto.jsontag) = "name", (gogoproto.moretags) = "bson:\"name,omitempty\""];
+    string country_code = 3 [(gogoproto.jsontag) = "cc", (gogoproto.moretags) = "bson:\"country_code,omitempty\""];
+}
+
+message League {
+    string id = 1 [(gogoproto.jsontag) = "id", (gogoproto.moretags) = "bson:\"id,omitempty\""];
+    string name = 2 [(gogoproto.jsontag) = "name", (gogoproto.moretags) = "bson:\"name,omitempty\""];
+    string country_code = 3 [(gogoproto.jsontag) = "cc", (gogoproto.moretags) = "bson:\"country_code,omitempty\""];
+}
+
+message Timer {
+    int64 active = 1 [(gogoproto.jsontag) = "tt,string", (gogoproto.moretags) = "bson:\"-\""];
+    int64 minutes = 2 [(gogoproto.jsontag) = "tm", (gogoproto.moretags) = "bson:\"minutes,omitempty\""];
+    int64 seconds = 3 [(gogoproto.jsontag) = "ts", (gogoproto.moretags) = "bson:\"seconds,omitempty\""];
+    int64 added_time = 4 [(gogoproto.jsontag) = "ta", (gogoproto.moretags) = "bson:\"added_time,omitempty\""];
+}
+
+message ExtraInfo {
+    Manager home_manager = 1 [(gogoproto.moretags) = "bson:\"home_manager,omitempty\""];
+    Manager away_manager = 2 [(gogoproto.moretags) = "bson:\"away_manager,omitempty\""];
+    Referee referee = 3 [(gogoproto.moretags) = "bson:\"referee,omitempty\""];
+    StadiumData stadium_data = 4 [(gogoproto.moretags) = "bson:\"stadium_data,omitempty\""];
+    int64 length = 5 [(gogoproto.jsontag) = "length,string", (gogoproto.moretags) = "bson:\"length,omitempty\""];
+    string pitch = 6 [(gogoproto.moretags) = "bson:\"pitch,omitempty\""];
+    string weather = 7 [(gogoproto.moretags) = "bson:\"weather,omitempty\""];
+    string stadium = 8 [(gogoproto.moretags) = "bson:\"stadium,omitempty\""];
+    int64 home_position = 9 [(gogoproto.moretags) = "bson:\"home_pos,omitempty\""];
+    int64 away_position = 10 [(gogoproto.moretags) = "bson:\"away_pos,omitempty\""];
+    string round = 11 [(gogoproto.moretags) = "bson:\"round,omitempty\""];
+}
+
+message Manager {
+    string name = 1 [(gogoproto.jsontag) = "name", (gogoproto.moretags) = "bson:\"name,omitempty\""];
+    string country_code = 2 [(gogoproto.jsontag) = "cc", (gogoproto.moretags) = "bson:\"country_code,omitempty\""];
+}
+
+message Referee {
+    string name = 1;
+    string country_code = 2 [(gogoproto.jsontag) = "cc", (gogoproto.moretags) = "bson:\"country_code,omitempty\""];
+}
+
+message StadiumData {
+    string id = 1 [(gogoproto.jsontag) = "id", (gogoproto.moretags) = "bson:\"id,omitempty\""];
+    string name = 2 [(gogoproto.jsontag) = "name", (gogoproto.moretags) = "bson:\"name,omitempty\""];
+    string city = 3 [(gogoproto.jsontag) = "city", (gogoproto.moretags) = "bson:\"city,omitempty\""];
+    string country = 4 [(gogoproto.jsontag) = "country", (gogoproto.moretags) = "bson:\"country,omitempty\""];
+    int64 capacity = 5 [(gogoproto.jsontag) = "capacity,string,omitempty", (gogoproto.moretags) = "bson:\"capacity,omitempty\""];
+    string google_coords = 6 [(gogoproto.jsontag) = "googlecoords,omitempty", (gogoproto.moretags) = "bson:\"googlecoords,omitempty\""];
+}
+
+message EventViewEvent {
+    string id = 1 [(gogoproto.jsontag) = "id", (gogoproto.moretags) = "bson:\"-\""];
+    string text = 2 [(gogoproto.jsontag) = "id", (gogoproto.moretags) = "bson:\"id,omitempty\""];
+}
+// ----------------------------
+
+message EventHistoryRequest {
+    string event_id = 1;
+    string qty = 2;
+}
+
+message EventHistory {
+    repeated Event h2h = 1;
+    repeated Event home = 2;
+    repeated Event away = 3;
+}
+
+// ----------- Odds ------------- //
+message Odds {
+    repeated Result full_time = 1;
+    repeated AsianHandicapResult asian_handicap = 2;
+    repeated AsianHandicapTotal total = 3;
+    repeated AsianHandicapTotal asian_corners = 4;
+    repeated AsianHandicapResult first_half_asian_handicap = 5;
+    repeated AsianHandicapTotal first_half_total = 6;
+    repeated AsianHandicapTotal first_half_asian_corners = 7;
+    repeated Result first_half = 8;
+}
+
+message Result {
+    string id = 1;
+    double home_od = 2;
+    double draw_od = 3;
+    double away_od = 4;
+    string ss = 5;
+    int64 time_str = 6;
+    int64 add_time = 7;
+}
+
+message AsianHandicapResult {
+    string id = 1;
+
+    //AsianHandicapResultOdds
+    double home_od = 2;
+    string handicap = 3;
+    double away_od = 4;
+
+    string ss = 5;
+    int64 time_str = 6;
+    int64 add_time = 7;
+}
+
+message AsianHandicapTotal {
+    string id = 1;
+
+    //AsianHandicapTotalOdds
+    double over_od = 2;
+    string handicap = 3;
+    double under_od = 4;
+
+    string ss = 5;
+    int64 time_str = 6;
+    int64 add_time = 7;
+}
+// ----------------------------
+
+// ------------------ Stats trend ----------------- //
+message StatsTrend {
+    StatsTrendValue attacks = 1;
+    StatsTrendValue dangerous_attacks = 2;
+    StatsTrendValue possession = 3;
+    StatsTrendValue off_target = 4;
+    StatsTrendValue on_target = 5;
+    StatsTrendValue corners = 6;
+    StatsTrendValue goals = 7;
+    StatsTrendValue yellowcards = 8;
+    StatsTrendValue redcards = 9;
+    StatsTrendValue substitutions = 10;
+}
+
+message StatsTrendValue {
+    repeated StatsTrendTick home = 1;
+    repeated StatsTrendTick away = 2;
+}
+
+message StatsTrendTick {
+    int64 time_str = 1;
+    int64 val = 2;
+}
+
+message FootballEvent {
+    Event event = 1;
+    EventHistory history = 2;
+    Odds odds = 3;
+    StatsTrend stats_trend = 4;
+}
