@@ -128,8 +128,61 @@ func (s *BetsapiService) GetInPlayEvents(req *types.InPlayEventsRequest, stream 
 	}
 }
 
-func (BetsapiService) GetUpcomingEvents(*types.UpcomingEventsRequest, types.Betsapi_GetUpcomingEventsServer) error {
-	panic("implement me")
+func (s *BetsapiService) GetUpcomingEvents(req *types.UpcomingEventsRequest, stream types.Betsapi_GetUpcomingEventsServer) error {
+	var upcomingEvents []types.Event
+	httpReq, err := http.NewRequest("GET", constants.UpcomingEventsUrl, nil)
+	if err != nil {
+		return err
+	}
+
+	//encode query parameters
+	q := httpReq.URL.Query()
+	q.Add("token", os.Getenv("BETSAPI_TOKEN"))
+	q.Add("sport_id", req.GetSportId())
+	q.Add("league_id", req.GetLeagueId())
+	q.Add("team_id", req.GetTeamId())
+	q.Add("cc", req.GetCountryCode())
+	q.Add("day", req.GetDay())
+	q.Add("page", req.GetPage())
+
+	httpReq.URL.RawQuery = q.Encode()
+	s.RateLimiter.rateBlock()
+	resp, err := s.Client.Do(httpReq)
+	if err != nil {
+		log.Error(err)
+	}
+
+	var betsapiResponse types.BetsapEventsPagerResponse
+	if resp.StatusCode == 200 {
+		body := resp.Body
+		data, err := ioutil.ReadAll(body)
+		if err != nil {
+			return err
+		}
+
+		err = json.Unmarshal(data, &betsapiResponse)
+		if err != nil {
+			return err
+		}
+
+		if betsapiResponse.Success == 1 {
+			//log.Info("Total events: ", betsapiResponse.Pager.Total)
+			upcomingEvents = append(upcomingEvents, betsapiResponse.Results...)
+
+			for _, event := range betsapiResponse.Results {
+				err := stream.Send(&event)
+				if err != nil {
+					return err
+				}
+			}
+			
+			return nil
+		} else {
+			return errors.Errorf("Error: %d: unsuccessful API response: /events/upcoming", resp.StatusCode)
+		}
+	} else {
+		return errors.Errorf("Error: %d: request: /events/upcoming", resp.StatusCode)
+	}
 }
 
 func (BetsapiService) GetStartingEvents(*types.StartingEventsRequest, types.Betsapi_GetStartingEventsServer) error {
