@@ -162,50 +162,44 @@ message EventHistory {
 
 // ----------- Odds ------------- //
 message Odds {
-    repeated Result full_time = 1;
-    repeated AsianHandicapResult asian_handicap = 2;
-    repeated AsianHandicapTotal total = 3;
-    repeated AsianHandicapTotal asian_corners = 4;
-    repeated AsianHandicapResult first_half_asian_handicap = 5;
-    repeated AsianHandicapTotal first_half_total = 6;
-    repeated AsianHandicapTotal first_half_asian_corners = 7;
-    repeated Result first_half = 8;
+    repeated Result full_time = 1 [(gogoproto.jsontag) = "1_1", (gogoproto.moretags) = "bson:\"full_time\""];
+    repeated AsianHandicapResult asian_handicap = 2 [(gogoproto.jsontag) = "1_2", (gogoproto.moretags) = "bson:\"asian_handicap\""];
+    repeated AsianHandicapTotal total = 3 [(gogoproto.jsontag) = "1_3", (gogoproto.moretags) = "bson:\"total\""];
+    repeated AsianHandicapTotal asian_corners = 4 [(gogoproto.jsontag) = "1_4", (gogoproto.moretags) = "bson:\"asian_corners\""];
+    repeated AsianHandicapResult first_half_asian_handicap = 5 [(gogoproto.jsontag) = "1_5", (gogoproto.moretags) = "bson:\"first_half_asian_handicap\""];
+    repeated AsianHandicapTotal first_half_total = 6 [(gogoproto.jsontag) = "1_6", (gogoproto.moretags) = "bson:\"first_half_total\""];
+    repeated AsianHandicapTotal first_half_asian_corners = 7 [(gogoproto.jsontag) = "1_7", (gogoproto.moretags) = "bson:\"first_half_asian_corners\""];
+    repeated Result first_half = 8 [(gogoproto.jsontag) = "1_8", (gogoproto.moretags) = "bson:\"first_half\""];
 }
 
 message Result {
-    string id = 1;
-    double home_od = 2;
-    double draw_od = 3;
-    double away_od = 4;
-    string ss = 5;
-    int64 time_str = 6;
-    int64 add_time = 7;
+    string id = 1 [(gogoproto.jsontag) = "id", (gogoproto.moretags) = "bson:\"-\""];
+    double home_odds = 2 [(gogoproto.jsontag) = "home_od,string", (gogoproto.moretags) = "bson:\"home_odds\""];
+    double draw_odds = 3 [(gogoproto.jsontag) = "draw_od,string", (gogoproto.moretags) = "bson:\"draw_odds\""];
+    double away_odds = 4 [(gogoproto.jsontag) = "away_od,string", (gogoproto.moretags) = "bson:\"away_odds\""];
+    string score = 5 [(gogoproto.jsontag) = "ss", (gogoproto.moretags) = "bson:\"score\""];
+    int64 minute = 6 [(gogoproto.jsontag) = "time_str,string", (gogoproto.moretags) = "bson:\"minute\""];
+    int64 add_time = 7 [(gogoproto.jsontag) = "add_time,string", (gogoproto.moretags) = "bson:\"add_time\""];
 }
 
 message AsianHandicapResult {
-    string id = 1;
-
-    //AsianHandicapResultOdds
-    double home_od = 2;
-    string handicap = 3;
-    double away_od = 4;
-
-    string ss = 5;
-    int64 time_str = 6;
-    int64 add_time = 7;
+    string id = 1 [(gogoproto.jsontag) = "id", (gogoproto.moretags) = "bson:\"-\""];
+    double home_odds = 2 [(gogoproto.jsontag) = "home_od,string", (gogoproto.moretags) = "bson:\"home_odds\""];
+    string handicap = 3 [(gogoproto.jsontag) = "handicap", (gogoproto.moretags) = "bson:\"handicap\""];
+    double away_odds = 4 [(gogoproto.jsontag) = "away_od,string", (gogoproto.moretags) = "bson:\"away_odds\""];
+    string score = 5 [(gogoproto.jsontag) = "ss", (gogoproto.moretags) = "bson:\"score\""];
+    int64 minute = 6 [(gogoproto.jsontag) = "time_str,string", (gogoproto.moretags) = "bson:\"minute\""];
+    int64 add_time = 7 [(gogoproto.jsontag) = "add_time,string", (gogoproto.moretags) = "bson:\"add_time\""];
 }
 
 message AsianHandicapTotal {
-    string id = 1;
-
-    //AsianHandicapTotalOdds
-    double over_od = 2;
-    string handicap = 3;
-    double under_od = 4;
-
-    string ss = 5;
-    int64 time_str = 6;
-    int64 add_time = 7;
+    string id = 1 [(gogoproto.jsontag) = "id", (gogoproto.moretags) = "bson:\"-\""];
+    double over_odds = 2 [(gogoproto.jsontag) = "over_od,string", (gogoproto.moretags) = "bson:\"home_odds\""];
+    string handicap = 3 [(gogoproto.jsontag) = "handicap", (gogoproto.moretags) = "bson:\"handicap\""];
+    double under_odds = 4 [(gogoproto.jsontag) = "under_od,string", (gogoproto.moretags) = "bson:\"away_odds\""];
+    string score = 5 [(gogoproto.jsontag) = "ss", (gogoproto.moretags) = "bson:\"score\""];
+    int64 minute = 6 [(gogoproto.jsontag) = "time_str,string", (gogoproto.moretags) = "bson:\"minute\""];
+    int64 add_time = 7 [(gogoproto.jsontag) = "add_time,string", (gogoproto.moretags) = "bson:\"add_time\""];
 }
 // ----------------------------
 
