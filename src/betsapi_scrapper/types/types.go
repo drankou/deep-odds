@@ -1,28 +1,5 @@
 package types
 
-//sportID description
-const (
-	SoccerId     string = "1"
-	TennisId     string = "13"
-	BasketballId string = "18"
-	AllSports    string = "000"
-)
-
-//Time Status Error Value Description
-const (
-	NotStarted  string = "0"
-	Inplay      string = "1"
-	ToBeFixed   string = "2"
-	Ended       string = "3"
-	Postponed   string = "4"
-	Canceled    string = "5"
-	Walkover    string = "6"
-	Interrupted string = "7"
-	Abandoned   string = "8"
-	Retired     string = "9"
-	Removed     string = "10"
-)
-
 // InPlay events response
 type BetsapiInplayResponse struct {
 	// Response success

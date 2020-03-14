@@ -47,16 +47,31 @@ message TeamsRequest {
 }
 
 message InPlayEventsRequest {
-    string sport_id = 1;
+    //sport id
+    string sport_id = 1; //required
+
+    //league id
+    string league_id = 2; //optional
 }
 
 message UpcomingEventsRequest {
-    string sport_id = 1;
-    string league_id = 2;
-    string team_id = 3;
-    string country_code = 4;
-    string day = 5;
-    string page = 6;
+    //sport id
+    string sport_id = 1; //required
+
+    //league id
+    string league_id = 2; //optional
+
+    //team id
+    string team_id = 3; //optional
+
+    //country code
+    string country_code = 4; //optional
+
+    //day in format YYYYMMDD
+    string day = 5; //optional
+
+    //page number (max 100)
+    string page = 6; //optional
 }
 
 message StartingEventsRequest {
@@ -65,27 +80,42 @@ message StartingEventsRequest {
 }
 
 message EndedEventsRequest {
-    string sport_id = 1;
-    string league_id = 2;
-    string team_id = 3;
-    string country_code = 4;
-    string day = 5;
-    string page = 6;
+    //sport id
+    string sport_id = 1; //required
+
+    //league id
+    string league_id = 2; //optional
+
+    //team id
+    string team_id = 3; //optional
+
+    //country code
+    string country_code = 4; //optional
+
+    //day in format YYYYMMDD
+    string day = 5; //optional
+
+    //page number (max 100)
+    string page = 6; //optional
 }
 
 message EventViewRequest {
-    string event_id = 1;
+    //event id
+    string event_id = 1; //required
 }
 
 message EventOddsRequest {
-    //Event id
-    string event_id = 1;
+    //event id
+    string event_id = 1; //required
+
     //odds source, name of available bookmakers
-    string source = 2;
+    string source = 2; //optional
+
     //add_time will be >= $since_time in results. Faster to get only updates
-    int64 since_time = 3;
+    int64 since_time = 3; //optional
+
     //if you only need one (or few) market to save time/bandwidth, pass the related string like &odds_market=1 or &odds_market=2,3 etc.
-    string odds_market = 4;
+    string odds_market = 4; //optional
 }
 
 message EventStatsTrendRequest {
@@ -167,8 +197,11 @@ message EventViewEvent {
 // ----------------------------
 
 message EventHistoryRequest {
-    string event_id = 1;
-    string qty = 2;
+    // event id
+    string event_id = 1; //required
+
+    // number of last matches (default 10, allowing 1 to 20)
+    string qty = 2; //optional
 }
 
 message EventHistory {

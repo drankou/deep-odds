@@ -3,6 +3,7 @@ package service
 import (
 	"betsapi_scrapper/types"
 	"betsapi_scrapper/types/constants"
+	"betsapi_scrapper/utils"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -13,53 +14,32 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 )
 
-type BetsapiRateLimiter struct {
-	*sync.Mutex
-	rate time.Duration
-	last time.Time
-}
-
-func (b *BetsapiRateLimiter) init() {
-	b.Mutex = &sync.Mutex{}
-	b.last = time.Now()
-	b.rate = 1 * time.Second
-}
-
-func (b *BetsapiRateLimiter) rateBlock() {
-	b.Lock()
-	defer b.Unlock()
-
-	if time.Since(b.last) < b.rate {
-		<-time.After(b.last.Add(b.rate).Sub(time.Now()))
-	}
-	b.last = time.Now()
-}
-
 type BetsapiService struct {
 	Client      *http.Client
-	Context     context.Context
-	RateLimiter *BetsapiRateLimiter
-	SportId     string
+	RateLimiter *utils.RateLimiter
 	Cache       *types.Cache
 }
 
 func (s *BetsapiService) Init() error {
 	s.Client = &http.Client{}
-	s.Context = context.Background()
 
 	//initialize cache
 	s.Cache = &types.Cache{}
-	s.Cache.ResetInterval = "every 1m"
+	s.Cache.ResetInterval = "@every 10m"
 	s.Cache.ResetFunc = s.Cache.Clear
+	err := s.Cache.Initialize()
+	if err != nil {
+		return err
+	}
 
-	s.RateLimiter = &BetsapiRateLimiter{}
-	s.RateLimiter.init()
+	// init rate limiter for api requests
+	s.RateLimiter = &utils.RateLimiter{}
+	s.RateLimiter.Init(time.Second)
 
-	log.Info("Betsapi crawler initialized")
+	log.Info("Betsapi service initialized")
 	return nil
 }
 
@@ -146,7 +126,7 @@ func (s *BetsapiService) GetUpcomingEvents(req *types.UpcomingEventsRequest, str
 	q.Add("page", req.GetPage())
 
 	httpReq.URL.RawQuery = q.Encode()
-	s.RateLimiter.rateBlock()
+	s.RateLimiter.RateBlock()
 	resp, err := s.Client.Do(httpReq)
 	if err != nil {
 		log.Error(err)
@@ -204,7 +184,7 @@ func (s *BetsapiService) GetEndedEvents(req *types.EndedEventsRequest, stream ty
 
 	httpReq.URL.RawQuery = q.Encode()
 
-	s.RateLimiter.rateBlock()
+	s.RateLimiter.RateBlock()
 	resp, err := s.Client.Do(httpReq)
 	if err != nil {
 		return err
@@ -252,7 +232,7 @@ func (s *BetsapiService) GetEventView(ctx context.Context, req *types.EventViewR
 	q.Add("event_id", req.GetEventId())
 	httpReq.URL.RawQuery = q.Encode()
 
-	s.RateLimiter.rateBlock()
+	s.RateLimiter.RateBlock()
 	resp, err := s.Client.Do(httpReq)
 	if err != nil {
 		return nil, err
@@ -276,7 +256,7 @@ func (s *BetsapiService) GetEventView(ctx context.Context, req *types.EventViewR
 				event := betsapiResponse.Results[0]
 
 				switch event.SportId {
-				case types.SoccerId:
+				case constants.SoccerId:
 					var footballEventView types.BetsapiFootballStatsResponse
 					err = json.Unmarshal(data, &footballEventView)
 					if err != nil {
@@ -286,9 +266,9 @@ func (s *BetsapiService) GetEventView(ctx context.Context, req *types.EventViewR
 					if len(footballEventView.Results) > 0 {
 						return &footballEventView.Results[0].Event, nil
 					}
-				case types.BasketballId:
+				case constants.BasketballId:
 					return nil, nil
-				case types.TennisId:
+				case constants.TennisId:
 					return nil, nil
 				default:
 					return nil, errors.New("Unsupported sport id for event view")
@@ -315,11 +295,13 @@ func (s *BetsapiService) GetEventHistory(ctx context.Context, req *types.EventHi
 	q := httpReq.URL.Query()
 	q.Add("token", os.Getenv("BETSAPI_TOKEN"))
 	q.Add("event_id", req.GetEventId())
-	q.Add("qty", req.GetQty())
+	if req.GetQty() != "" {
+		q.Add("qty", req.GetQty())
+	}
 
 	httpReq.URL.RawQuery = q.Encode()
 
-	s.RateLimiter.rateBlock()
+	s.RateLimiter.RateBlock()
 	resp, err := s.Client.Do(httpReq)
 	if err != nil {
 		return nil, err
@@ -358,13 +340,19 @@ func (s *BetsapiService) GetEventOdds(ctx context.Context, req *types.EventOddsR
 	q := httpReq.URL.Query()
 	q.Add("token", os.Getenv("BETSAPI_TOKEN"))
 	q.Add("event_id", req.GetEventId())
-	q.Add("source", req.GetSource())
-	q.Add("odds_market", req.GetOddsMarket())
-	q.Add("since_time", strconv.FormatInt(req.GetSinceTime(), 64))
+	if req.GetSource() != "" {
+		q.Add("source", req.GetSource())
+	}
+	if req.GetOddsMarket() != "" {
+		q.Add("odds_market", req.GetOddsMarket())
+	}
+	if req.GetSinceTime() != 0 {
+		q.Add("since_time", strconv.FormatInt(req.GetSinceTime(), 10))
+	}
 
 	httpReq.URL.RawQuery = q.Encode()
 
-	s.RateLimiter.rateBlock()
+	s.RateLimiter.RateBlock()
 	resp, err := s.Client.Do(httpReq)
 	if err != nil {
 		return nil, err
@@ -409,7 +397,7 @@ func (s *BetsapiService) GetEventStatsTrend(ctx context.Context, req *types.Even
 
 	httpReq.URL.RawQuery = q.Encode()
 
-	s.RateLimiter.rateBlock()
+	s.RateLimiter.RateBlock()
 	resp, err := s.Client.Do(httpReq)
 	if err != nil {
 		return nil, err
@@ -453,7 +441,7 @@ func (s *BetsapiService) GetLeagues(req *types.LeaguesRequest, stream types.Bets
 
 	httpReq.URL.RawQuery = q.Encode()
 
-	s.RateLimiter.rateBlock()
+	s.RateLimiter.RateBlock()
 	resp, err := s.Client.Do(httpReq)
 	if err != nil {
 		return err
@@ -503,7 +491,7 @@ func (s *BetsapiService) GetTeams(req *types.TeamsRequest, stream types.Betsapi_
 
 	httpReq.URL.RawQuery = q.Encode()
 
-	s.RateLimiter.rateBlock()
+	s.RateLimiter.RateBlock()
 	resp, err := s.Client.Do(httpReq)
 	if err != nil {
 		return err
