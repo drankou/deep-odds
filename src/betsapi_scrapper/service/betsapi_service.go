@@ -258,8 +258,47 @@ func (s *BetsapiService) GetEventView(ctx context.Context, req *types.EventViewR
 	return nil, errors.Errorf("Error: %d: request: /event/view", resp.StatusCode)
 }
 
-func (BetsapiService) GetEventHistory(context.Context, *types.EventHistoryRequest) (*types.EventHistory, error) {
-	panic("implement me")
+func (s *BetsapiService) GetEventHistory(ctx context.Context, req *types.EventHistoryRequest) (*types.EventHistory, error) {
+	httpReq, err := http.NewRequest("GET", constants.EventHistoryUrl, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	//encode query parameters
+	q := httpReq.URL.Query()
+	q.Add("token", os.Getenv("BETSAPI_TOKEN"))
+	q.Add("event_id", req.GetEventId())
+	q.Add("qty", req.GetQty())
+
+	httpReq.URL.RawQuery = q.Encode()
+
+	s.RateLimiter.rateBlock()
+	resp, err := s.Client.Do(httpReq)
+	if err != nil {
+		return nil, err
+	}
+
+	var betsapiResponse types.BetsapiEventHistoryResponse
+	if resp.StatusCode == 200 {
+		body := resp.Body
+		data, err := ioutil.ReadAll(body)
+		if err != nil {
+			return nil, err
+		}
+
+		err = json.Unmarshal(data, &betsapiResponse)
+		if err != nil {
+			return nil, err
+		}
+
+		if betsapiResponse.Success == 1 {
+			return &betsapiResponse.Results, nil
+		} else {
+			return nil, errors.Errorf("Error: %d: unsuccessful API response: /event/history", resp.StatusCode)
+		}
+	} else {
+		return nil, errors.Errorf("Error: %d: request: /event/history", resp.StatusCode)
+	}
 }
 
 func (s *BetsapiService) GetEventOdds(ctx context.Context, req *types.EventOddsRequest) (*types.Odds, error) {
