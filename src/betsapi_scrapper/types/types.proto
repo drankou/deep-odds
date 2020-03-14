@@ -70,7 +70,14 @@ message EventViewRequest {
 }
 
 message EventOddsRequest {
+    //Event id
     string event_id = 1;
+    //odds source, name of available bookmakers
+    string source = 2;
+    //add_time will be >= $since_time in results. Faster to get only updates
+    int64 since_time = 3;
+    //if you only need one (or few) market to save time/bandwidth, pass the related string like &odds_market=1 or &odds_market=2,3 etc.
+    string odds_market = 4;
 }
 
 message EventStatsTrendRequest {

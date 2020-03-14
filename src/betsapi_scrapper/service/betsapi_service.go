@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -357,6 +358,9 @@ func (s *BetsapiService) GetEventOdds(ctx context.Context, req *types.EventOddsR
 	q := httpReq.URL.Query()
 	q.Add("token", os.Getenv("BETSAPI_TOKEN"))
 	q.Add("event_id", req.GetEventId())
+	q.Add("source", req.GetSource())
+	q.Add("odds_market", req.GetOddsMarket())
+	q.Add("since_time", strconv.FormatInt(req.GetSinceTime(), 64))
 
 	httpReq.URL.RawQuery = q.Encode()
 
