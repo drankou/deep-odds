@@ -145,7 +145,7 @@ message StadiumData {
 
 message EventViewEvent {
     string id = 1 [(gogoproto.jsontag) = "id", (gogoproto.moretags) = "bson:\"-\""];
-    string text = 2 [(gogoproto.jsontag) = "id", (gogoproto.moretags) = "bson:\"id,omitempty\""];
+    string text = 2 [(gogoproto.jsontag) = "text", (gogoproto.moretags) = "bson:\"text,omitempty\""];
 }
 // ----------------------------
 

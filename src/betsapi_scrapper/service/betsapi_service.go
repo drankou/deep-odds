@@ -175,7 +175,7 @@ func (s *BetsapiService) GetUpcomingEvents(req *types.UpcomingEventsRequest, str
 					return err
 				}
 			}
-			
+
 			return nil
 		} else {
 			return errors.Errorf("Error: %d: unsuccessful API response: /events/upcoming", resp.StatusCode)
@@ -193,8 +193,69 @@ func (BetsapiService) GetEndedEvents(*types.EndedEventsRequest, types.Betsapi_Ge
 	panic("implement me")
 }
 
-func (BetsapiService) GetEventView(context.Context, *types.EventViewRequest) (*types.Event, error) {
-	panic("implement me")
+func (s *BetsapiService) GetEventView(ctx context.Context, req *types.EventViewRequest) (*types.Event, error) {
+	httpReq, err := http.NewRequest("GET", constants.EventViewUrl, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	//encode query parameters
+	q := httpReq.URL.Query()
+	q.Add("token", os.Getenv("BETSAPI_TOKEN"))
+	q.Add("event_id", req.GetEventId())
+	httpReq.URL.RawQuery = q.Encode()
+
+	s.RateLimiter.rateBlock()
+	resp, err := s.Client.Do(httpReq)
+	if err != nil {
+		return nil, err
+	}
+
+	var betsapiResponse types.BetsapiStatsResponse
+	if resp.StatusCode == 200 {
+		body := resp.Body
+		data, err := ioutil.ReadAll(body)
+		if err != nil {
+			return nil, err
+		}
+
+		err = json.Unmarshal(data, &betsapiResponse)
+		if err != nil {
+			return nil, err
+		}
+
+		if betsapiResponse.Success == 1 {
+			if len(betsapiResponse.Results) > 0 {
+				event := betsapiResponse.Results[0]
+
+				switch event.SportId {
+				case types.SoccerId:
+					var footballEventView types.BetsapiFootballStatsResponse
+					err = json.Unmarshal(data, &footballEventView)
+					if err != nil {
+						return nil, err
+					}
+
+					if len(footballEventView.Results) > 0 {
+						return &footballEventView.Results[0].Event, nil
+					}
+				case types.BasketballId:
+					return nil, nil
+				case types.TennisId:
+					return nil, nil
+				default:
+					return nil, errors.New("Unsupported sport id for event view")
+				}
+			}
+
+		} else {
+			return nil, errors.Errorf("Error: %d: unsuccessful API response: /events/view", resp.StatusCode)
+		}
+	} else {
+		return nil, errors.Errorf("Error: %d: request: /event/view", resp.StatusCode)
+	}
+
+	return nil, errors.Errorf("Error: %d: request: /event/view", resp.StatusCode)
 }
 
 func (BetsapiService) GetEventHistory(context.Context, *types.EventHistoryRequest) (*types.EventHistory, error) {
