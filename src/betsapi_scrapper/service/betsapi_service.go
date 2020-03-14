@@ -193,8 +193,46 @@ func (s *BetsapiService) GetEventOdds(ctx context.Context, req *types.EventOddsR
 	}
 }
 
-func (BetsapiService) GetEventStatsTrend(context.Context, *types.EventStatsTrendRequest) (*types.StatsTrend, error) {
-	panic("implement me")
+func (s *BetsapiService) GetEventStatsTrend(ctx context.Context, req *types.EventStatsTrendRequest) (*types.StatsTrend, error) {
+	httpReq, err := http.NewRequest("GET", constants.EventStatsTrendUrl, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	//encode query parameters
+	q := httpReq.URL.Query()
+	q.Add("token", os.Getenv("BETSAPI_TOKEN"))
+	q.Add("event_id", req.GetEventId())
+
+	httpReq.URL.RawQuery = q.Encode()
+
+	s.RateLimiter.rateBlock()
+	resp, err := s.Client.Do(httpReq)
+	if err != nil {
+		return nil, err
+	}
+
+	var betsapiResponse types.BetsapiStatsTrendResponse
+	if resp.StatusCode == 200 {
+		body := resp.Body
+		data, err := ioutil.ReadAll(body)
+		if err != nil {
+			return nil, err
+		}
+
+		err = json.Unmarshal(data, &betsapiResponse)
+		if err != nil {
+			return nil, err
+		}
+
+		if betsapiResponse.Success == 1 {
+			return &betsapiResponse.Results, nil
+		} else {
+			return nil, errors.Errorf("Error: %d: unsuccessful API response: /event/stats_trend", resp.StatusCode)
+		}
+	} else {
+		return nil, errors.Errorf("Error: %d: request: /event/stats_trend", resp.StatusCode)
+	}
 }
 
 func (BetsapiService) GetLeagues(*types.LeaguesRequest, types.Betsapi_GetLeaguesServer) error {
