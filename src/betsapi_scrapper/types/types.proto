@@ -33,7 +33,9 @@ service Betsapi {
 }
 
 message LeaguesRequest {
-
+    string sport_id = 1;
+    string country_code = 2;
+    string page = 3;
 }
 
 message InPlayEventsRequest {

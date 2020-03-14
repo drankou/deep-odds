@@ -434,6 +434,53 @@ func (s *BetsapiService) GetEventStatsTrend(ctx context.Context, req *types.Even
 	}
 }
 
-func (BetsapiService) GetLeagues(*types.LeaguesRequest, types.Betsapi_GetLeaguesServer) error {
-	panic("implement me")
+func (s *BetsapiService) GetLeagues(req *types.LeaguesRequest, stream types.Betsapi_GetLeaguesServer) error {
+	httpReq, err := http.NewRequest("GET", constants.LeagueUrl, nil)
+	if err != nil {
+		return err
+	}
+
+	//encode query parameters
+	q := httpReq.URL.Query()
+	q.Add("cc", req.GetCountryCode())
+	q.Add("page", req.GetPage())
+	q.Add("token", os.Getenv("BETSAPI_TOKEN"))
+	q.Add("sport_id", req.GetSportId())
+
+	httpReq.URL.RawQuery = q.Encode()
+
+	s.RateLimiter.rateBlock()
+	resp, err := s.Client.Do(httpReq)
+	if err != nil {
+		return err
+	}
+
+	var betsapiResponse types.BetsapiLeagueResponse
+	if resp.StatusCode == 200 {
+		body := resp.Body
+		data, err := ioutil.ReadAll(body)
+		if err != nil {
+			return err
+		}
+
+		err = json.Unmarshal(data, &betsapiResponse)
+		if err != nil {
+			return err
+		}
+
+		if betsapiResponse.Success == 1 {
+			for _, league := range betsapiResponse.Results {
+				err := stream.Send(&league)
+				if err != nil {
+					return err
+				}
+			}
+
+			return nil
+		} else {
+			return errors.Errorf("Error: %d: unsuccessful API response: /event/league", resp.StatusCode)
+		}
+	} else {
+		return errors.Errorf("Error: %d: request: /event/league", resp.StatusCode)
+	}
 }

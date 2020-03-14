@@ -57,7 +57,7 @@ type BetsapiLeagueResponse struct {
 	// Paginating response results
 	Pager Pager `json:"pager"`
 	// List of all leagues
-	Results []FootballLeague `json:"results"`
+	Results []League `json:"results"`
 }
 
 // Pagination structure
