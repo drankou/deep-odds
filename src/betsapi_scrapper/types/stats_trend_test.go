@@ -20,21 +20,20 @@ func TestAddMissingStatsTrend(t *testing.T) {
 	}
 
 	newStats := AddMissingStatsTrend(&statsTrend)
-	attacksHome := newStats.Attacks.Home
-	attacksAway := newStats.Attacks.Away
+	attacksHome := newStats.GetAttacks().GetHome()
+	attacksAway := newStats.GetAttacks().GetAway()
 
 	var attacksMinutes []float64
 	var attacksHomeValues []float64
 	for _, tick := range attacksHome {
-		attacksMinutes = append(attacksMinutes, float64(tick.Time))
-		attacksHomeValues = append(attacksHomeValues, float64(tick.Value))
+		attacksMinutes = append(attacksMinutes, float64(tick.GetTimeStr()))
+		attacksHomeValues = append(attacksHomeValues, float64(tick.GetVal()))
 	}
 
 	var attacksAwayValues []float64
 	for _, tick := range attacksAway {
-		attacksAwayValues = append(attacksAwayValues, float64(tick.Value))
+		attacksAwayValues = append(attacksAwayValues, float64(tick.GetVal()))
 	}
-
 
 	log.Print("Home attacks", attacksHomeValues)
 	log.Print("Away attacks", attacksAwayValues)
@@ -65,7 +64,7 @@ func TestAddMissingStatsTrend(t *testing.T) {
 	}
 }
 
-func TestYellowCardsFromEvents(t *testing.T){
+func TestYellowCardsFromEvents(t *testing.T) {
 	data, err := ioutil.ReadFile(path.Join(utils.GetAbsPathToRoot(), "mock_data", "football_event.bson"))
 	var footballEvent FootballEvent
 	err = bson.Unmarshal(data, &footballEvent)
@@ -76,19 +75,19 @@ func TestYellowCardsFromEvents(t *testing.T){
 	result := YellowCardsStatsFromEvents(&footballEvent)
 
 	log.Print("Home")
-	log.Print(len(result.Home))
-	for _, stats := range result.Home{
+	log.Print(len(result.GetHome()))
+	for _, stats := range result.GetHome() {
 		log.Printf("%+v", stats)
 	}
 
 	log.Print("Away")
-	log.Print(len(result.Away))
-	for _, stats := range result.Away{
+	log.Print(len(result.GetAway()))
+	for _, stats := range result.GetAway() {
 		log.Printf("%+v", stats)
 	}
 }
 
-func TestCornersFromEvents(t *testing.T){
+func TestCornersFromEvents(t *testing.T) {
 	data, err := ioutil.ReadFile(path.Join(utils.GetAbsPathToRoot(), "mock_data", "football_event.bson"))
 	var footballEvent FootballEvent
 	err = bson.Unmarshal(data, &footballEvent)
@@ -99,14 +98,14 @@ func TestCornersFromEvents(t *testing.T){
 	result := CornersStatsFromEvents(&footballEvent)
 
 	log.Print("Home")
-	log.Print(len(result.Home))
-	for _, stats := range result.Home{
+	log.Print(len(result.GetHome()))
+	for _, stats := range result.GetHome() {
 		log.Printf("%+v", stats)
 	}
 
 	log.Print("Away")
-	log.Print(len(result.Away))
-	for _, stats := range result.Away{
+	log.Print(len(result.GetAway()))
+	for _, stats := range result.GetAway() {
 		log.Printf("%+v", stats)
 	}
 }

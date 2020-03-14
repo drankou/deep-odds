@@ -6,31 +6,8 @@ import (
 	"strings"
 )
 
-type StatsTrend struct {
-	Attacks          *StatsTrendValue `json:"attacks" bson:"attacks"`
-	DangerousAttacks *StatsTrendValue `json:"dangerous_attacks" bson:"dangerous_attacks"`
-	Possession       *StatsTrendValue `json:"possession" bson:"possession"`
-	OffTarget        *StatsTrendValue `json:"off_target" bson:"off_target"`
-	OnTarget         *StatsTrendValue `json:"on_target" bson:"on_target"`
-	Corners          *StatsTrendValue `json:"corners" bson:"corners"`
-	Goals            *StatsTrendValue `json:"goals" bson:"goals"`
-	YellowCards      *StatsTrendValue `json:"yellowcards" bson:"yellow_cards"`
-	RedCards         *StatsTrendValue `json:"redcards" bson:"red_cards"`
-	Substitutions    *StatsTrendValue `json:"substitutions" bson:"substitutions"`
-}
+func (m *StatsTrend) Clean() {
 
-func (stats *StatsTrend) Clean() {
-
-}
-
-type StatsTrendValue struct {
-	Home []*StatsTrendTick `json:"home"`
-	Away []*StatsTrendTick `json:"away"`
-}
-
-type StatsTrendTick struct {
-	Time  int64 `json:"time_str,string" bson:"time"`
-	Value int64 `json:"val,string" bson:"value"`
 }
 
 func AddMissingStatsTrend(statsTrend *StatsTrend) *StatsTrend {
@@ -65,8 +42,8 @@ func addMissingStatsTrendTicks(ticks []*StatsTrendTick) []*StatsTrendTick {
 	minuteValue := make(map[int64]int64)
 	var minutes []int64
 	for i := range ticks {
-		minutes = append(minutes, ticks[i].Time)
-		minuteValue[ticks[i].Time] = ticks[i].Value
+		minutes = append(minutes, ticks[i].GetTime())
+		minuteValue[ticks[i].GetTime()] = ticks[i].GetValue()
 	}
 	sort.Slice(minutes, func(i, j int) bool { return minutes[i] < minutes[j] })
 
@@ -91,8 +68,8 @@ func addMissingStatsTrendTicks(ticks []*StatsTrendTick) []*StatsTrendTick {
 
 	for _, minute := range minutes {
 		tick := &StatsTrendTick{
-			Time:  minute,
-			Value: minuteValue[minute],
+			Time: minute,
+			Value:     minuteValue[minute],
 		}
 
 		res = append(res, tick)
@@ -137,7 +114,7 @@ func YellowCardsStatsFromEvents(footballEvent *FootballEvent) *StatsTrendValue {
 }
 
 func sortAndFillValue(ticks []*StatsTrendTick) []*StatsTrendTick {
-	sort.Slice(ticks, func(i, j int) bool { return ticks[i].Time < ticks[j].Time })
+	sort.Slice(ticks, func(i, j int) bool { return ticks[i].GetTime() < ticks[j].GetTime() })
 
 	for i := range ticks {
 		ticks[i].Value = int64(i + 1)
