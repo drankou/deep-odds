@@ -178,7 +178,6 @@ func (s *BetsapiService) GetEventOdds(ctx context.Context, req *types.EventOddsR
 		//replace "-" in odds to get Unmarshaling compatibility
 		data = []byte(strings.Replace(string(data), `"-"`, `"-1"`, -1))
 
-		log.Print(string(data))
 		err = json.Unmarshal(data, &betsapiResponse)
 		if err != nil {
 			return nil, err
