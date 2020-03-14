@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 	"sync"
 	"time"
 )
@@ -147,8 +148,50 @@ func (BetsapiService) GetEventHistory(context.Context, *types.EventHistoryReques
 	panic("implement me")
 }
 
-func (BetsapiService) GetEventOdds(context.Context, *types.EventOddsRequest) (*types.Odds, error) {
-	panic("implement me")
+func (s *BetsapiService) GetEventOdds(ctx context.Context, req *types.EventOddsRequest) (*types.Odds, error) {
+	httpReq, err := http.NewRequest("GET", constants.EventOddsUrl, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	//encode query parameters
+	q := httpReq.URL.Query()
+	q.Add("token", os.Getenv("BETSAPI_TOKEN"))
+	q.Add("event_id", req.GetEventId())
+
+	httpReq.URL.RawQuery = q.Encode()
+
+	s.RateLimiter.rateBlock()
+	resp, err := s.Client.Do(httpReq)
+	if err != nil {
+		return nil, err
+	}
+
+	var betsapiResponse types.BetsapiEventOddsResponse
+	if resp.StatusCode == 200 {
+		body := resp.Body
+		data, err := ioutil.ReadAll(body)
+		if err != nil {
+			return nil, err
+		}
+
+		//replace "-" in odds to get Unmarshaling compatibility
+		data = []byte(strings.Replace(string(data), `"-"`, `"-1"`, -1))
+
+		log.Print(string(data))
+		err = json.Unmarshal(data, &betsapiResponse)
+		if err != nil {
+			return nil, err
+		}
+
+		if betsapiResponse.Success == 1 {
+			return &betsapiResponse.Results.Odds, nil
+		} else {
+			return nil, errors.Errorf("Error: %d: unsuccessful API response: /event/odds", resp.StatusCode)
+		}
+	} else {
+		return nil, errors.Errorf("Error: %d: request: /event/odds", resp.StatusCode)
+	}
 }
 
 func (BetsapiService) GetEventStatsTrend(context.Context, *types.EventStatsTrendRequest) (*types.StatsTrend, error) {
