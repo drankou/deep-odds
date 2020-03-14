@@ -60,6 +60,16 @@ type BetsapiLeagueResponse struct {
 	Results []League `json:"results"`
 }
 
+// Team response
+type BetsapiTeamResponse struct {
+	// Response success
+	Success int `json:"success"`
+	// Paginating response results
+	Pager Pager `json:"pager"`
+	// List of all leagues
+	Results []Team `json:"results"`
+}
+
 // Pagination structure
 type Pager struct {
 	// Current page

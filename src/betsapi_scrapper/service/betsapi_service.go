@@ -488,3 +488,53 @@ func (s *BetsapiService) GetLeagues(req *types.LeaguesRequest, stream types.Bets
 		return errors.Errorf("Error: %d: request: /event/league", resp.StatusCode)
 	}
 }
+
+func (s *BetsapiService) GetTeams(req *types.TeamsRequest, stream types.Betsapi_GetTeamsServer) error {
+	httpReq, err := http.NewRequest("GET", constants.TeamUrl, nil)
+	if err != nil {
+		return err
+	}
+
+	//encode query parameters
+	q := httpReq.URL.Query()
+	q.Add("page", req.GetPage())
+	q.Add("token", os.Getenv("BETSAPI_TOKEN"))
+	q.Add("sport_id", req.GetSportId())
+
+	httpReq.URL.RawQuery = q.Encode()
+
+	s.RateLimiter.rateBlock()
+	resp, err := s.Client.Do(httpReq)
+	if err != nil {
+		return err
+	}
+
+	var betsapiResponse types.BetsapiTeamResponse
+	if resp.StatusCode == 200 {
+		body := resp.Body
+		data, err := ioutil.ReadAll(body)
+		if err != nil {
+			return err
+		}
+
+		err = json.Unmarshal(data, &betsapiResponse)
+		if err != nil {
+			return err
+		}
+
+		if betsapiResponse.Success == 1 {
+			for _, team := range betsapiResponse.Results {
+				err := stream.Send(&team)
+				if err != nil {
+					return err
+				}
+			}
+
+			return nil
+		} else {
+			return errors.Errorf("Error: %d: unsuccessful API response: /event/team", resp.StatusCode)
+		}
+	} else {
+		return errors.Errorf("Error: %d: request: /event/team", resp.StatusCode)
+	}
+}

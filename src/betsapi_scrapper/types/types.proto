@@ -30,12 +30,20 @@ service Betsapi {
 
     rpc GetLeagues (LeaguesRequest) returns (stream League) {
     }
+
+    rpc GetTeams (TeamsRequest) returns (stream Team) {
+    }
 }
 
 message LeaguesRequest {
     string sport_id = 1;
     string country_code = 2;
     string page = 3;
+}
+
+message TeamsRequest {
+    string sport_id = 1;
+    string page = 2;
 }
 
 message InPlayEventsRequest {
