@@ -26,13 +26,13 @@ func TestAddMissingStatsTrend(t *testing.T) {
 	var attacksMinutes []float64
 	var attacksHomeValues []float64
 	for _, tick := range attacksHome {
-		attacksMinutes = append(attacksMinutes, float64(tick.GetTimeStr()))
-		attacksHomeValues = append(attacksHomeValues, float64(tick.GetVal()))
+		attacksMinutes = append(attacksMinutes, float64(tick.GetTime()))
+		attacksHomeValues = append(attacksHomeValues, float64(tick.GetValue()))
 	}
 
 	var attacksAwayValues []float64
 	for _, tick := range attacksAway {
-		attacksAwayValues = append(attacksAwayValues, float64(tick.GetVal()))
+		attacksAwayValues = append(attacksAwayValues, float64(tick.GetValue()))
 	}
 
 	log.Print("Home attacks", attacksHomeValues)

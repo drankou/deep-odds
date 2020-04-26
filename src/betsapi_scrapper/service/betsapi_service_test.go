@@ -6,7 +6,6 @@ import (
 	"context"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"io"
 	"net"
 	"os"
 	"testing"
@@ -140,28 +139,15 @@ func TestBetsapiService_GetLeagues(t *testing.T) {
 	req := &types.LeaguesRequest{
 		SportId: constants.SoccerId,
 	}
-	stream, err := client.GetLeagues(context.Background(), req)
+	resp, err := client.GetLeagues(context.Background(), req)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	var leagues []*types.League
-	for {
-		league, err := stream.Recv()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		leagues = append(leagues, league)
-	}
-
-	if len(leagues) == 0 {
+	if len(resp.GetLeagues()) == 0 {
 		t.Fatal("there are no leagues in response")
 	}
-	t.Logf("Number of leagues in respone: %d", len(leagues))
+	t.Logf("Number of leagues in respone: %d", len(resp.GetLeagues()))
 }
 
 func TestBetsapiService_GetTeams(t *testing.T) {
@@ -178,28 +164,15 @@ func TestBetsapiService_GetTeams(t *testing.T) {
 	req := &types.TeamsRequest{
 		SportId: constants.SoccerId,
 	}
-	stream, err := client.GetTeams(context.Background(), req)
+	resp, err := client.GetTeams(context.Background(), req)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	var teams []*types.Team
-	for {
-		team, err := stream.Recv()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		teams = append(teams, team)
-	}
-
-	if len(teams) == 0 {
+	if len(resp.GetTeams()) == 0 {
 		t.Fatal("there are no teams in response")
 	}
-	t.Logf("Number of teams in respone: %d", len(teams))
+	t.Logf("Number of teams in respone: %d", len(resp.GetTeams()))
 }
 
 func TestBetsapiService_GetEndedEvents(t *testing.T) {
@@ -216,28 +189,16 @@ func TestBetsapiService_GetEndedEvents(t *testing.T) {
 	req := &types.EndedEventsRequest{
 		SportId: constants.SoccerId,
 	}
-	stream, err := client.GetEndedEvents(context.Background(), req)
+
+	resp, err := client.GetEndedEvents(context.Background(), req)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	var endedEvents []*types.Event
-	for {
-		event, err := stream.Recv()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		endedEvents = append(endedEvents, event)
-	}
-
-	if len(endedEvents) == 0 {
+	if len(resp.GetEvents()) == 0 {
 		t.Fatal("there are no ended events in response")
 	}
-	t.Logf("Number of ended events in respone: %d", len(endedEvents))
+	t.Logf("Number of ended events in respone: %d", len(resp.GetEvents()))
 }
 
 func TestBetsapiService_GetInPlayEvents(t *testing.T) {
@@ -254,28 +215,16 @@ func TestBetsapiService_GetInPlayEvents(t *testing.T) {
 	req := &types.InPlayEventsRequest{
 		SportId: constants.SoccerId,
 	}
-	stream, err := client.GetInPlayEvents(context.Background(), req)
+
+	resp, err := client.GetInPlayEvents(context.Background(), req)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	var inplayEvents []*types.Event
-	for {
-		event, err := stream.Recv()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		inplayEvents = append(inplayEvents, event)
-	}
-
-	if len(inplayEvents) == 0 {
+	if len(resp.GetEvents()) == 0 {
 		t.Fatal("there are no in-play events in response")
 	}
-	t.Logf("Number of in-play events in respone: %d", len(inplayEvents))
+	t.Logf("Number of in-play events in respone: %d", len(resp.GetEvents()))
 }
 
 func TestBetsapiService_GetUpcomingEvents(t *testing.T) {
@@ -292,32 +241,20 @@ func TestBetsapiService_GetUpcomingEvents(t *testing.T) {
 	req := &types.UpcomingEventsRequest{
 		SportId: constants.SoccerId,
 	}
-	stream, err := client.GetUpcomingEvents(context.Background(), req)
+
+	resp, err := client.GetUpcomingEvents(context.Background(), req)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	var upcomingEvents []*types.Event
-	for {
-		event, err := stream.Recv()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		upcomingEvents = append(upcomingEvents, event)
-	}
-
-	if len(upcomingEvents) == 0 {
+	if len(resp.GetEvents()) == 0 {
 		t.Fatal("there are no upcoming events in response")
 	}
-	t.Logf("Number of upcoming events in respone: %d", len(upcomingEvents))
+	t.Logf("Number of upcoming events in respone: %d", len(resp.GetEvents()))
 }
 
 func RunBetsapiService() {
-	os.Setenv("BETSAPI_TOKEN", "25493-JGWujvhpW6upWr")
+	os.Setenv("BETSAPI_TOKEN", "25493-N8mbuk79ltAeGs")
 	grpcServer := grpc.NewServer()
 
 	betsapiService := &BetsapiService{}

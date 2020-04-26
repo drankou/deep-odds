@@ -4,16 +4,16 @@ import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 option go_package = ".;types";
 
 service Betsapi {
-    rpc GetInPlayEvents (InPlayEventsRequest) returns (stream Event) {
+    rpc GetInPlayEvents (InPlayEventsRequest) returns (EventsResponse) {
     }
 
-    rpc GetUpcomingEvents (UpcomingEventsRequest) returns (stream Event) {
+    rpc GetUpcomingEvents (UpcomingEventsRequest) returns (EventsResponse) {
     }
 
-    rpc GetStartingEvents (StartingEventsRequest) returns (stream Event) {
+    rpc GetStartingEvents (StartingEventsRequest) returns (EventsResponse) {
     }
 
-    rpc GetEndedEvents (EndedEventsRequest) returns (stream Event) {
+    rpc GetEndedEvents (EndedEventsRequest) returns (EventsResponse) {
     }
 
     rpc GetEventView (EventViewRequest) returns (Event) {
@@ -28,22 +28,11 @@ service Betsapi {
     rpc GetEventStatsTrend (EventStatsTrendRequest) returns (StatsTrend) {
     }
 
-    rpc GetLeagues (LeaguesRequest) returns (stream League) {
+    rpc GetLeagues (LeaguesRequest) returns (LeaguesResponse) {
     }
 
-    rpc GetTeams (TeamsRequest) returns (stream Team) {
+    rpc GetTeams (TeamsRequest) returns (TeamsResponse) {
     }
-}
-
-message LeaguesRequest {
-    string sport_id = 1;
-    string country_code = 2;
-    string page = 3;
-}
-
-message TeamsRequest {
-    string sport_id = 1;
-    string page = 2;
 }
 
 message InPlayEventsRequest {
@@ -52,6 +41,10 @@ message InPlayEventsRequest {
 
     //league id
     string league_id = 2; //optional
+}
+
+message EventsResponse {
+    repeated Event events = 1;
 }
 
 message UpcomingEventsRequest {
@@ -122,6 +115,25 @@ message EventStatsTrendRequest {
     string event_id = 1;
 }
 
+message LeaguesRequest {
+    string sport_id = 1;
+    string country_code = 2;
+    string page = 3;
+}
+
+message LeaguesResponse {
+    repeated League leagues = 1;
+}
+
+message TeamsRequest {
+    string sport_id = 1;
+    string page = 2;
+}
+
+message TeamsResponse {
+    repeated Team teams = 1;
+}
+
 // ------------- Event ---------------- //
 message Event {
     string id = 1 [(gogoproto.jsontag) = "id", (gogoproto.moretags) = "bson:\"id,omitempty\""];
@@ -177,7 +189,7 @@ message Manager {
 }
 
 message Referee {
-    string name = 1;
+    string name = 1 [(gogoproto.jsontag) = "name", (gogoproto.moretags) = "bson:\"name,omitempty\""];
     string country_code = 2 [(gogoproto.jsontag) = "cc", (gogoproto.moretags) = "bson:\"country_code,omitempty\""];
 }
 
@@ -205,9 +217,9 @@ message EventHistoryRequest {
 }
 
 message EventHistory {
-    repeated Event h2h = 1;
-    repeated Event home = 2;
-    repeated Event away = 3;
+    repeated Event h2h = 1 [(gogoproto.jsontag) = "h2h", (gogoproto.moretags) = "bson:\"h2h\""];
+    repeated Event home = 2 [(gogoproto.jsontag) = "home", (gogoproto.moretags) = "bson:\"home\""];
+    repeated Event away = 3 [(gogoproto.jsontag) = "away", (gogoproto.moretags) = "bson:\"away\""];
 }
 
 // ----------- Odds ------------- //

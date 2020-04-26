@@ -19,11 +19,11 @@ func TestRemoveDuplicitResultOdds(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	clean := RemoveDuplicitResultOdds(odds.FullTimeResult)
-	if len(clean) >= len(odds.FullTimeResult) {
+	clean := RemoveDuplicitResultOdds(odds.GetFullTime())
+	if len(clean) >= len(odds.GetFullTime()) {
 		t.Fatal("number of odds should be less after odds cleaning")
 	}
-	t.Logf("Initial number of odds ticks: %d", len(odds.FullTimeResult))
+	t.Logf("Initial number of odds ticks: %d", len(odds.GetFullTime()))
 	t.Logf("Number of odds after dupicities removing: %d", len(clean))
 }
 
@@ -36,13 +36,12 @@ func TestAddMissingResultOdds(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	fullTimeResultOdds := RemoveDuplicitResultOdds(odds.FullTimeResult)
+	fullTimeResultOdds := RemoveDuplicitResultOdds(odds.GetFullTime())
 	fullTimeResultOdds = AddMissingResultOdds(fullTimeResultOdds)
 	//log.Print("Result odds length: ", len(odds))
 	for _, odd := range fullTimeResultOdds {
-		log.Print("minute: ", odd.Minute)
-		log.Print("score: ", odd.Score)
-		log.Printf("%+v", odd.ResultOdds)
+		log.Print("minute: ", odd.GetMinute())
+		log.Print("score: ", odd.GetScore())
 		log.Print(strings.Repeat("-", 20))
 	}
 }
@@ -59,9 +58,8 @@ func TestAddMissingAsianResultOdds(t *testing.T) {
 	asianHandicapResultOdds := RemoveDuplicitAsianHandicapResult(odds.AsianHandicap)
 	asianHandicapResultOdds = AddMissingAsianResultOdds(asianHandicapResultOdds)
 	for _, odd := range asianHandicapResultOdds {
-		log.Print("minute: ", odd.Minute)
-		log.Print("score: ", odd.Score)
-		log.Printf("%+v", odd.AsianHandicapResultOdds)
+		log.Print("minute: ", odd.GetMinute())
+		log.Print("score: ", odd.GetScore())
 		log.Print(strings.Repeat("-", 20))
 	}
 }
@@ -75,12 +73,11 @@ func TestAddMissingAsianTotalOdds(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	asianHandicapTotal := RemoveDuplicitAsianHandicapTotal(odds.GoalLineTotal)
+	asianHandicapTotal := RemoveDuplicitAsianHandicapTotal(odds.GetTotal())
 	asianHandicapTotal = AddMissingAsianTotalOdds(asianHandicapTotal)
 	for _, odds := range asianHandicapTotal {
-		log.Print("minute: ", odds.Minute)
-		log.Print("score: ", odds.Score)
-		log.Printf("%+v", odds.AsianHandicapTotalOdds)
+		log.Print("minute: ", odds.GetMinute())
+		log.Print("score: ", odds.GetScore())
 		log.Print(strings.Repeat("-", 20))
 	}
 }
