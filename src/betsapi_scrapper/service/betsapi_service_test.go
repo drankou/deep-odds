@@ -6,12 +6,38 @@ import (
 	"context"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/test/bufconn"
 	"net"
 	"os"
 	"testing"
 )
 
-const defaultBetsapiServicePort = ":50001"
+const bufSize = 1024 * 1024
+
+var lis *bufconn.Listener
+
+func init() {
+	os.Setenv("BETSAPI_TOKEN", "25493-N8mbuk79ltAeGs")
+	lis = bufconn.Listen(bufSize)
+
+	betsapiService := &BetsapiService{}
+	err := betsapiService.Init()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	s := grpc.NewServer()
+	types.RegisterBetsapiServer(s, betsapiService)
+	go func() {
+		if err := s.Serve(lis); err != nil {
+			log.Fatalf("Server exited with error: %v", err)
+		}
+	}()
+}
+
+func bufDialer(context.Context, string) (net.Conn, error) {
+	return lis.Dial()
+}
 
 func TestBetsapiService_Init(t *testing.T) {
 	s := BetsapiService{}
@@ -22,14 +48,12 @@ func TestBetsapiService_Init(t *testing.T) {
 }
 
 func TestBetsapiService_GetEventView(t *testing.T) {
-	go RunBetsapiService()
-
-	conn, err := grpc.Dial("localhost"+defaultBetsapiServicePort, grpc.WithInsecure(), grpc.WithBlock())
+	ctx := context.Background()
+	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		t.Fatalf("Failed to dial bufnet: %v", err)
 	}
 	defer conn.Close()
-
 	client := types.NewBetsapiClient(conn)
 
 	req := &types.EventViewRequest{
@@ -48,11 +72,10 @@ func TestBetsapiService_GetEventView(t *testing.T) {
 }
 
 func TestBetsapiService_GetEventOdds(t *testing.T) {
-	go RunBetsapiService()
-
-	conn, err := grpc.Dial("localhost"+defaultBetsapiServicePort, grpc.WithInsecure(), grpc.WithBlock())
+	ctx := context.Background()
+	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		t.Fatalf("Failed to dial bufnet: %v", err)
 	}
 	defer conn.Close()
 
@@ -74,11 +97,10 @@ func TestBetsapiService_GetEventOdds(t *testing.T) {
 }
 
 func TestBetsapiService_GetEventHistory(t *testing.T) {
-	go RunBetsapiService()
-
-	conn, err := grpc.Dial("localhost"+defaultBetsapiServicePort, grpc.WithInsecure(), grpc.WithBlock())
+	ctx := context.Background()
+	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		t.Fatalf("Failed to dial bufnet: %v", err)
 	}
 	defer conn.Close()
 
@@ -100,11 +122,10 @@ func TestBetsapiService_GetEventHistory(t *testing.T) {
 }
 
 func TestBetsapiService_GetEventStatsTrend(t *testing.T) {
-	go RunBetsapiService()
-
-	conn, err := grpc.Dial("localhost"+defaultBetsapiServicePort, grpc.WithInsecure(), grpc.WithBlock())
+	ctx := context.Background()
+	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		t.Fatalf("Failed to dial bufnet: %v", err)
 	}
 	defer conn.Close()
 
@@ -126,11 +147,10 @@ func TestBetsapiService_GetEventStatsTrend(t *testing.T) {
 }
 
 func TestBetsapiService_GetLeagues(t *testing.T) {
-	go RunBetsapiService()
-
-	conn, err := grpc.Dial("localhost"+defaultBetsapiServicePort, grpc.WithInsecure(), grpc.WithBlock())
+	ctx := context.Background()
+	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		t.Fatalf("Failed to dial bufnet: %v", err)
 	}
 	defer conn.Close()
 
@@ -151,11 +171,10 @@ func TestBetsapiService_GetLeagues(t *testing.T) {
 }
 
 func TestBetsapiService_GetTeams(t *testing.T) {
-	go RunBetsapiService()
-
-	conn, err := grpc.Dial("localhost"+defaultBetsapiServicePort, grpc.WithInsecure(), grpc.WithBlock())
+	ctx := context.Background()
+	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		t.Fatalf("Failed to dial bufnet: %v", err)
 	}
 	defer conn.Close()
 
@@ -176,11 +195,10 @@ func TestBetsapiService_GetTeams(t *testing.T) {
 }
 
 func TestBetsapiService_GetEndedEvents(t *testing.T) {
-	go RunBetsapiService()
-
-	conn, err := grpc.Dial("localhost"+defaultBetsapiServicePort, grpc.WithInsecure(), grpc.WithBlock())
+	ctx := context.Background()
+	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		t.Fatalf("Failed to dial bufnet: %v", err)
 	}
 	defer conn.Close()
 
@@ -202,11 +220,10 @@ func TestBetsapiService_GetEndedEvents(t *testing.T) {
 }
 
 func TestBetsapiService_GetInPlayEvents(t *testing.T) {
-	go RunBetsapiService()
-
-	conn, err := grpc.Dial("localhost"+defaultBetsapiServicePort, grpc.WithInsecure(), grpc.WithBlock())
+	ctx := context.Background()
+	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		t.Fatalf("Failed to dial bufnet: %v", err)
 	}
 	defer conn.Close()
 
@@ -228,11 +245,10 @@ func TestBetsapiService_GetInPlayEvents(t *testing.T) {
 }
 
 func TestBetsapiService_GetUpcomingEvents(t *testing.T) {
-	go RunBetsapiService()
-
-	conn, err := grpc.Dial("localhost"+defaultBetsapiServicePort, grpc.WithInsecure(), grpc.WithBlock())
+	ctx := context.Background()
+	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		t.Fatalf("Failed to dial bufnet: %v", err)
 	}
 	defer conn.Close()
 
@@ -251,27 +267,4 @@ func TestBetsapiService_GetUpcomingEvents(t *testing.T) {
 		t.Fatal("there are no upcoming events in response")
 	}
 	t.Logf("Number of upcoming events in respone: %d", len(resp.GetEvents()))
-}
-
-func RunBetsapiService() {
-	os.Setenv("BETSAPI_TOKEN", "25493-N8mbuk79ltAeGs")
-	grpcServer := grpc.NewServer()
-
-	betsapiService := &BetsapiService{}
-	err := betsapiService.Init()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	types.RegisterBetsapiServer(grpcServer, betsapiService)
-	log.Info("BetsapiService is ready.")
-
-	lis, err := net.Listen("tcp", defaultBetsapiServicePort)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err := grpcServer.Serve(lis); err != nil {
-		log.Fatal(err)
-	}
 }
