@@ -3,18 +3,20 @@ package main
 import (
 	"betsapi_scrapper/service"
 	"betsapi_scrapper/types"
+	"betsapi_scrapper/utils"
+	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"net"
 	"os"
 )
 
-const defaultBetsapiServicePort = ":50001"
-
 func main() {
-	os.Setenv("BETSAPI_TOKEN", "25493-JGWujvhpW6upWr")
-	grpcServer := grpc.NewServer()
+	if err := godotenv.Load(utils.PathFromRoot("cmd", "betsapi",".env")); err != nil {
+		log.Panicf("Error loading .env file. #%v", err)
+	}
 
+	grpcServer := grpc.NewServer()
 	betsapiService := &service.BetsapiService{}
 	err := betsapiService.Init()
 	if err != nil {
@@ -22,13 +24,12 @@ func main() {
 	}
 
 	types.RegisterBetsapiServer(grpcServer, betsapiService)
-	log.Info("BetsapiService is ready.")
-
-	lis, err := net.Listen("tcp", defaultBetsapiServicePort)
+	lis, err := net.Listen("tcp", os.Getenv("SERVER_PORT"))
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	log.Infof("BetsapiService is listening on localhost%s.", os.Getenv("SERVER_PORT"))
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatal(err)
 	}
