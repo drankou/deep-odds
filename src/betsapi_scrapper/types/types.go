@@ -50,11 +50,11 @@ type BetsapiTeamResponse struct {
 // Pagination structure
 type Pager struct {
 	// Current page
-	Page int `json:"page"`
+	Page int32 `json:"page"`
 	// Number of results per page
-	PerPage int `json:"per_page"`
+	PerPage int32 `json:"per_page"`
 	// Total number of results
-	Total int `json:"total"`
+	Total int32 `json:"total"`
 }
 
 // Football League

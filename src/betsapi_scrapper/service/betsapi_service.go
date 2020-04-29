@@ -145,6 +145,10 @@ func (s *BetsapiService) GetUpcomingEvents(ctx context.Context, req *types.Upcom
 		}
 
 		if betsapiResponse.Success == 1 {
+			if betsapiResponse.Pager.Page*betsapiResponse.Pager.PerPage < betsapiResponse.Pager.Total {
+				response.NextPage = betsapiResponse.Pager.Page + 1
+			}
+
 			var events []*types.Event
 			for i := range betsapiResponse.Results {
 				events = append(events, &betsapiResponse.Results[i])
@@ -205,6 +209,10 @@ func (s *BetsapiService) GetEndedEvents(ctx context.Context, req *types.EndedEve
 		}
 
 		if betsapiResponse.Success == 1 {
+			if betsapiResponse.Pager.Page*betsapiResponse.Pager.PerPage < betsapiResponse.Pager.Total {
+				response.NextPage = betsapiResponse.Pager.Page + 1
+			}
+
 			var events []*types.Event
 			for i := range betsapiResponse.Results {
 				events = append(events, &betsapiResponse.Results[i])
@@ -463,6 +471,10 @@ func (s *BetsapiService) GetLeagues(ctx context.Context, req *types.LeaguesReque
 		}
 
 		if betsapiResponse.Success == 1 {
+			if betsapiResponse.Pager.Page*betsapiResponse.Pager.PerPage < betsapiResponse.Pager.Total {
+				response.NextPage = betsapiResponse.Pager.Page + 1
+			}
+
 			var leagues []*types.League
 			for i := range betsapiResponse.Results {
 				leagues = append(leagues, &betsapiResponse.Results[i])
@@ -515,6 +527,10 @@ func (s *BetsapiService) GetTeams(ctx context.Context, req *types.TeamsRequest) 
 		}
 
 		if betsapiResponse.Success == 1 {
+			if betsapiResponse.Pager.Page*betsapiResponse.Pager.PerPage < betsapiResponse.Pager.Total {
+				response.NextPage = betsapiResponse.Pager.Page + 1
+			}
+
 			var teams []*types.Team
 			for i := range betsapiResponse.Results {
 				teams = append(teams, &betsapiResponse.Results[i])

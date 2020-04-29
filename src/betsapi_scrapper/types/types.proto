@@ -45,6 +45,7 @@ message InPlayEventsRequest {
 
 message EventsResponse {
     repeated Event events = 1;
+    int32 next_page = 2;
 }
 
 message UpcomingEventsRequest {
@@ -123,6 +124,7 @@ message LeaguesRequest {
 
 message LeaguesResponse {
     repeated League leagues = 1;
+    int32 next_page = 2;
 }
 
 message TeamsRequest {
@@ -132,6 +134,7 @@ message TeamsRequest {
 
 message TeamsResponse {
     repeated Team teams = 1;
+    int32 next_page = 2;
 }
 
 // ------------- Event ---------------- //
