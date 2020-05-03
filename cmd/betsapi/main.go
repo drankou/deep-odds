@@ -1,9 +1,8 @@
 package main
 
 import (
-	"betsapi_scrapper/service"
-	"betsapi_scrapper/types"
-	"betsapi_scrapper/utils"
+	"github.com/drankou/deep-odds/pkg/betsapi/service"
+	"github.com/drankou/deep-odds/pkg/betsapi/types"
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -12,7 +11,7 @@ import (
 )
 
 func main() {
-	if err := godotenv.Load(utils.PathFromRoot("cmd", "betsapi",".env")); err != nil {
+	if err := godotenv.Load(); err != nil {
 		log.Panicf("Error loading .env file. #%v", err)
 	}
 
