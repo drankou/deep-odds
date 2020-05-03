@@ -1,7 +1,7 @@
 syntax = "proto3";
 
-import "github.com/gogo/protobuf/gogoproto/gogo.proto";
-option go_package = "github.com/drankou/deep-odds/pkg/betsapi/types";
+import "vendor/github.com/gogo/protobuf/gogoproto/gogo.proto";
+option go_package = ".;types";
 
 service Betsapi {
     rpc GetInPlayEvents (InPlayEventsRequest) returns (EventsResponse) {
