@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-protoc -I=. -I=./vendor --go_out=./pkg/betsapi/types ./pkg/betsapi/types/types.proto
+protoc -I=. -I=./vendor --go_out=paths=source_relative:. ./pkg/betsapi/types/types.proto
