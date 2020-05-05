@@ -45,7 +45,7 @@ func (cache *Cache) Initialize() error {
 		if cache.UpdateFunc == nil {
 			return errors.New("update function is not defined")
 		}
-		if err := cache.c.AddFunc(cache.UpdateInterval, cache.UpdateFunc); err != nil {
+		if _, err := cache.c.AddFunc(cache.UpdateInterval, cache.UpdateFunc); err != nil {
 			log.Fatal(err)
 		}
 	}
@@ -54,7 +54,7 @@ func (cache *Cache) Initialize() error {
 		if cache.ResetFunc == nil {
 			return errors.New("reset function is not defined")
 		}
-		if err := cache.c.AddFunc(cache.ResetInterval, cache.ResetFunc); err != nil {
+		if _, err := cache.c.AddFunc(cache.ResetInterval, cache.ResetFunc); err != nil {
 			log.Fatal(err)
 		}
 	}
