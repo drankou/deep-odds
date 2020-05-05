@@ -1,49 +1,35 @@
-package api
+package main
 
 import (
-	"context"
+	"github.com/drankou/deep-odds/pkg/api"
 	"github.com/drankou/deep-odds/pkg/api/types"
+	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"net"
 	"os"
 )
 
-func main() {
-	// Set up a connection to the server.
-	conn, err := grpc.Dial(os.Getenv("BETSAPI_SERVER"), grpc.WithInsecure(), grpc.WithBlock())
-	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+func main(){
+	if err := godotenv.Load(); err != nil {
+		log.Panicf("Error loading .env file. #%v", err)
 	}
-	defer conn.Close()
 
-	getInplayEvents(conn)
-	//getPredictionForEvent(conn)
-}
-
-func getInplayEvents(conn *grpc.ClientConn) {
-	client := types.NewDeepOddsClient(conn)
-
-	req := &types.InPlayEventsRequest{}
-	eventsResponse, err := client.GetInPlayFootballEvents(context.Background(), req)
+	grpcServer := grpc.NewServer()
+	deepOdds := &api.DeepOddsServer{}
+	err := deepOdds.Init()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	for _, event := range eventsResponse.GetEvents() {
-		log.Printf("%+v", event)
-	}
-}
-
-func getPredictionForEvent(conn *grpc.ClientConn) {
-	client := types.NewDeepOddsClient(conn)
-
-	req := &types.EventPredictionRequest{
-		EventId: "111",
-	}
-	predictionResponse, err := client.GetFootballEventPrediction(context.Background(), req)
+	types.RegisterDeepOddsServer(grpcServer, deepOdds)
+	lis, err := net.Listen("tcp", os.Getenv("SERVER"))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	log.Printf("%+v", predictionResponse.GetPrediction())
+	log.Infof("DeepOdds server is listening on %s.", os.Getenv("SERVER"))
+	if err := grpcServer.Serve(lis); err != nil {
+		log.Fatal(err)
+	}
 }

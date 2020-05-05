@@ -1,30 +1,30 @@
 syntax = "proto3";
 
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
-option go_package = "github.com/drankou/deep-odd/pkg/betsapi/types";
+option go_package = "github.com/drankou/deep-odd/pkg/api/types";
 
 service DeepOdds {
-    rpc GetInPlayFootballEvents (InPlayEventsRequest) returns (EventsResponse) {
+    rpc GetInPlayFootballMatches (InPlayFootballMatchesRequest) returns (FootballMatchesResponse) {
     }
 
-    rpc GetFootballEventPrediction (EventPredictionRequest) returns (PredictionResponse) {
+    rpc GetFootballMatchPrediction (FootballMatchPredictionRequest) returns (FootballMatchPredictionResponse) {
     }
 }
 
-message InPlayEventsRequest {
+message InPlayFootballMatchesRequest {
     //league id
     string league_id = 2; //optional
 }
 
-message EventsResponse {
-    repeated Event events = 1;
+message FootballMatchesResponse {
+    repeated FootballMatch matches = 1;
 }
 
-message EventPredictionRequest {
+message FootballMatchPredictionRequest {
     string event_id = 1;
 }
 
-message PredictionResponse {
+message FootballMatchPredictionResponse {
     Prediction prediction = 1;
 }
 
@@ -34,17 +34,17 @@ message Prediction {
     double away_win = 3;
 }
 
-message Event {
+message FootballMatch {
     string id = 1;
     string time_status = 2;
     string score = 3;
     string home_team = 4;
     string away_team = 5;
     string league_name = 6;
-    Timer timer = 7;
+    Time time = 7;
 }
 
-message Timer {
+message Time {
     int64 minutes = 1;
     int64 seconds = 2;
     int64 added_time = 3;

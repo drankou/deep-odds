@@ -18,8 +18,8 @@ var lis *bufconn.Listener
 func init() {
 	os.Setenv("TF_SERVER", "localhost:8500")
 	os.Setenv("BETSAPI_SERVER", "localhost:50001")
-	lis = bufconn.Listen(bufSize)
 
+	lis = bufconn.Listen(bufSize)
 	deepOdds := &DeepOddsServer{}
 	err := deepOdds.Init()
 	if err != nil {
@@ -39,14 +39,6 @@ func bufDialer(context.Context, string) (net.Conn, error) {
 	return lis.Dial()
 }
 
-func TestDeepOddsServer_Init(t *testing.T) {
-	deepOdds := &DeepOddsServer{}
-	err := deepOdds.Init()
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
 func TestDeepOddsServer_GetInPlayFootballEvents(t *testing.T) {
 	ctx := context.Background()
 	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
@@ -56,14 +48,14 @@ func TestDeepOddsServer_GetInPlayFootballEvents(t *testing.T) {
 	defer conn.Close()
 	client := types.NewDeepOddsClient(conn)
 
-	req := &types.InPlayEventsRequest{}
+	req := &types.InPlayFootballMatchesRequest{}
 
-	eventsResponse, err := client.GetInPlayFootballEvents(context.Background(), req)
+	matchesResponse, err := client.GetInPlayFootballMatches(context.Background(), req)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	t.Log("Number of football events in-play: ", len(eventsResponse.GetEvents()))
+	t.Log("Number of football events in-play: ", len(matchesResponse.GetMatches()))
 }
 
 func TestDeepOddsServer_GetFootballEventPrediction(t *testing.T) {
@@ -75,11 +67,11 @@ func TestDeepOddsServer_GetFootballEventPrediction(t *testing.T) {
 	defer conn.Close()
 	client := types.NewDeepOddsClient(conn)
 
-	req := &types.EventPredictionRequest{
-		EventId: "333",
+	req := &types.FootballMatchPredictionRequest{
+		EventId: "111",
 	}
 
-	predictionResponse, err := client.GetFootballEventPrediction(context.Background(), req)
+	predictionResponse, err := client.GetFootballMatchPrediction(context.Background(), req)
 	if err != nil {
 		t.Fatal(err)
 	}

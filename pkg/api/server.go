@@ -17,26 +17,32 @@ type DeepOddsServer struct {
 }
 
 func (d *DeepOddsServer) Init() error {
-
+	// Set up a connection to the tensorflow serving server.
+	log.Infof("Connecting to tensorflow serving: %s", os.Getenv("TF_SERVER"))
 	client, err := tfclient.NewPredictionClient(os.Getenv("TF_SERVER"))
 	if err != nil {
 		return err
 	}
-	d.TensorflowClient = client
 
-	// Set up a connection to the server.
+	d.TensorflowClient = client
+	log.Info("Connected.")
+
+
+	// Set up a connection to the betsapi server.
+	log.Infof("Connecting to betsapi server: %s", os.Getenv("BETSAPI_SERVER"))
 	conn, err := grpc.Dial(os.Getenv("BETSAPI_SERVER"), grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
 
 	d.BetsapiClient = betsapiTypes.NewBetsapiClient(conn)
+	log.Info("Connected.")
 
 	return nil
 }
 
-func (d DeepOddsServer) GetInPlayFootballEvents(ctx context.Context, req *types.InPlayEventsRequest) (*types.EventsResponse, error) {
-	response := &types.EventsResponse{}
+func (d *DeepOddsServer) GetInPlayFootballMatches(ctx context.Context, req *types.InPlayFootballMatchesRequest) (*types.FootballMatchesResponse, error) {
+	response := &types.FootballMatchesResponse{}
 
 	betsapiReq := &betsapiTypes.InPlayEventsRequest{
 		SportId:  betsapiConstants.SoccerId,
@@ -48,14 +54,14 @@ func (d DeepOddsServer) GetInPlayFootballEvents(ctx context.Context, req *types.
 	}
 
 	for _, event := range eventsResponse.GetEvents() {
-		response.Events = append(response.Events, &types.Event{
+		response.Matches = append(response.Matches, &types.FootballMatch{
 			Id:         event.GetId(),
 			TimeStatus: event.GetTimeStatus(),
 			Score:      event.GetScore(),
 			HomeTeam:   event.GetHomeTeam().GetName(),
 			AwayTeam:   event.GetAwayTeam().GetName(),
 			LeagueName: event.GetLeague().GetName(),
-			Timer: &types.Timer{
+			Time: &types.Time{
 				Minutes:   event.GetTimer().GetMinutes(),
 				Seconds:   event.GetTimer().GetSeconds(),
 				AddedTime: event.GetTimer().GetAddedTime(),
@@ -66,8 +72,8 @@ func (d DeepOddsServer) GetInPlayFootballEvents(ctx context.Context, req *types.
 	return response, nil
 }
 
-func (d DeepOddsServer) GetFootballEventPrediction(ctx context.Context, req *types.EventPredictionRequest) (*types.PredictionResponse, error) {
-	response := &types.PredictionResponse{}
+func (d *DeepOddsServer) GetFootballMatchPrediction(ctx context.Context, req *types.FootballMatchPredictionRequest) (*types.FootballMatchPredictionResponse, error) {
+	response := &types.FootballMatchPredictionResponse{}
 
 	//TODO
 	_, err := d.BetsapiClient.GetEventView(ctx, &betsapiTypes.EventViewRequest{EventId: req.GetEventId()})
@@ -79,4 +85,4 @@ func (d DeepOddsServer) GetFootballEventPrediction(ctx context.Context, req *typ
 }
 
 //TODO
-func constructInputFromEvent(event *betsapiTypes.Event){}
+func constructInputFromEvent(event *betsapiTypes.Event) {}

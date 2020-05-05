@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/drankou/deep-odds/pkg/betsapi/types"
 	"google.golang.org/grpc"
 	"log"
 )
@@ -17,4 +18,6 @@ func main() {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer conn.Close()
+
+	types.NewBetsapiClient(conn)
 }

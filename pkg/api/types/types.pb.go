@@ -28,7 +28,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
-type InPlayEventsRequest struct {
+type InPlayFootballMatchesRequest struct {
 	//league id
 	LeagueId             string   `protobuf:"bytes,2,opt,name=league_id,json=leagueId,proto3" json:"league_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -36,18 +36,18 @@ type InPlayEventsRequest struct {
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *InPlayEventsRequest) Reset()         { *m = InPlayEventsRequest{} }
-func (m *InPlayEventsRequest) String() string { return proto.CompactTextString(m) }
-func (*InPlayEventsRequest) ProtoMessage()    {}
-func (*InPlayEventsRequest) Descriptor() ([]byte, []int) {
+func (m *InPlayFootballMatchesRequest) Reset()         { *m = InPlayFootballMatchesRequest{} }
+func (m *InPlayFootballMatchesRequest) String() string { return proto.CompactTextString(m) }
+func (*InPlayFootballMatchesRequest) ProtoMessage()    {}
+func (*InPlayFootballMatchesRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_59ac661acc13075b, []int{0}
 }
-func (m *InPlayEventsRequest) XXX_Unmarshal(b []byte) error {
+func (m *InPlayFootballMatchesRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *InPlayEventsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *InPlayFootballMatchesRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_InPlayEventsRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_InPlayFootballMatchesRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -57,44 +57,44 @@ func (m *InPlayEventsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return b[:n], nil
 	}
 }
-func (m *InPlayEventsRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_InPlayEventsRequest.Merge(m, src)
+func (m *InPlayFootballMatchesRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InPlayFootballMatchesRequest.Merge(m, src)
 }
-func (m *InPlayEventsRequest) XXX_Size() int {
+func (m *InPlayFootballMatchesRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *InPlayEventsRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_InPlayEventsRequest.DiscardUnknown(m)
+func (m *InPlayFootballMatchesRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_InPlayFootballMatchesRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_InPlayEventsRequest proto.InternalMessageInfo
+var xxx_messageInfo_InPlayFootballMatchesRequest proto.InternalMessageInfo
 
-func (m *InPlayEventsRequest) GetLeagueId() string {
+func (m *InPlayFootballMatchesRequest) GetLeagueId() string {
 	if m != nil {
 		return m.LeagueId
 	}
 	return ""
 }
 
-type EventsResponse struct {
-	Events               []*Event `protobuf:"bytes,1,rep,name=events,proto3" json:"events,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+type FootballMatchesResponse struct {
+	Matches              []*FootballMatch `protobuf:"bytes,1,rep,name=matches,proto3" json:"matches,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
+	XXX_unrecognized     []byte           `json:"-"`
+	XXX_sizecache        int32            `json:"-"`
 }
 
-func (m *EventsResponse) Reset()         { *m = EventsResponse{} }
-func (m *EventsResponse) String() string { return proto.CompactTextString(m) }
-func (*EventsResponse) ProtoMessage()    {}
-func (*EventsResponse) Descriptor() ([]byte, []int) {
+func (m *FootballMatchesResponse) Reset()         { *m = FootballMatchesResponse{} }
+func (m *FootballMatchesResponse) String() string { return proto.CompactTextString(m) }
+func (*FootballMatchesResponse) ProtoMessage()    {}
+func (*FootballMatchesResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_59ac661acc13075b, []int{1}
 }
-func (m *EventsResponse) XXX_Unmarshal(b []byte) error {
+func (m *FootballMatchesResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *EventsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *FootballMatchesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_EventsResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_FootballMatchesResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -104,44 +104,44 @@ func (m *EventsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, erro
 		return b[:n], nil
 	}
 }
-func (m *EventsResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_EventsResponse.Merge(m, src)
+func (m *FootballMatchesResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FootballMatchesResponse.Merge(m, src)
 }
-func (m *EventsResponse) XXX_Size() int {
+func (m *FootballMatchesResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *EventsResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_EventsResponse.DiscardUnknown(m)
+func (m *FootballMatchesResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_FootballMatchesResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_EventsResponse proto.InternalMessageInfo
+var xxx_messageInfo_FootballMatchesResponse proto.InternalMessageInfo
 
-func (m *EventsResponse) GetEvents() []*Event {
+func (m *FootballMatchesResponse) GetMatches() []*FootballMatch {
 	if m != nil {
-		return m.Events
+		return m.Matches
 	}
 	return nil
 }
 
-type EventPredictionRequest struct {
+type FootballMatchPredictionRequest struct {
 	EventId              string   `protobuf:"bytes,1,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *EventPredictionRequest) Reset()         { *m = EventPredictionRequest{} }
-func (m *EventPredictionRequest) String() string { return proto.CompactTextString(m) }
-func (*EventPredictionRequest) ProtoMessage()    {}
-func (*EventPredictionRequest) Descriptor() ([]byte, []int) {
+func (m *FootballMatchPredictionRequest) Reset()         { *m = FootballMatchPredictionRequest{} }
+func (m *FootballMatchPredictionRequest) String() string { return proto.CompactTextString(m) }
+func (*FootballMatchPredictionRequest) ProtoMessage()    {}
+func (*FootballMatchPredictionRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_59ac661acc13075b, []int{2}
 }
-func (m *EventPredictionRequest) XXX_Unmarshal(b []byte) error {
+func (m *FootballMatchPredictionRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *EventPredictionRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *FootballMatchPredictionRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_EventPredictionRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_FootballMatchPredictionRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -151,44 +151,44 @@ func (m *EventPredictionRequest) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return b[:n], nil
 	}
 }
-func (m *EventPredictionRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_EventPredictionRequest.Merge(m, src)
+func (m *FootballMatchPredictionRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FootballMatchPredictionRequest.Merge(m, src)
 }
-func (m *EventPredictionRequest) XXX_Size() int {
+func (m *FootballMatchPredictionRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *EventPredictionRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_EventPredictionRequest.DiscardUnknown(m)
+func (m *FootballMatchPredictionRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_FootballMatchPredictionRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_EventPredictionRequest proto.InternalMessageInfo
+var xxx_messageInfo_FootballMatchPredictionRequest proto.InternalMessageInfo
 
-func (m *EventPredictionRequest) GetEventId() string {
+func (m *FootballMatchPredictionRequest) GetEventId() string {
 	if m != nil {
 		return m.EventId
 	}
 	return ""
 }
 
-type PredictionResponse struct {
+type FootballMatchPredictionResponse struct {
 	Prediction           *Prediction `protobuf:"bytes,1,opt,name=prediction,proto3" json:"prediction,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
 	XXX_unrecognized     []byte      `json:"-"`
 	XXX_sizecache        int32       `json:"-"`
 }
 
-func (m *PredictionResponse) Reset()         { *m = PredictionResponse{} }
-func (m *PredictionResponse) String() string { return proto.CompactTextString(m) }
-func (*PredictionResponse) ProtoMessage()    {}
-func (*PredictionResponse) Descriptor() ([]byte, []int) {
+func (m *FootballMatchPredictionResponse) Reset()         { *m = FootballMatchPredictionResponse{} }
+func (m *FootballMatchPredictionResponse) String() string { return proto.CompactTextString(m) }
+func (*FootballMatchPredictionResponse) ProtoMessage()    {}
+func (*FootballMatchPredictionResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_59ac661acc13075b, []int{3}
 }
-func (m *PredictionResponse) XXX_Unmarshal(b []byte) error {
+func (m *FootballMatchPredictionResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *PredictionResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *FootballMatchPredictionResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_PredictionResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_FootballMatchPredictionResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -198,19 +198,19 @@ func (m *PredictionResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return b[:n], nil
 	}
 }
-func (m *PredictionResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_PredictionResponse.Merge(m, src)
+func (m *FootballMatchPredictionResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FootballMatchPredictionResponse.Merge(m, src)
 }
-func (m *PredictionResponse) XXX_Size() int {
+func (m *FootballMatchPredictionResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *PredictionResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_PredictionResponse.DiscardUnknown(m)
+func (m *FootballMatchPredictionResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_FootballMatchPredictionResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_PredictionResponse proto.InternalMessageInfo
+var xxx_messageInfo_FootballMatchPredictionResponse proto.InternalMessageInfo
 
-func (m *PredictionResponse) GetPrediction() *Prediction {
+func (m *FootballMatchPredictionResponse) GetPrediction() *Prediction {
 	if m != nil {
 		return m.Prediction
 	}
@@ -280,31 +280,31 @@ func (m *Prediction) GetAwayWin() float64 {
 	return 0
 }
 
-type Event struct {
+type FootballMatch struct {
 	Id                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	TimeStatus           string   `protobuf:"bytes,2,opt,name=time_status,json=timeStatus,proto3" json:"time_status,omitempty"`
 	Score                string   `protobuf:"bytes,3,opt,name=score,proto3" json:"score,omitempty"`
 	HomeTeam             string   `protobuf:"bytes,4,opt,name=home_team,json=homeTeam,proto3" json:"home_team,omitempty"`
 	AwayTeam             string   `protobuf:"bytes,5,opt,name=away_team,json=awayTeam,proto3" json:"away_team,omitempty"`
 	LeagueName           string   `protobuf:"bytes,6,opt,name=league_name,json=leagueName,proto3" json:"league_name,omitempty"`
-	Timer                *Timer   `protobuf:"bytes,7,opt,name=timer,proto3" json:"timer,omitempty"`
+	Time                 *Time    `protobuf:"bytes,7,opt,name=time,proto3" json:"time,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *Event) Reset()         { *m = Event{} }
-func (m *Event) String() string { return proto.CompactTextString(m) }
-func (*Event) ProtoMessage()    {}
-func (*Event) Descriptor() ([]byte, []int) {
+func (m *FootballMatch) Reset()         { *m = FootballMatch{} }
+func (m *FootballMatch) String() string { return proto.CompactTextString(m) }
+func (*FootballMatch) ProtoMessage()    {}
+func (*FootballMatch) Descriptor() ([]byte, []int) {
 	return fileDescriptor_59ac661acc13075b, []int{5}
 }
-func (m *Event) XXX_Unmarshal(b []byte) error {
+func (m *FootballMatch) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *Event) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *FootballMatch) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_Event.Marshal(b, m, deterministic)
+		return xxx_messageInfo_FootballMatch.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -314,68 +314,68 @@ func (m *Event) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-func (m *Event) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Event.Merge(m, src)
+func (m *FootballMatch) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FootballMatch.Merge(m, src)
 }
-func (m *Event) XXX_Size() int {
+func (m *FootballMatch) XXX_Size() int {
 	return m.Size()
 }
-func (m *Event) XXX_DiscardUnknown() {
-	xxx_messageInfo_Event.DiscardUnknown(m)
+func (m *FootballMatch) XXX_DiscardUnknown() {
+	xxx_messageInfo_FootballMatch.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_Event proto.InternalMessageInfo
+var xxx_messageInfo_FootballMatch proto.InternalMessageInfo
 
-func (m *Event) GetId() string {
+func (m *FootballMatch) GetId() string {
 	if m != nil {
 		return m.Id
 	}
 	return ""
 }
 
-func (m *Event) GetTimeStatus() string {
+func (m *FootballMatch) GetTimeStatus() string {
 	if m != nil {
 		return m.TimeStatus
 	}
 	return ""
 }
 
-func (m *Event) GetScore() string {
+func (m *FootballMatch) GetScore() string {
 	if m != nil {
 		return m.Score
 	}
 	return ""
 }
 
-func (m *Event) GetHomeTeam() string {
+func (m *FootballMatch) GetHomeTeam() string {
 	if m != nil {
 		return m.HomeTeam
 	}
 	return ""
 }
 
-func (m *Event) GetAwayTeam() string {
+func (m *FootballMatch) GetAwayTeam() string {
 	if m != nil {
 		return m.AwayTeam
 	}
 	return ""
 }
 
-func (m *Event) GetLeagueName() string {
+func (m *FootballMatch) GetLeagueName() string {
 	if m != nil {
 		return m.LeagueName
 	}
 	return ""
 }
 
-func (m *Event) GetTimer() *Timer {
+func (m *FootballMatch) GetTime() *Time {
 	if m != nil {
-		return m.Timer
+		return m.Time
 	}
 	return nil
 }
 
-type Timer struct {
+type Time struct {
 	Minutes              int64    `protobuf:"varint,1,opt,name=minutes,proto3" json:"minutes,omitempty"`
 	Seconds              int64    `protobuf:"varint,2,opt,name=seconds,proto3" json:"seconds,omitempty"`
 	AddedTime            int64    `protobuf:"varint,3,opt,name=added_time,json=addedTime,proto3" json:"added_time,omitempty"`
@@ -384,18 +384,18 @@ type Timer struct {
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *Timer) Reset()         { *m = Timer{} }
-func (m *Timer) String() string { return proto.CompactTextString(m) }
-func (*Timer) ProtoMessage()    {}
-func (*Timer) Descriptor() ([]byte, []int) {
+func (m *Time) Reset()         { *m = Time{} }
+func (m *Time) String() string { return proto.CompactTextString(m) }
+func (*Time) ProtoMessage()    {}
+func (*Time) Descriptor() ([]byte, []int) {
 	return fileDescriptor_59ac661acc13075b, []int{6}
 }
-func (m *Timer) XXX_Unmarshal(b []byte) error {
+func (m *Time) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *Timer) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *Time) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_Timer.Marshal(b, m, deterministic)
+		return xxx_messageInfo_Time.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -405,33 +405,33 @@ func (m *Timer) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-func (m *Timer) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Timer.Merge(m, src)
+func (m *Time) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Time.Merge(m, src)
 }
-func (m *Timer) XXX_Size() int {
+func (m *Time) XXX_Size() int {
 	return m.Size()
 }
-func (m *Timer) XXX_DiscardUnknown() {
-	xxx_messageInfo_Timer.DiscardUnknown(m)
+func (m *Time) XXX_DiscardUnknown() {
+	xxx_messageInfo_Time.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_Timer proto.InternalMessageInfo
+var xxx_messageInfo_Time proto.InternalMessageInfo
 
-func (m *Timer) GetMinutes() int64 {
+func (m *Time) GetMinutes() int64 {
 	if m != nil {
 		return m.Minutes
 	}
 	return 0
 }
 
-func (m *Timer) GetSeconds() int64 {
+func (m *Time) GetSeconds() int64 {
 	if m != nil {
 		return m.Seconds
 	}
 	return 0
 }
 
-func (m *Timer) GetAddedTime() int64 {
+func (m *Time) GetAddedTime() int64 {
 	if m != nil {
 		return m.AddedTime
 	}
@@ -439,52 +439,52 @@ func (m *Timer) GetAddedTime() int64 {
 }
 
 func init() {
-	proto.RegisterType((*InPlayEventsRequest)(nil), "InPlayEventsRequest")
-	proto.RegisterType((*EventsResponse)(nil), "EventsResponse")
-	proto.RegisterType((*EventPredictionRequest)(nil), "EventPredictionRequest")
-	proto.RegisterType((*PredictionResponse)(nil), "PredictionResponse")
+	proto.RegisterType((*InPlayFootballMatchesRequest)(nil), "InPlayFootballMatchesRequest")
+	proto.RegisterType((*FootballMatchesResponse)(nil), "FootballMatchesResponse")
+	proto.RegisterType((*FootballMatchPredictionRequest)(nil), "FootballMatchPredictionRequest")
+	proto.RegisterType((*FootballMatchPredictionResponse)(nil), "FootballMatchPredictionResponse")
 	proto.RegisterType((*Prediction)(nil), "Prediction")
-	proto.RegisterType((*Event)(nil), "Event")
-	proto.RegisterType((*Timer)(nil), "Timer")
+	proto.RegisterType((*FootballMatch)(nil), "FootballMatch")
+	proto.RegisterType((*Time)(nil), "Time")
 }
 
 func init() { proto.RegisterFile("pkg/api/types/types.proto", fileDescriptor_59ac661acc13075b) }
 
 var fileDescriptor_59ac661acc13075b = []byte{
-	// 522 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x53, 0xdd, 0x6e, 0xd3, 0x30,
-	0x14, 0x6e, 0xda, 0xf5, 0xef, 0x54, 0x1a, 0x92, 0x37, 0xb1, 0xac, 0x40, 0x37, 0xe5, 0x6a, 0x12,
-	0x5a, 0x82, 0xba, 0x07, 0x40, 0x4c, 0xc0, 0x54, 0x09, 0xc1, 0x14, 0x26, 0x26, 0xed, 0xa6, 0x72,
-	0xeb, 0x43, 0x67, 0xad, 0xb1, 0x43, 0xec, 0x50, 0xf5, 0x4d, 0xb8, 0xe0, 0x7d, 0xe0, 0x92, 0x47,
-	0x40, 0xe5, 0x45, 0x90, 0x8f, 0xdb, 0x92, 0x89, 0xdd, 0x44, 0xf9, 0x7e, 0xec, 0xcf, 0xc7, 0x3e,
-	0x07, 0x0e, 0xf3, 0xbb, 0x59, 0xc2, 0x73, 0x99, 0xd8, 0x65, 0x8e, 0xc6, 0x7f, 0xe3, 0xbc, 0xd0,
-	0x56, 0xf7, 0x4f, 0x67, 0xd2, 0xde, 0x96, 0x93, 0x78, 0xaa, 0xb3, 0x64, 0xa6, 0x67, 0x3a, 0x21,
-	0x7a, 0x52, 0x7e, 0x26, 0x44, 0x80, 0xfe, 0xbc, 0x3d, 0x1a, 0xc2, 0xde, 0x48, 0x5d, 0xce, 0xf9,
-	0xf2, 0xcd, 0x57, 0x54, 0xd6, 0xa4, 0xf8, 0xa5, 0x44, 0x63, 0xd9, 0x13, 0xe8, 0xce, 0x91, 0xcf,
-	0x4a, 0x1c, 0x4b, 0x11, 0xd6, 0x8f, 0x83, 0x93, 0x6e, 0xda, 0xf1, 0xc4, 0x48, 0x44, 0x2f, 0x60,
-	0x77, 0xe3, 0x36, 0xb9, 0x56, 0x06, 0xd9, 0x00, 0x5a, 0x48, 0x4c, 0x18, 0x1c, 0x37, 0x4e, 0x7a,
-	0xc3, 0x56, 0x4c, 0x86, 0x74, 0xcd, 0x46, 0x67, 0xf0, 0x98, 0x88, 0xcb, 0x02, 0x85, 0x9c, 0x5a,
-	0xa9, 0xd5, 0x26, 0xe8, 0x10, 0x3a, 0xe4, 0x71, 0x39, 0x01, 0xe5, 0xb4, 0x09, 0x8f, 0x44, 0xf4,
-	0x0a, 0x58, 0xd5, 0xbf, 0x8e, 0x7a, 0x0e, 0x90, 0x6f, 0x59, 0x5a, 0xd2, 0x1b, 0xf6, 0xe2, 0x8a,
-	0xb1, 0x22, 0x47, 0x9f, 0x00, 0xfe, 0x29, 0x2e, 0xeb, 0x56, 0x67, 0x38, 0x5e, 0x48, 0xbf, 0x30,
-	0x48, 0xdb, 0x0e, 0x5f, 0x4b, 0xc5, 0x18, 0xec, 0x88, 0x82, 0x2f, 0xa8, 0xd4, 0x20, 0xa5, 0x7f,
-	0x67, 0xe7, 0x0b, 0xbe, 0x24, 0x7b, 0xc3, 0xdb, 0x1d, 0xbe, 0x96, 0x2a, 0xfa, 0x11, 0x40, 0x93,
-	0x0a, 0x62, 0xbb, 0x50, 0xdf, 0x9e, 0xbc, 0x2e, 0x05, 0x3b, 0x82, 0x9e, 0x95, 0x19, 0x8e, 0x8d,
-	0xe5, 0xb6, 0x34, 0xeb, 0xab, 0x03, 0x47, 0x7d, 0x24, 0x86, 0xed, 0x43, 0xd3, 0x4c, 0x75, 0x81,
-	0xb4, 0x65, 0x37, 0xf5, 0xc0, 0xdd, 0x37, 0x1d, 0xcd, 0x22, 0xcf, 0xc2, 0x1d, 0x7f, 0xdf, 0x8e,
-	0xb8, 0x42, 0x9e, 0x39, 0x91, 0x0e, 0x42, 0x62, 0xd3, 0x8b, 0x8e, 0x20, 0xf1, 0x08, 0x7a, 0xeb,
-	0x97, 0x52, 0x3c, 0xc3, 0xb0, 0xe5, 0x03, 0x3d, 0xf5, 0x9e, 0x67, 0xc8, 0x9e, 0x42, 0xd3, 0xc5,
-	0x17, 0x61, 0x9b, 0xee, 0xaa, 0x15, 0x5f, 0x39, 0x94, 0x7a, 0x32, 0xba, 0x81, 0x26, 0x61, 0x16,
-	0x42, 0x3b, 0x93, 0xaa, 0xb4, 0x68, 0xa8, 0x9a, 0x46, 0xba, 0x81, 0x4e, 0x31, 0x38, 0xd5, 0x4a,
-	0xf8, 0x72, 0x1a, 0xe9, 0x06, 0xb2, 0x67, 0x00, 0x5c, 0x08, 0x14, 0x63, 0xb7, 0x17, 0x15, 0xd4,
-	0x48, 0xbb, 0xc4, 0xb8, 0x3d, 0x87, 0xdf, 0x03, 0xe8, 0xbc, 0x46, 0xcc, 0x3f, 0x08, 0x61, 0xd8,
-	0x39, 0x1c, 0x5c, 0xa0, 0xf5, 0xbd, 0xf6, 0x56, 0x6b, 0x3b, 0xe1, 0xf3, 0xb9, 0xef, 0x22, 0xb6,
-	0x1f, 0x3f, 0xd0, 0x82, 0xfd, 0x47, 0xf1, 0xfd, 0x26, 0x8b, 0x6a, 0xec, 0x1d, 0xf4, 0x2f, 0xd0,
-	0xde, 0x5b, 0x5d, 0x79, 0xde, 0x83, 0xf8, 0xe1, 0x1e, 0xeb, 0xef, 0xc5, 0xff, 0xf7, 0x51, 0x54,
-	0x3b, 0x7f, 0xf9, 0x73, 0x35, 0x08, 0x7e, 0xad, 0x06, 0xc1, 0xef, 0xd5, 0x20, 0xf8, 0xf6, 0x67,
-	0x50, 0xbb, 0xa9, 0xce, 0x8e, 0x28, 0xb8, 0xba, 0xd3, 0x65, 0x22, 0x10, 0xf3, 0x53, 0x2d, 0x44,
-	0xe2, 0x46, 0x6e, 0x82, 0xd6, 0x6c, 0xc7, 0x6e, 0xd2, 0xa2, 0x11, 0x3a, 0xfb, 0x1b, 0x00, 0x00,
-	0xff, 0xff, 0xa6, 0x6c, 0xfe, 0xec, 0x8e, 0x03, 0x00, 0x00,
+	// 523 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x53, 0x4d, 0x8f, 0x12, 0x41,
+	0x10, 0xdd, 0xe6, 0x63, 0x81, 0x22, 0xee, 0xa1, 0x63, 0xe2, 0x80, 0x2e, 0x90, 0x39, 0x61, 0xcc,
+	0xce, 0x24, 0x78, 0xe4, 0xa6, 0xc6, 0x0d, 0x07, 0xd7, 0xcd, 0xb8, 0xba, 0xd1, 0x0b, 0x69, 0xe8,
+	0x12, 0x3a, 0xcb, 0x4c, 0x8f, 0x33, 0x3d, 0x12, 0xfe, 0x89, 0x3f, 0xc8, 0x83, 0x07, 0x0f, 0xfe,
+	0x04, 0x83, 0x7f, 0xc4, 0x74, 0x35, 0xac, 0x10, 0x65, 0xbd, 0x4c, 0xe6, 0xbd, 0x57, 0xd5, 0xfd,
+	0xba, 0xeb, 0x35, 0xb4, 0xd2, 0x9b, 0x59, 0x28, 0x52, 0x15, 0x9a, 0x55, 0x8a, 0xb9, 0xfb, 0x06,
+	0x69, 0xa6, 0x8d, 0x6e, 0x9f, 0xcd, 0x94, 0x99, 0x17, 0x93, 0x60, 0xaa, 0xe3, 0x70, 0xa6, 0x67,
+	0x3a, 0x24, 0x7a, 0x52, 0x7c, 0x24, 0x44, 0x80, 0xfe, 0x5c, 0xb9, 0x3f, 0x84, 0x47, 0xa3, 0xe4,
+	0x72, 0x21, 0x56, 0x2f, 0xb5, 0x36, 0x13, 0xb1, 0x58, 0xbc, 0x12, 0x66, 0x3a, 0xc7, 0x3c, 0xc2,
+	0x4f, 0x05, 0xe6, 0x86, 0x3f, 0x84, 0xc6, 0x02, 0xc5, 0xac, 0xc0, 0xb1, 0x92, 0x5e, 0xa9, 0xc7,
+	0xfa, 0x8d, 0xa8, 0xee, 0x88, 0x91, 0xf4, 0x9f, 0xc3, 0x83, 0xbf, 0xda, 0xf2, 0x54, 0x27, 0x39,
+	0xf2, 0x3e, 0xd4, 0x62, 0x47, 0x79, 0xac, 0x57, 0xee, 0x37, 0x07, 0x27, 0xc1, 0x5e, 0x69, 0xb4,
+	0x95, 0xfd, 0x21, 0x74, 0xf6, 0x94, 0xcb, 0x0c, 0xa5, 0x9a, 0x1a, 0xa5, 0x93, 0xad, 0x87, 0x16,
+	0xd4, 0xf1, 0x33, 0x26, 0xc6, 0x5a, 0x60, 0x64, 0xa1, 0x46, 0x78, 0x24, 0xfd, 0x0b, 0xe8, 0x1e,
+	0x6c, 0xde, 0x38, 0x79, 0x02, 0x90, 0xde, 0xb2, 0xd4, 0xdf, 0x1c, 0x34, 0x83, 0x9d, 0xc2, 0x1d,
+	0xd9, 0x7f, 0x07, 0xf0, 0x47, 0xb1, 0x1b, 0xcf, 0x75, 0x8c, 0xe3, 0xa5, 0x72, 0x8d, 0x2c, 0xaa,
+	0x59, 0x7c, 0xad, 0x12, 0xce, 0xa1, 0x22, 0x33, 0xb1, 0xa4, 0x2b, 0x61, 0x11, 0xfd, 0xdb, 0x72,
+	0xb1, 0x14, 0x2b, 0x2a, 0x2f, 0xbb, 0x72, 0x8b, 0xaf, 0x55, 0xe2, 0x7f, 0x67, 0x70, 0x6f, 0xcf,
+	0x28, 0x3f, 0x81, 0xd2, 0xed, 0x71, 0x4a, 0x4a, 0xf2, 0x2e, 0x34, 0x8d, 0x8a, 0x71, 0x9c, 0x1b,
+	0x61, 0x8a, 0x7c, 0x73, 0xd5, 0x60, 0xa9, 0x37, 0xc4, 0xf0, 0xfb, 0x50, 0xcd, 0xa7, 0x3a, 0x43,
+	0x5a, 0xba, 0x11, 0x39, 0x60, 0xe7, 0x43, 0x16, 0x0d, 0x8a, 0xd8, 0xab, 0xb8, 0xf9, 0x58, 0xe2,
+	0x0a, 0x45, 0x6c, 0x45, 0x32, 0x44, 0x62, 0xd5, 0x89, 0x96, 0x20, 0xb1, 0x0b, 0xcd, 0xcd, 0x64,
+	0x13, 0x11, 0xa3, 0x77, 0xec, 0x36, 0x74, 0xd4, 0x85, 0x88, 0x91, 0xb7, 0xa0, 0x62, 0xb7, 0xf7,
+	0x6a, 0x74, 0x65, 0xd5, 0xe0, 0x4a, 0xc5, 0x18, 0x11, 0xe5, 0xbf, 0x87, 0x8a, 0x45, 0xdc, 0x83,
+	0x5a, 0xac, 0x92, 0xc2, 0xd0, 0x94, 0x59, 0xbf, 0x1c, 0x6d, 0xa1, 0x55, 0x72, 0x9c, 0xea, 0x44,
+	0xba, 0xa3, 0x94, 0xa3, 0x2d, 0xe4, 0xa7, 0x00, 0x42, 0x4a, 0x94, 0x63, 0x5a, 0xbc, 0x4c, 0x62,
+	0x83, 0x18, 0xbb, 0xe4, 0xe0, 0x2b, 0x83, 0xfa, 0x0b, 0xc4, 0xf4, 0xb5, 0x94, 0x39, 0x7f, 0x0b,
+	0xde, 0x39, 0x9a, 0x7f, 0x06, 0x94, 0x9f, 0x06, 0x77, 0x05, 0xb7, 0xed, 0x05, 0x07, 0xa2, 0xe9,
+	0x1f, 0x71, 0x01, 0xed, 0x73, 0x34, 0x07, 0x82, 0xc3, 0xbb, 0xc1, 0xdd, 0x79, 0x6c, 0xf7, 0x82,
+	0xff, 0x64, 0xce, 0x3f, 0x7a, 0x36, 0xfc, 0xb6, 0xee, 0xb0, 0x1f, 0xeb, 0x0e, 0xfb, 0xb9, 0xee,
+	0xb0, 0x2f, 0xbf, 0x3a, 0x47, 0x1f, 0x1e, 0xef, 0x3c, 0x4c, 0x99, 0x89, 0xe4, 0x46, 0x17, 0xa1,
+	0x44, 0x4c, 0xcf, 0xb4, 0x94, 0xe1, 0xde, 0x7b, 0x9e, 0x1c, 0xd3, 0xdb, 0x7c, 0xfa, 0x3b, 0x00,
+	0x00, 0xff, 0xff, 0xfd, 0xfc, 0x20, 0x60, 0xe7, 0x03, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -499,8 +499,8 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type DeepOddsClient interface {
-	GetInPlayFootballEvents(ctx context.Context, in *InPlayEventsRequest, opts ...grpc.CallOption) (*EventsResponse, error)
-	GetFootballEventPrediction(ctx context.Context, in *EventPredictionRequest, opts ...grpc.CallOption) (*PredictionResponse, error)
+	GetInPlayFootballMatches(ctx context.Context, in *InPlayFootballMatchesRequest, opts ...grpc.CallOption) (*FootballMatchesResponse, error)
+	GetFootballMatchPrediction(ctx context.Context, in *FootballMatchPredictionRequest, opts ...grpc.CallOption) (*FootballMatchPredictionResponse, error)
 }
 
 type deepOddsClient struct {
@@ -511,18 +511,18 @@ func NewDeepOddsClient(cc *grpc.ClientConn) DeepOddsClient {
 	return &deepOddsClient{cc}
 }
 
-func (c *deepOddsClient) GetInPlayFootballEvents(ctx context.Context, in *InPlayEventsRequest, opts ...grpc.CallOption) (*EventsResponse, error) {
-	out := new(EventsResponse)
-	err := c.cc.Invoke(ctx, "/DeepOdds/GetInPlayFootballEvents", in, out, opts...)
+func (c *deepOddsClient) GetInPlayFootballMatches(ctx context.Context, in *InPlayFootballMatchesRequest, opts ...grpc.CallOption) (*FootballMatchesResponse, error) {
+	out := new(FootballMatchesResponse)
+	err := c.cc.Invoke(ctx, "/DeepOdds/GetInPlayFootballMatches", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *deepOddsClient) GetFootballEventPrediction(ctx context.Context, in *EventPredictionRequest, opts ...grpc.CallOption) (*PredictionResponse, error) {
-	out := new(PredictionResponse)
-	err := c.cc.Invoke(ctx, "/DeepOdds/GetFootballEventPrediction", in, out, opts...)
+func (c *deepOddsClient) GetFootballMatchPrediction(ctx context.Context, in *FootballMatchPredictionRequest, opts ...grpc.CallOption) (*FootballMatchPredictionResponse, error) {
+	out := new(FootballMatchPredictionResponse)
+	err := c.cc.Invoke(ctx, "/DeepOdds/GetFootballMatchPrediction", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -531,57 +531,57 @@ func (c *deepOddsClient) GetFootballEventPrediction(ctx context.Context, in *Eve
 
 // DeepOddsServer is the server API for DeepOdds service.
 type DeepOddsServer interface {
-	GetInPlayFootballEvents(context.Context, *InPlayEventsRequest) (*EventsResponse, error)
-	GetFootballEventPrediction(context.Context, *EventPredictionRequest) (*PredictionResponse, error)
+	GetInPlayFootballMatches(context.Context, *InPlayFootballMatchesRequest) (*FootballMatchesResponse, error)
+	GetFootballMatchPrediction(context.Context, *FootballMatchPredictionRequest) (*FootballMatchPredictionResponse, error)
 }
 
 // UnimplementedDeepOddsServer can be embedded to have forward compatible implementations.
 type UnimplementedDeepOddsServer struct {
 }
 
-func (*UnimplementedDeepOddsServer) GetInPlayFootballEvents(ctx context.Context, req *InPlayEventsRequest) (*EventsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetInPlayFootballEvents not implemented")
+func (*UnimplementedDeepOddsServer) GetInPlayFootballMatches(ctx context.Context, req *InPlayFootballMatchesRequest) (*FootballMatchesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetInPlayFootballMatches not implemented")
 }
-func (*UnimplementedDeepOddsServer) GetFootballEventPrediction(ctx context.Context, req *EventPredictionRequest) (*PredictionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetFootballEventPrediction not implemented")
+func (*UnimplementedDeepOddsServer) GetFootballMatchPrediction(ctx context.Context, req *FootballMatchPredictionRequest) (*FootballMatchPredictionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFootballMatchPrediction not implemented")
 }
 
 func RegisterDeepOddsServer(s *grpc.Server, srv DeepOddsServer) {
 	s.RegisterService(&_DeepOdds_serviceDesc, srv)
 }
 
-func _DeepOdds_GetInPlayFootballEvents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(InPlayEventsRequest)
+func _DeepOdds_GetInPlayFootballMatches_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InPlayFootballMatchesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DeepOddsServer).GetInPlayFootballEvents(ctx, in)
+		return srv.(DeepOddsServer).GetInPlayFootballMatches(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/DeepOdds/GetInPlayFootballEvents",
+		FullMethod: "/DeepOdds/GetInPlayFootballMatches",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DeepOddsServer).GetInPlayFootballEvents(ctx, req.(*InPlayEventsRequest))
+		return srv.(DeepOddsServer).GetInPlayFootballMatches(ctx, req.(*InPlayFootballMatchesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _DeepOdds_GetFootballEventPrediction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(EventPredictionRequest)
+func _DeepOdds_GetFootballMatchPrediction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FootballMatchPredictionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DeepOddsServer).GetFootballEventPrediction(ctx, in)
+		return srv.(DeepOddsServer).GetFootballMatchPrediction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/DeepOdds/GetFootballEventPrediction",
+		FullMethod: "/DeepOdds/GetFootballMatchPrediction",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DeepOddsServer).GetFootballEventPrediction(ctx, req.(*EventPredictionRequest))
+		return srv.(DeepOddsServer).GetFootballMatchPrediction(ctx, req.(*FootballMatchPredictionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -591,19 +591,19 @@ var _DeepOdds_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*DeepOddsServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetInPlayFootballEvents",
-			Handler:    _DeepOdds_GetInPlayFootballEvents_Handler,
+			MethodName: "GetInPlayFootballMatches",
+			Handler:    _DeepOdds_GetInPlayFootballMatches_Handler,
 		},
 		{
-			MethodName: "GetFootballEventPrediction",
-			Handler:    _DeepOdds_GetFootballEventPrediction_Handler,
+			MethodName: "GetFootballMatchPrediction",
+			Handler:    _DeepOdds_GetFootballMatchPrediction_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "pkg/api/types/types.proto",
 }
 
-func (m *InPlayEventsRequest) Marshal() (dAtA []byte, err error) {
+func (m *InPlayFootballMatchesRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -613,12 +613,12 @@ func (m *InPlayEventsRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *InPlayEventsRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *InPlayFootballMatchesRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *InPlayEventsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *InPlayFootballMatchesRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -637,7 +637,7 @@ func (m *InPlayEventsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *EventsResponse) Marshal() (dAtA []byte, err error) {
+func (m *FootballMatchesResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -647,12 +647,12 @@ func (m *EventsResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *EventsResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *FootballMatchesResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *EventsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *FootballMatchesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -661,10 +661,10 @@ func (m *EventsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i -= len(m.XXX_unrecognized)
 		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	if len(m.Events) > 0 {
-		for iNdEx := len(m.Events) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.Matches) > 0 {
+		for iNdEx := len(m.Matches) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.Events[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.Matches[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -678,7 +678,7 @@ func (m *EventsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *EventPredictionRequest) Marshal() (dAtA []byte, err error) {
+func (m *FootballMatchPredictionRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -688,12 +688,12 @@ func (m *EventPredictionRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *EventPredictionRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *FootballMatchPredictionRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *EventPredictionRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *FootballMatchPredictionRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -712,7 +712,7 @@ func (m *EventPredictionRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) 
 	return len(dAtA) - i, nil
 }
 
-func (m *PredictionResponse) Marshal() (dAtA []byte, err error) {
+func (m *FootballMatchPredictionResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -722,12 +722,12 @@ func (m *PredictionResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *PredictionResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *FootballMatchPredictionResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *PredictionResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *FootballMatchPredictionResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -796,7 +796,7 @@ func (m *Prediction) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *Event) Marshal() (dAtA []byte, err error) {
+func (m *FootballMatch) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -806,12 +806,12 @@ func (m *Event) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *Event) MarshalTo(dAtA []byte) (int, error) {
+func (m *FootballMatch) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *Event) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *FootballMatch) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -820,9 +820,9 @@ func (m *Event) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i -= len(m.XXX_unrecognized)
 		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	if m.Timer != nil {
+	if m.Time != nil {
 		{
-			size, err := m.Timer.MarshalToSizedBuffer(dAtA[:i])
+			size, err := m.Time.MarshalToSizedBuffer(dAtA[:i])
 			if err != nil {
 				return 0, err
 			}
@@ -877,7 +877,7 @@ func (m *Event) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *Timer) Marshal() (dAtA []byte, err error) {
+func (m *Time) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -887,12 +887,12 @@ func (m *Timer) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *Timer) MarshalTo(dAtA []byte) (int, error) {
+func (m *Time) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *Timer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *Time) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -930,7 +930,7 @@ func encodeVarintTypes(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *InPlayEventsRequest) Size() (n int) {
+func (m *InPlayFootballMatchesRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -946,14 +946,14 @@ func (m *InPlayEventsRequest) Size() (n int) {
 	return n
 }
 
-func (m *EventsResponse) Size() (n int) {
+func (m *FootballMatchesResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	if len(m.Events) > 0 {
-		for _, e := range m.Events {
+	if len(m.Matches) > 0 {
+		for _, e := range m.Matches {
 			l = e.Size()
 			n += 1 + l + sovTypes(uint64(l))
 		}
@@ -964,7 +964,7 @@ func (m *EventsResponse) Size() (n int) {
 	return n
 }
 
-func (m *EventPredictionRequest) Size() (n int) {
+func (m *FootballMatchPredictionRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -980,7 +980,7 @@ func (m *EventPredictionRequest) Size() (n int) {
 	return n
 }
 
-func (m *PredictionResponse) Size() (n int) {
+func (m *FootballMatchPredictionResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1017,7 +1017,7 @@ func (m *Prediction) Size() (n int) {
 	return n
 }
 
-func (m *Event) Size() (n int) {
+func (m *FootballMatch) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1047,8 +1047,8 @@ func (m *Event) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTypes(uint64(l))
 	}
-	if m.Timer != nil {
-		l = m.Timer.Size()
+	if m.Time != nil {
+		l = m.Time.Size()
 		n += 1 + l + sovTypes(uint64(l))
 	}
 	if m.XXX_unrecognized != nil {
@@ -1057,7 +1057,7 @@ func (m *Event) Size() (n int) {
 	return n
 }
 
-func (m *Timer) Size() (n int) {
+func (m *Time) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1084,7 +1084,7 @@ func sovTypes(x uint64) (n int) {
 func sozTypes(x uint64) (n int) {
 	return sovTypes(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *InPlayEventsRequest) Unmarshal(dAtA []byte) error {
+func (m *InPlayFootballMatchesRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1107,10 +1107,10 @@ func (m *InPlayEventsRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: InPlayEventsRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: InPlayFootballMatchesRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: InPlayEventsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: InPlayFootballMatchesRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 2:
@@ -1170,7 +1170,7 @@ func (m *InPlayEventsRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *EventsResponse) Unmarshal(dAtA []byte) error {
+func (m *FootballMatchesResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1193,15 +1193,15 @@ func (m *EventsResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: EventsResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: FootballMatchesResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: EventsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: FootballMatchesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Events", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Matches", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -1228,8 +1228,8 @@ func (m *EventsResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Events = append(m.Events, &Event{})
-			if err := m.Events[len(m.Events)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.Matches = append(m.Matches, &FootballMatch{})
+			if err := m.Matches[len(m.Matches)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -1258,7 +1258,7 @@ func (m *EventsResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *EventPredictionRequest) Unmarshal(dAtA []byte) error {
+func (m *FootballMatchPredictionRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1281,10 +1281,10 @@ func (m *EventPredictionRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: EventPredictionRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: FootballMatchPredictionRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: EventPredictionRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: FootballMatchPredictionRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1344,7 +1344,7 @@ func (m *EventPredictionRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *PredictionResponse) Unmarshal(dAtA []byte) error {
+func (m *FootballMatchPredictionResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1367,10 +1367,10 @@ func (m *PredictionResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: PredictionResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: FootballMatchPredictionResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: PredictionResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: FootballMatchPredictionResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1521,7 +1521,7 @@ func (m *Prediction) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *Event) Unmarshal(dAtA []byte) error {
+func (m *FootballMatch) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1544,10 +1544,10 @@ func (m *Event) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: Event: wiretype end group for non-group")
+			return fmt.Errorf("proto: FootballMatch: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: Event: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: FootballMatch: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1744,7 +1744,7 @@ func (m *Event) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 7:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Timer", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Time", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -1771,10 +1771,10 @@ func (m *Event) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.Timer == nil {
-				m.Timer = &Timer{}
+			if m.Time == nil {
+				m.Time = &Time{}
 			}
-			if err := m.Timer.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.Time.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -1803,7 +1803,7 @@ func (m *Event) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *Timer) Unmarshal(dAtA []byte) error {
+func (m *Time) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1826,10 +1826,10 @@ func (m *Timer) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: Timer: wiretype end group for non-group")
+			return fmt.Errorf("proto: Time: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: Timer: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: Time: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
