@@ -12,7 +12,7 @@ func main() {
 		log.Panicf("Error loading .env file. #%v", err)
 	}
 
-	client, err := tfclient.NewClient(os.Getenv("TF_SERVER"))
+	client, err := tfclient.NewPredictionClient(os.Getenv("TF_SERVER"))
 	if err != nil {
 		log.Fatal(err)
 	}

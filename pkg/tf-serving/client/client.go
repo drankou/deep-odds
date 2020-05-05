@@ -4,8 +4,6 @@ import (
 	"github.com/tensorflow/tensorflow/tensorflow/go/core/framework/tensor_go_proto"
 	"github.com/tensorflow/tensorflow/tensorflow/go/core/framework/tensor_shape_go_proto"
 	"github.com/tensorflow/tensorflow/tensorflow/go/core/framework/types_go_proto"
-	"sync"
-
 	tf "tensorflow_serving/apis"
 
 	"golang.org/x/net/context"
@@ -13,9 +11,7 @@ import (
 )
 
 type PredictionClient struct {
-	mu      sync.RWMutex
-	rpcConn *grpc.ClientConn
-	svcConn tf.PredictionServiceClient
+	srvClient tf.PredictionServiceClient
 }
 
 type Prediction struct {
@@ -24,17 +20,17 @@ type Prediction struct {
 	AwayWin float32
 }
 
-func NewClient(addr string) (*PredictionClient, error) {
-	conn, err := grpc.Dial(addr, grpc.WithInsecure())
+func NewPredictionClient(address string) (*PredictionClient, error) {
+	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
 		return nil, err
 	}
 	c := tf.NewPredictionServiceClient(conn)
-	return &PredictionClient{rpcConn: conn, svcConn: c}, nil
+	return &PredictionClient{srvClient: c}, nil
 }
 
 func (c *PredictionClient) Predict(modelName string, inputs []float32) (*Prediction, error) {
-	resp, err := c.svcConn.Predict(context.Background(), &tf.PredictRequest{
+	resp, err := c.srvClient.Predict(context.Background(), &tf.PredictRequest{
 		ModelSpec: &tf.ModelSpec{
 			Name: modelName,
 		},
@@ -59,20 +55,4 @@ func (c *PredictionClient) Predict(modelName string, inputs []float32) (*Predict
 	}
 
 	return res, nil
-}
-
-func newPredictRequest(modelName string) (pr *tf.PredictRequest) {
-	return &tf.PredictRequest{
-		ModelSpec: &tf.ModelSpec{
-			Name: modelName,
-		},
-		Inputs: make(map[string]*tensor_go_proto.TensorProto),
-	}
-}
-
-func (c *PredictionClient) Close() error {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	c.svcConn = nil
-	return c.rpcConn.Close()
 }
