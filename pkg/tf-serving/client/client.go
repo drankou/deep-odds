@@ -48,10 +48,25 @@ func (c *PredictionClient) Predict(modelName string, inputs []float32) (*Predict
 		return nil, err
 	}
 
+	var homeOdds float32
+	var drawOdds float32
+	var awayOdds float32
+
+	if resp.GetOutputs()["dense_3"].FloatVal[0] != 0 {
+		homeOdds = 1 / resp.GetOutputs()["dense_3"].FloatVal[0]
+	}
+
+	if resp.GetOutputs()["dense_3"].FloatVal[1] != 0 {
+		drawOdds = 1 / resp.GetOutputs()["dense_3"].FloatVal[1]
+	}
+
+	if resp.GetOutputs()["dense_3"].FloatVal[2] != 0 {
+		awayOdds = 1 / resp.GetOutputs()["dense_3"].FloatVal[2]
+	}
 	res := &Prediction{
-		HomeWin: 1 / resp.GetOutputs()["dense_3"].FloatVal[0],
-		Draw:    1 / resp.GetOutputs()["dense_3"].FloatVal[1],
-		AwayWin: 1 / resp.GetOutputs()["dense_3"].FloatVal[2],
+		HomeWin: homeOdds,
+		Draw:    drawOdds,
+		AwayWin: awayOdds,
 	}
 
 	return res, nil
