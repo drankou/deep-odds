@@ -45,12 +45,12 @@ func (s *BetsapiService) Init() error {
 
 func (s *BetsapiService) GetInPlayEvents(ctx context.Context, req *types.InPlayEventsRequest) (*types.EventsResponse, error) {
 	response := &types.EventsResponse{}
-	log.Info("Getting In-Play events...")
+	log.Debug("Getting In-Play events...")
 	//check in-play events in cache
 	if val, exist := s.Cache.Load(fmt.Sprintf("inplay_%s", req.GetSportId())); exist {
 		log.Debugln("InPlay: Returning value from cache")
 
-		events := val.([]*types.Event)
+		events := val.([]*types.EventView)
 		response.Events = events
 
 		return response, nil
@@ -72,7 +72,7 @@ func (s *BetsapiService) GetInPlayEvents(ctx context.Context, req *types.InPlayE
 		return nil, err
 	}
 
-	var betsapiResponse types.BetsapiInplayResponse
+	var inplayEventsResponse types.InplayEventsResponse
 	if resp.StatusCode == 200 {
 		body := resp.Body
 		data, err := ioutil.ReadAll(body)
@@ -80,18 +80,18 @@ func (s *BetsapiService) GetInPlayEvents(ctx context.Context, req *types.InPlayE
 			return nil, err
 		}
 
-		err = json.Unmarshal(data, &betsapiResponse)
+		err = json.Unmarshal(data, &inplayEventsResponse)
 		if err != nil {
 			return nil, err
 		}
 
-		if betsapiResponse.Success == 1 {
+		if inplayEventsResponse.Success == 1 {
 			//save successfull response to cache
 			log.Debugln("InPlay: Storing value to cache")
 
-			var events []*types.Event
-			for i := range betsapiResponse.Results {
-				events = append(events, &betsapiResponse.Results[i])
+			var events []*types.EventView
+			for i := range inplayEventsResponse.Results {
+				events = append(events, &inplayEventsResponse.Results[i])
 			}
 
 			s.Cache.Store(fmt.Sprintf("inplay_%s", req.GetSportId()), events)
@@ -131,7 +131,7 @@ func (s *BetsapiService) GetUpcomingEvents(ctx context.Context, req *types.Upcom
 		log.Error(err)
 	}
 
-	var betsapiResponse types.BetsapEventsPagerResponse
+	var eventsPagerResponse types.BetsapEventsPagerResponse
 	if resp.StatusCode == 200 {
 		body := resp.Body
 		data, err := ioutil.ReadAll(body)
@@ -139,19 +139,19 @@ func (s *BetsapiService) GetUpcomingEvents(ctx context.Context, req *types.Upcom
 			return nil, err
 		}
 
-		err = json.Unmarshal(data, &betsapiResponse)
+		err = json.Unmarshal(data, &eventsPagerResponse)
 		if err != nil {
 			return nil, err
 		}
 
-		if betsapiResponse.Success == 1 {
-			if betsapiResponse.Pager.Page*betsapiResponse.Pager.PerPage < betsapiResponse.Pager.Total {
-				response.NextPage = betsapiResponse.Pager.Page + 1
+		if eventsPagerResponse.Success == 1 {
+			if eventsPagerResponse.Pager.Page*eventsPagerResponse.Pager.PerPage < eventsPagerResponse.Pager.Total {
+				response.NextPage = eventsPagerResponse.Pager.Page + 1
 			}
 
-			var events []*types.Event
-			for i := range betsapiResponse.Results {
-				events = append(events, &betsapiResponse.Results[i])
+			var events []*types.EventView
+			for i := range eventsPagerResponse.Results {
+				events = append(events, &eventsPagerResponse.Results[i])
 			}
 
 			response.Events = events
@@ -195,7 +195,7 @@ func (s *BetsapiService) GetEndedEvents(ctx context.Context, req *types.EndedEve
 		return nil, err
 	}
 
-	var betsapiResponse types.BetsapEventsPagerResponse
+	var eventsPagerResponse types.BetsapEventsPagerResponse
 	if resp.StatusCode == 200 {
 		body := resp.Body
 		data, err := ioutil.ReadAll(body)
@@ -203,19 +203,19 @@ func (s *BetsapiService) GetEndedEvents(ctx context.Context, req *types.EndedEve
 			return nil, err
 		}
 
-		err = json.Unmarshal(data, &betsapiResponse)
+		err = json.Unmarshal(data, &eventsPagerResponse)
 		if err != nil {
 			return nil, err
 		}
 
-		if betsapiResponse.Success == 1 {
-			if betsapiResponse.Pager.Page*betsapiResponse.Pager.PerPage < betsapiResponse.Pager.Total {
-				response.NextPage = betsapiResponse.Pager.Page + 1
+		if eventsPagerResponse.Success == 1 {
+			if eventsPagerResponse.Pager.Page*eventsPagerResponse.Pager.PerPage < eventsPagerResponse.Pager.Total {
+				response.NextPage = eventsPagerResponse.Pager.Page + 1
 			}
 
-			var events []*types.Event
-			for i := range betsapiResponse.Results {
-				events = append(events, &betsapiResponse.Results[i])
+			var events []*types.EventView
+			for i := range eventsPagerResponse.Results {
+				events = append(events, &eventsPagerResponse.Results[i])
 			}
 
 			response.Events = events
@@ -228,7 +228,7 @@ func (s *BetsapiService) GetEndedEvents(ctx context.Context, req *types.EndedEve
 	}
 }
 
-func (s *BetsapiService) GetEventView(ctx context.Context, req *types.EventViewRequest) (*types.Event, error) {
+func (s *BetsapiService) GetEventView(ctx context.Context, req *types.EventViewRequest) (*types.EventView, error) {
 	httpReq, err := http.NewRequest("GET", constants.EventViewUrl, nil)
 	if err != nil {
 		return nil, err
@@ -246,7 +246,7 @@ func (s *BetsapiService) GetEventView(ctx context.Context, req *types.EventViewR
 		return nil, err
 	}
 
-	var betsapiResponse types.BetsapiStatsResponse
+	var eventViewResponse types.EventViewResponse
 	if resp.StatusCode == 200 {
 		body := resp.Body
 		data, err := ioutil.ReadAll(body)
@@ -254,33 +254,14 @@ func (s *BetsapiService) GetEventView(ctx context.Context, req *types.EventViewR
 			return nil, err
 		}
 
-		err = json.Unmarshal(data, &betsapiResponse)
+		err = json.Unmarshal(data, &eventViewResponse)
 		if err != nil {
 			return nil, err
 		}
 
-		if betsapiResponse.Success == 1 {
-			if len(betsapiResponse.Results) > 0 {
-				event := betsapiResponse.Results[0]
-
-				switch event.SportId {
-				case constants.SoccerId:
-					var footballEventView types.BetsapiFootballStatsResponse
-					err = json.Unmarshal(data, &footballEventView)
-					if err != nil {
-						return nil, err
-					}
-
-					if len(footballEventView.Results) > 0 {
-						return &footballEventView.Results[0].Event, nil
-					}
-				case constants.BasketballId:
-					return nil, nil
-				case constants.TennisId:
-					return nil, nil
-				default:
-					return nil, errors.New("Unsupported sport id for event view")
-				}
+		if eventViewResponse.Success == 1 {
+			if len(eventViewResponse.Results) > 0 {
+				return &eventViewResponse.Results[0], nil
 			}
 
 		} else {
@@ -315,7 +296,7 @@ func (s *BetsapiService) GetEventHistory(ctx context.Context, req *types.EventHi
 		return nil, err
 	}
 
-	var betsapiResponse types.BetsapiEventHistoryResponse
+	var eventHistoryResponse types.EventHistoryResponse
 	if resp.StatusCode == 200 {
 		body := resp.Body
 		data, err := ioutil.ReadAll(body)
@@ -323,13 +304,13 @@ func (s *BetsapiService) GetEventHistory(ctx context.Context, req *types.EventHi
 			return nil, err
 		}
 
-		err = json.Unmarshal(data, &betsapiResponse)
+		err = json.Unmarshal(data, &eventHistoryResponse)
 		if err != nil {
 			return nil, err
 		}
 
-		if betsapiResponse.Success == 1 {
-			return &betsapiResponse.Results, nil
+		if eventHistoryResponse.Success == 1 {
+			return &eventHistoryResponse.Results, nil
 		} else {
 			return nil, errors.Errorf("Error: %d: unsuccessful API response: /event/history", resp.StatusCode)
 		}
@@ -338,7 +319,7 @@ func (s *BetsapiService) GetEventHistory(ctx context.Context, req *types.EventHi
 	}
 }
 
-func (s *BetsapiService) GetEventOdds(ctx context.Context, req *types.EventOddsRequest) (*types.Odds, error) {
+func (s *BetsapiService) GetEventOdds(ctx context.Context, req *types.EventOddsRequest) (*types.EventOdds, error) {
 	httpReq, err := http.NewRequest("GET", constants.EventOddsUrl, nil)
 	if err != nil {
 		return nil, err
@@ -366,7 +347,7 @@ func (s *BetsapiService) GetEventOdds(ctx context.Context, req *types.EventOddsR
 		return nil, err
 	}
 
-	var betsapiResponse types.BetsapiEventOddsResponse
+	var eventOddsResponse types.EventOddsResponse
 	if resp.StatusCode == 200 {
 		body := resp.Body
 		data, err := ioutil.ReadAll(body)
@@ -377,13 +358,13 @@ func (s *BetsapiService) GetEventOdds(ctx context.Context, req *types.EventOddsR
 		//replace "-" in odds to get Unmarshaling compatibility
 		data = []byte(strings.Replace(string(data), `"-"`, `"-1"`, -1))
 
-		err = json.Unmarshal(data, &betsapiResponse)
+		err = json.Unmarshal(data, &eventOddsResponse)
 		if err != nil {
 			return nil, err
 		}
 
-		if betsapiResponse.Success == 1 {
-			return &betsapiResponse.Results.Odds, nil
+		if eventOddsResponse.Success == 1 {
+			return &eventOddsResponse.Results.Odds, nil
 		} else {
 			return nil, errors.Errorf("Error: %d: unsuccessful API response: /event/odds", resp.StatusCode)
 		}
@@ -392,7 +373,7 @@ func (s *BetsapiService) GetEventOdds(ctx context.Context, req *types.EventOddsR
 	}
 }
 
-func (s *BetsapiService) GetEventStatsTrend(ctx context.Context, req *types.EventStatsTrendRequest) (*types.StatsTrend, error) {
+func (s *BetsapiService) GetEventStatsTrend(ctx context.Context, req *types.EventStatsTrendRequest) (*types.EventStatsTrend, error) {
 	httpReq, err := http.NewRequest("GET", constants.EventStatsTrendUrl, nil)
 	if err != nil {
 		return nil, err
@@ -411,7 +392,7 @@ func (s *BetsapiService) GetEventStatsTrend(ctx context.Context, req *types.Even
 		return nil, err
 	}
 
-	var betsapiResponse types.BetsapiStatsTrendResponse
+	var statsTrendResponse types.EventStatsTrendResponse
 	if resp.StatusCode == 200 {
 		body := resp.Body
 		data, err := ioutil.ReadAll(body)
@@ -419,13 +400,13 @@ func (s *BetsapiService) GetEventStatsTrend(ctx context.Context, req *types.Even
 			return nil, err
 		}
 
-		err = json.Unmarshal(data, &betsapiResponse)
+		err = json.Unmarshal(data, &statsTrendResponse)
 		if err != nil {
 			return nil, err
 		}
 
-		if betsapiResponse.Success == 1 {
-			return &betsapiResponse.Results, nil
+		if statsTrendResponse.Success == 1 {
+			return &statsTrendResponse.Results, nil
 		} else {
 			return nil, errors.Errorf("Error: %d: unsuccessful API response: /event/stats_trend", resp.StatusCode)
 		}
@@ -457,7 +438,7 @@ func (s *BetsapiService) GetLeagues(ctx context.Context, req *types.LeaguesReque
 		return nil, err
 	}
 
-	var betsapiResponse types.BetsapiLeagueResponse
+	var leagueResponse types.LeagueResponse
 	if resp.StatusCode == 200 {
 		body := resp.Body
 		data, err := ioutil.ReadAll(body)
@@ -465,19 +446,19 @@ func (s *BetsapiService) GetLeagues(ctx context.Context, req *types.LeaguesReque
 			return nil, err
 		}
 
-		err = json.Unmarshal(data, &betsapiResponse)
+		err = json.Unmarshal(data, &leagueResponse)
 		if err != nil {
 			return nil, err
 		}
 
-		if betsapiResponse.Success == 1 {
-			if betsapiResponse.Pager.Page*betsapiResponse.Pager.PerPage < betsapiResponse.Pager.Total {
-				response.NextPage = betsapiResponse.Pager.Page + 1
+		if leagueResponse.Success == 1 {
+			if leagueResponse.Pager.Page*leagueResponse.Pager.PerPage < leagueResponse.Pager.Total {
+				response.NextPage = leagueResponse.Pager.Page + 1
 			}
 
 			var leagues []*types.League
-			for i := range betsapiResponse.Results {
-				leagues = append(leagues, &betsapiResponse.Results[i])
+			for i := range leagueResponse.Results {
+				leagues = append(leagues, &leagueResponse.Results[i])
 			}
 
 			response.Leagues = leagues
@@ -513,7 +494,7 @@ func (s *BetsapiService) GetTeams(ctx context.Context, req *types.TeamsRequest) 
 		return nil, err
 	}
 
-	var betsapiResponse types.BetsapiTeamResponse
+	var teamResponse types.TeamResponse
 	if resp.StatusCode == 200 {
 		body := resp.Body
 		data, err := ioutil.ReadAll(body)
@@ -521,19 +502,19 @@ func (s *BetsapiService) GetTeams(ctx context.Context, req *types.TeamsRequest) 
 			return nil, err
 		}
 
-		err = json.Unmarshal(data, &betsapiResponse)
+		err = json.Unmarshal(data, &teamResponse)
 		if err != nil {
 			return nil, err
 		}
 
-		if betsapiResponse.Success == 1 {
-			if betsapiResponse.Pager.Page*betsapiResponse.Pager.PerPage < betsapiResponse.Pager.Total {
-				response.NextPage = betsapiResponse.Pager.Page + 1
+		if teamResponse.Success == 1 {
+			if teamResponse.Pager.Page*teamResponse.Pager.PerPage < teamResponse.Pager.Total {
+				response.NextPage = teamResponse.Pager.Page + 1
 			}
 
 			var teams []*types.Team
-			for i := range betsapiResponse.Results {
-				teams = append(teams, &betsapiResponse.Results[i])
+			for i := range teamResponse.Results {
+				teams = append(teams, &teamResponse.Results[i])
 			}
 
 			response.Teams = teams

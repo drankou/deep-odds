@@ -1,11 +1,11 @@
 package types
 
-func (event *Event) Clean() {
-	if event.HomeTeam.CountryCode == "" {
-		event.HomeTeam.CountryCode = event.League.CountryCode
+func (event *EventView) Clean() {
+	if event.GetHomeTeam().GetCountryCode() == "" {
+		event.GetHomeTeam().CountryCode = event.GetLeague().GetCountryCode()
 	}
 
-	if event.AwayTeam.CountryCode == "" {
-		event.AwayTeam.CountryCode = event.League.CountryCode
+	if event.GetAwayTeam().GetCountryCode() == "" {
+		event.GetAwayTeam().CountryCode = event.GetLeague().GetCountryCode()
 	}
 }

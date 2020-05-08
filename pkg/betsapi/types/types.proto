@@ -16,16 +16,16 @@ service Betsapi {
     rpc GetEndedEvents (EndedEventsRequest) returns (EventsResponse) {
     }
 
-    rpc GetEventView (EventViewRequest) returns (Event) {
+    rpc GetEventView (EventViewRequest) returns (EventView) {
     }
 
     rpc GetEventHistory (EventHistoryRequest) returns (EventHistory) {
     }
 
-    rpc GetEventOdds (EventOddsRequest) returns (Odds) {
+    rpc GetEventOdds (EventOddsRequest) returns (EventOdds) {
     }
 
-    rpc GetEventStatsTrend (EventStatsTrendRequest) returns (StatsTrend) {
+    rpc GetEventStatsTrend (EventStatsTrendRequest) returns (EventStatsTrend) {
     }
 
     rpc GetLeagues (LeaguesRequest) returns (LeaguesResponse) {
@@ -44,7 +44,7 @@ message InPlayEventsRequest {
 }
 
 message EventsResponse {
-    repeated Event events = 1;
+    repeated EventView events = 1;
     int32 next_page = 2;
 }
 
@@ -138,7 +138,7 @@ message TeamsResponse {
 }
 
 // ------------- Event ---------------- //
-message Event {
+message EventView {
     string id = 1 [(gogoproto.jsontag) = "id", (gogoproto.moretags) = "bson:\"id,omitempty\""];
     int64 time = 2 [(gogoproto.jsontag) = "time,string", (gogoproto.moretags) = "bson:\"time,omitempty\""];
     string sport_id = 3 [(gogoproto.jsontag) = "sport_id", (gogoproto.moretags) = "bson:\"sport_id,omitempty\""];
@@ -151,39 +151,54 @@ message Event {
     ExtraInfo extra_info = 10 [(gogoproto.jsontag) = "extra,omitempty", (gogoproto.moretags) = "bson:\"extra_info,omitempty\""];
     repeated EventViewEvent events = 11 [(gogoproto.jsontag) = "events,omitempty", (gogoproto.moretags) = "bson:\"events,omitempty\""];
     int32 has_lineup = 12 [(gogoproto.jsontag) = "has_lineup,omitempty", (gogoproto.moretags) = "bson:\"has_lineup,omitempty\""];
+    FootballStats stats = 13 [(gogoproto.jsontag) = "stats,omitempty", (gogoproto.moretags) = "bson:\"stats,omitempty\""];
 }
 
+message FootballStats {
+    repeated string attacks = 1 [(gogoproto.jsontag) = "attacks,omitempty", (gogoproto.moretags) = "bson:\"attacks,omitempty\""];
+    repeated string dangerous_attacks = 2 [(gogoproto.jsontag) = "dangerous_attacks,omitempty", (gogoproto.moretags) = "bson:\"dangerous_attacks,omitempty\""];
+    repeated string possession = 3 [(gogoproto.jsontag) = "possession_rt,omitempty", (gogoproto.moretags) = "bson:\"possession_rt,omitempty\""];
+    repeated string off_target = 4 [(gogoproto.jsontag) = "off_target,omitempty", (gogoproto.moretags) = "bson:\"off_target,omitempty\""];
+    repeated string on_target = 5 [(gogoproto.jsontag) = "on_target,omitempty", (gogoproto.moretags) = "bson:\"on_target,omitempty\""];
+    repeated string corners = 6 [(gogoproto.jsontag) = "corners,omitempty", (gogoproto.moretags) = "bson:\"corners,omitempty\""];
+    repeated string goals = 7 [(gogoproto.jsontag) = "goals,omitempty", (gogoproto.moretags) = "bson:\"goals,omitempty\""];
+    repeated string yellow_cards = 8 [(gogoproto.jsontag) = "yellowcards,omitempty", (gogoproto.moretags) = "bson:\"yellow_cards,omitempty\""];
+    repeated string red_cards = 9 [(gogoproto.jsontag) = "redcards,omitempty", (gogoproto.moretags) = "bson:\"redcards,omitempty\""];
+    repeated string substitutions = 10 [(gogoproto.jsontag) = "substitutions,omitempty", (gogoproto.moretags) = "bson:\"substitutions,omitempty\""];
+}
 message Team {
-    string id = 1 [(gogoproto.jsontag) = "id", (gogoproto.moretags) = "bson:\"id,omitempty\""];
-    string name = 2 [(gogoproto.jsontag) = "name", (gogoproto.moretags) = "bson:\"name,omitempty\""];
-    string country_code = 3 [(gogoproto.jsontag) = "cc", (gogoproto.moretags) = "bson:\"country_code,omitempty\""];
+    string id = 1 [(gogoproto.jsontag) = "id,omitempty", (gogoproto.moretags) = "bson:\"id,omitempty\""];
+    string name = 2 [(gogoproto.jsontag) = "name,omitempty", (gogoproto.moretags) = "bson:\"name,omitempty\""];
+    string country_code = 3 [(gogoproto.jsontag) = "cc,omitempty", (gogoproto.moretags) = "bson:\"country_code,omitempty\""];
 }
 
 message League {
-    string id = 1 [(gogoproto.jsontag) = "id", (gogoproto.moretags) = "bson:\"id,omitempty\""];
-    string name = 2 [(gogoproto.jsontag) = "name", (gogoproto.moretags) = "bson:\"name,omitempty\""];
-    string country_code = 3 [(gogoproto.jsontag) = "cc", (gogoproto.moretags) = "bson:\"country_code,omitempty\""];
+    string id = 1 [(gogoproto.jsontag) = "id,omitempty", (gogoproto.moretags) = "bson:\"id,omitempty\""];
+    string name = 2 [(gogoproto.jsontag) = "name,omitempty", (gogoproto.moretags) = "bson:\"name,omitempty\""];
+    string country_code = 3 [(gogoproto.jsontag) = "cc,omitempty", (gogoproto.moretags) = "bson:\"country_code,omitempty\""];
+    int32 has_league_table = 4 [(gogoproto.jsontag) = "has_league_table,omitempty", (gogoproto.moretags) = "bson:\"has_league_table,omitempty\""];
+    int32 has_league_top_list = 5 [(gogoproto.jsontag) = "has_league_top_list,omitempty", (gogoproto.moretags) = "bson:\"has_league_top_list,omitempty\""];
 }
 
 message Timer {
     int64 active = 1 [(gogoproto.jsontag) = "tt,string", (gogoproto.moretags) = "bson:\"-\""];
-    int64 minutes = 2 [(gogoproto.jsontag) = "tm", (gogoproto.moretags) = "bson:\"minutes,omitempty\""];
-    int64 seconds = 3 [(gogoproto.jsontag) = "ts", (gogoproto.moretags) = "bson:\"seconds,omitempty\""];
-    int64 added_time = 4 [(gogoproto.jsontag) = "ta", (gogoproto.moretags) = "bson:\"added_time,omitempty\""];
+    int64 minutes = 2 [(gogoproto.jsontag) = "tm,omitempty", (gogoproto.moretags) = "bson:\"minutes,omitempty\""];
+    int64 seconds = 3 [(gogoproto.jsontag) = "ts,omitempty", (gogoproto.moretags) = "bson:\"seconds,omitempty\""];
+    int64 added_time = 4 [(gogoproto.jsontag) = "ta,omitempty", (gogoproto.moretags) = "bson:\"added_time,omitempty\""];
 }
 
 message ExtraInfo {
-    Manager home_manager = 1 [(gogoproto.moretags) = "bson:\"home_manager,omitempty\""];
-    Manager away_manager = 2 [(gogoproto.moretags) = "bson:\"away_manager,omitempty\""];
-    Referee referee = 3 [(gogoproto.moretags) = "bson:\"referee,omitempty\""];
-    StadiumData stadium_data = 4 [(gogoproto.moretags) = "bson:\"stadium_data,omitempty\""];
-    int64 length = 5 [(gogoproto.jsontag) = "length,string", (gogoproto.moretags) = "bson:\"length,omitempty\""];
-    string pitch = 6 [(gogoproto.moretags) = "bson:\"pitch,omitempty\""];
-    string weather = 7 [(gogoproto.moretags) = "bson:\"weather,omitempty\""];
-    string stadium = 8 [(gogoproto.moretags) = "bson:\"stadium,omitempty\""];
-    int64 home_position = 9 [(gogoproto.moretags) = "bson:\"home_pos,omitempty\""];
-    int64 away_position = 10 [(gogoproto.moretags) = "bson:\"away_pos,omitempty\""];
-    string round = 11 [(gogoproto.moretags) = "bson:\"round,omitempty\""];
+    Manager home_manager = 1 [(gogoproto.jsontag) = "home_manager,omitempty", (gogoproto.moretags) = "bson:\"home_manager,omitempty\""];
+    Manager away_manager = 2 [(gogoproto.jsontag) = "away_manager,omitempty", (gogoproto.moretags) = "bson:\"away_manager,omitempty\""];
+    Referee referee = 3 [(gogoproto.jsontag) = "referee,omitempty", (gogoproto.moretags) = "bson:\"referee,omitempty\""];
+    StadiumData stadium_data = 4 [(gogoproto.jsontag) = "stadium_data,omitempty", (gogoproto.moretags) = "bson:\"stadium_data,omitempty\""];
+    int64 length = 5 [(gogoproto.jsontag) = "length,string,omitempty", (gogoproto.moretags) = "bson:\"length,omitempty\""];
+    string pitch = 6 [(gogoproto.jsontag) = "pitch,omitempty", (gogoproto.moretags) = "bson:\"pitch,omitempty\""];
+    string weather = 7 [(gogoproto.jsontag) = "weather,omitempty", (gogoproto.moretags) = "bson:\"weather,omitempty\""];
+    string stadium = 8 [(gogoproto.jsontag) = "stadium,omitempty", (gogoproto.moretags) = "bson:\"stadium,omitempty\""];
+    int64 home_position = 9 [(gogoproto.jsontag) = "home_pos,string,omitempty", (gogoproto.moretags) = "bson:\"home_pos,omitempty\""];
+    int64 away_position = 10 [(gogoproto.jsontag) = "away_pos,string,omitempty", (gogoproto.moretags) = "bson:\"away_pos,omitempty\""];
+    string round = 11 [(gogoproto.jsontag) = "round,omitempty", (gogoproto.moretags) = "bson:\"round,omitempty\""];
 }
 
 message Manager {
@@ -220,21 +235,21 @@ message EventHistoryRequest {
 }
 
 message EventHistory {
-    repeated Event h2h = 1 [(gogoproto.jsontag) = "h2h", (gogoproto.moretags) = "bson:\"h2h\""];
-    repeated Event home = 2 [(gogoproto.jsontag) = "home", (gogoproto.moretags) = "bson:\"home\""];
-    repeated Event away = 3 [(gogoproto.jsontag) = "away", (gogoproto.moretags) = "bson:\"away\""];
+    repeated EventView h2h = 1 [(gogoproto.jsontag) = "h2h", (gogoproto.moretags) = "bson:\"h2h\""];
+    repeated EventView home = 2 [(gogoproto.jsontag) = "home", (gogoproto.moretags) = "bson:\"home\""];
+    repeated EventView away = 3 [(gogoproto.jsontag) = "away", (gogoproto.moretags) = "bson:\"away\""];
 }
 
 // ----------- Odds ------------- //
-message Odds {
-    repeated Result full_time = 1 [(gogoproto.jsontag) = "1_1", (gogoproto.moretags) = "bson:\"full_time\""];
-    repeated AsianHandicapResult asian_handicap = 2 [(gogoproto.jsontag) = "1_2", (gogoproto.moretags) = "bson:\"asian_handicap\""];
-    repeated AsianHandicapTotal total = 3 [(gogoproto.jsontag) = "1_3", (gogoproto.moretags) = "bson:\"total\""];
-    repeated AsianHandicapTotal asian_corners = 4 [(gogoproto.jsontag) = "1_4", (gogoproto.moretags) = "bson:\"asian_corners\""];
-    repeated AsianHandicapResult first_half_asian_handicap = 5 [(gogoproto.jsontag) = "1_5", (gogoproto.moretags) = "bson:\"first_half_asian_handicap\""];
-    repeated AsianHandicapTotal first_half_total = 6 [(gogoproto.jsontag) = "1_6", (gogoproto.moretags) = "bson:\"first_half_total\""];
-    repeated AsianHandicapTotal first_half_asian_corners = 7 [(gogoproto.jsontag) = "1_7", (gogoproto.moretags) = "bson:\"first_half_asian_corners\""];
-    repeated Result first_half = 8 [(gogoproto.jsontag) = "1_8", (gogoproto.moretags) = "bson:\"first_half\""];
+message EventOdds {
+    repeated Result full_time = 1 [(gogoproto.jsontag) = "1_1", (gogoproto.moretags) = "bson:\"full_time,omitempty\""];
+    repeated AsianHandicapResult asian_handicap = 2 [(gogoproto.jsontag) = "1_2", (gogoproto.moretags) = "bson:\"asian_handicap,omitempty\""];
+    repeated AsianHandicapTotal total = 3 [(gogoproto.jsontag) = "1_3", (gogoproto.moretags) = "bson:\"total,omitempty\""];
+    repeated AsianHandicapTotal asian_corners = 4 [(gogoproto.jsontag) = "1_4", (gogoproto.moretags) = "bson:\"asian_corners,omitempty\""];
+    repeated AsianHandicapResult first_half_asian_handicap = 5 [(gogoproto.jsontag) = "1_5", (gogoproto.moretags) = "bson:\"first_half_asian_handicap,omitempty\""];
+    repeated AsianHandicapTotal first_half_total = 6 [(gogoproto.jsontag) = "1_6", (gogoproto.moretags) = "bson:\"first_half_total,omitempty\""];
+    repeated AsianHandicapTotal first_half_asian_corners = 7 [(gogoproto.jsontag) = "1_7", (gogoproto.moretags) = "bson:\"first_half_asian_corners,omitempty\""];
+    repeated Result first_half = 8 [(gogoproto.jsontag) = "1_8", (gogoproto.moretags) = "bson:\"first_half,omitempty\""];
 }
 
 message Result {
@@ -244,7 +259,7 @@ message Result {
     double away_odds = 4 [(gogoproto.jsontag) = "away_od,string", (gogoproto.moretags) = "bson:\"away_odds\""];
     string score = 5 [(gogoproto.jsontag) = "ss", (gogoproto.moretags) = "bson:\"score\""];
     int64 minute = 6 [(gogoproto.jsontag) = "time_str,string", (gogoproto.moretags) = "bson:\"minute\""];
-    int64 add_time = 7 [(gogoproto.jsontag) = "add_time,string", (gogoproto.moretags) = "bson:\"add_time\""];
+    int64 add_time = 7 [(gogoproto.jsontag) = "add_time,string", (gogoproto.moretags) = "bson:\"add_time,omitempty\""];
 }
 
 message AsianHandicapResult {
@@ -254,7 +269,7 @@ message AsianHandicapResult {
     double away_odds = 4 [(gogoproto.jsontag) = "away_od,string", (gogoproto.moretags) = "bson:\"away_odds\""];
     string score = 5 [(gogoproto.jsontag) = "ss", (gogoproto.moretags) = "bson:\"score\""];
     int64 minute = 6 [(gogoproto.jsontag) = "time_str,string", (gogoproto.moretags) = "bson:\"minute\""];
-    int64 add_time = 7 [(gogoproto.jsontag) = "add_time,string", (gogoproto.moretags) = "bson:\"add_time\""];
+    int64 add_time = 7 [(gogoproto.jsontag) = "add_time,string", (gogoproto.moretags) = "bson:\"add_time,omitempty\""];
 }
 
 message AsianHandicapTotal {
@@ -264,22 +279,22 @@ message AsianHandicapTotal {
     double under_odds = 4 [(gogoproto.jsontag) = "under_od,string", (gogoproto.moretags) = "bson:\"away_odds\""];
     string score = 5 [(gogoproto.jsontag) = "ss", (gogoproto.moretags) = "bson:\"score\""];
     int64 minute = 6 [(gogoproto.jsontag) = "time_str,string", (gogoproto.moretags) = "bson:\"minute\""];
-    int64 add_time = 7 [(gogoproto.jsontag) = "add_time,string", (gogoproto.moretags) = "bson:\"add_time\""];
+    int64 add_time = 7 [(gogoproto.jsontag) = "add_time,string", (gogoproto.moretags) = "bson:\"add_time,omitempty\""];
 }
 // ----------------------------
 
 // ------------------ Stats trend ----------------- //
-message StatsTrend {
-    StatsTrendValue attacks = 1 [(gogoproto.jsontag) = "attacks", (gogoproto.moretags) = "bson:\"attacks\""];
-    StatsTrendValue dangerous_attacks = 2 [(gogoproto.jsontag) = "dangerous_attacks", (gogoproto.moretags) = "bson:\"dangerous_attacks\""];
-    StatsTrendValue possession = 3 [(gogoproto.jsontag) = "possession", (gogoproto.moretags) = "bson:\"possession\""];
-    StatsTrendValue off_target = 4 [(gogoproto.jsontag) = "off_target", (gogoproto.moretags) = "bson:\"off_target\""];
-    StatsTrendValue on_target = 5 [(gogoproto.jsontag) = "on_target", (gogoproto.moretags) = "bson:\"on_target\""];
-    StatsTrendValue corners = 6 [(gogoproto.jsontag) = "corners", (gogoproto.moretags) = "bson:\"corners\""];
-    StatsTrendValue goals = 7 [(gogoproto.jsontag) = "goals", (gogoproto.moretags) = "bson:\"goals\""];
-    StatsTrendValue yellow_cards = 8 [(gogoproto.jsontag) = "yellowcards", (gogoproto.moretags) = "bson:\"yellow_cards\""];
-    StatsTrendValue red_cards = 9 [(gogoproto.jsontag) = "redcards", (gogoproto.moretags) = "bson:\"redcards\""];
-    StatsTrendValue substitutions = 10 [(gogoproto.jsontag) = "substitutions", (gogoproto.moretags) = "bson:\"substitutions\""];
+message EventStatsTrend {
+    StatsTrendValue attacks = 1 [(gogoproto.jsontag) = "attacks", (gogoproto.moretags) = "bson:\"attacks,omitempty\""];
+    StatsTrendValue dangerous_attacks = 2 [(gogoproto.jsontag) = "dangerous_attacks", (gogoproto.moretags) = "bson:\"dangerous_attacks,omitempty\""];
+    StatsTrendValue possession = 3 [(gogoproto.jsontag) = "possession", (gogoproto.moretags) = "bson:\"possession,omitempty\""];
+    StatsTrendValue off_target = 4 [(gogoproto.jsontag) = "off_target", (gogoproto.moretags) = "bson:\"off_target,omitempty\""];
+    StatsTrendValue on_target = 5 [(gogoproto.jsontag) = "on_target", (gogoproto.moretags) = "bson:\"on_target,omitempty\""];
+    StatsTrendValue corners = 6 [(gogoproto.jsontag) = "corners", (gogoproto.moretags) = "bson:\"corners,omitempty\""];
+    StatsTrendValue goals = 7 [(gogoproto.jsontag) = "goals", (gogoproto.moretags) = "bson:\"goals,omitempty\""];
+    StatsTrendValue yellow_cards = 8 [(gogoproto.jsontag) = "yellowcards", (gogoproto.moretags) = "bson:\"yellow_cards,omitempty\""];
+    StatsTrendValue red_cards = 9 [(gogoproto.jsontag) = "redcards", (gogoproto.moretags) = "bson:\"redcards,omitempty\""];
+    StatsTrendValue substitutions = 10 [(gogoproto.jsontag) = "substitutions", (gogoproto.moretags) = "bson:\"substitutions,omitempty\""];
 }
 
 message StatsTrendValue {
@@ -293,8 +308,8 @@ message StatsTrendTick {
 }
 
 message FootballEvent {
-    Event event = 1;
+    EventView event = 1;
     EventHistory history = 2;
-    Odds odds = 3;
-    StatsTrend stats_trend = 4;
+    EventOdds odds = 3;
+    EventStatsTrend stats_trend = 4;
 }

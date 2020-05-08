@@ -6,12 +6,12 @@ import (
 	"strings"
 )
 
-func (m *StatsTrend) Clean() {
+func (m *EventStatsTrend) Clean() {
 
 }
 
-func AddMissingStatsTrend(statsTrend *StatsTrend) *StatsTrend {
-	return &StatsTrend{
+func AddMissingStatsTrend(statsTrend *EventStatsTrend) *EventStatsTrend {
+	return &EventStatsTrend{
 		Attacks:          addMissingStatsTrendValues(statsTrend.Attacks),
 		DangerousAttacks: addMissingStatsTrendValues(statsTrend.DangerousAttacks),
 		Possession:       addMissingStatsTrendValues(statsTrend.Possession),

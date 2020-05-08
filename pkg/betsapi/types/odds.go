@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-func (m *Odds) Clean() {
+func (m *EventOdds) Clean() {
 	//result
 	m.FullTime = RemoveDuplicitResultOdds(m.GetFullTime())
 	m.FirstHalf = RemoveDuplicitResultOdds(m.GetFirstHalf())

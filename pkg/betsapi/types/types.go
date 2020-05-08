@@ -1,34 +1,27 @@
 package types
 
 // InPlay events response
-type BetsapiInplayResponse struct {
+type InplayEventsResponse struct {
 	// Response success
-	Success int     `json:"success"`
-	Results []Event `json:"results"`
+	Success int         `json:"success"`
+	Results []EventView `json:"results"`
 }
 
-// default stats response
-type BetsapiStatsResponse struct {
+// EventView response
+type EventViewResponse struct {
 	// Response success
-	Success int     `json:"success"`
-	Results []Event `json:"results"`
+	Success int         `json:"success"`
+	Results []EventView `json:"results"`
 }
 
 type BetsapEventsPagerResponse struct {
-	Success int     `json:"success"`
-	Pager   Pager   `json:"pager"`
-	Results []Event `json:"results"`
-}
-
-// Stats response
-type BetsapiFootballStatsResponse struct {
-	// Response success
-	Success int                    `json:"success"`
-	Results []FootballEventResults `json:"results"`
+	Success int         `json:"success"`
+	Pager   Pager       `json:"pager"`
+	Results []EventView `json:"results"`
 }
 
 // League response
-type BetsapiLeagueResponse struct {
+type LeagueResponse struct {
 	// Response success
 	Success int `json:"success"`
 	// Paginating response results
@@ -38,7 +31,7 @@ type BetsapiLeagueResponse struct {
 }
 
 // Team response
-type BetsapiTeamResponse struct {
+type TeamResponse struct {
 	// Response success
 	Success int `json:"success"`
 	// Paginating response results
@@ -71,55 +64,23 @@ type FootballLeague struct {
 	HasLeagueToplist int `json:"has_league_toplist" bson:"has_league_toplist"`
 }
 
-//Football statistics
-type FootballStatistics struct {
-	Goals            [2]string `json:"goals" bson:"goals"`
-	Attacks          [2]string `json:"attacks" bson:"attacks"`
-	DangerousAttacks [2]string `json:"dangerous_attacks" bson:"dangerous_attacks"`
-	Corners          [2]string `json:"corners" bson:"corners"`
-	OnTarget         [2]string `json:"on_target" bson:"on_target"`
-	OffTarget        [2]string `json:"off_target" bson:"off_target"`
-}
-
-type TennisStatistics struct {
-}
-
-type BasketballStatistics struct {
-}
-
-type FootballEventResults struct {
-	Event
-	FootballStatistics `json:"stats"`
-	Bet365Id           string `json:"bet365_id"`
-}
-
-type BasketballEvent struct {
-	Event
-	BasketballStatistics
-}
-
-type TennisEvent struct {
-	Event
-	TennisStatistics
-}
-
 // ------------- STATS TREND ----------------------
-type BetsapiStatsTrendResponse struct {
-	Success int        `json:"success"`
-	Results StatsTrend `json:"results"`
+type EventStatsTrendResponse struct {
+	Success int             `json:"success"`
+	Results EventStatsTrend `json:"results"`
 }
 
 //---------------- ODDS --------------------------
-type BetsapiEventOddsResponse struct {
+type EventOddsResponse struct {
 	Success int `json:"success"`
 	Results struct {
-		Odds Odds `json:"odds"`
+		Odds EventOdds `json:"odds"`
 	} `json:"results"`
 }
 
 //-------------------- EVENT HISTORY---------------------------
 
-type BetsapiEventHistoryResponse struct {
+type EventHistoryResponse struct {
 	Success int          `json:"success"`
 	Results EventHistory `json:"results"`
 }
