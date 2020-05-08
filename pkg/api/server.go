@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"github.com/drankou/deep-odds/pkg/api/types"
 	betsapiTypes "github.com/drankou/deep-odds/pkg/betsapi/types"
 	betsapiConstants "github.com/drankou/deep-odds/pkg/betsapi/types/constants"
@@ -12,6 +13,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type DeepOddsServer struct {
@@ -80,12 +82,23 @@ func (d *DeepOddsServer) GetInPlayFootballMatches(ctx context.Context, req *type
 func (d *DeepOddsServer) GetFootballMatchPrediction(ctx context.Context, req *types.FootballMatchPredictionRequest) (*types.FootballMatchPredictionResponse, error) {
 	response := &types.FootballMatchPredictionResponse{}
 
+	//check if given match was analyzed in last 30 seconds and is presented in cache
+	if value, cached := d.cache.Load(fmt.Sprintf("%s_prediction", req.GetEventId())); cached {
+		response.Prediction = value.(*types.Prediction)
+		return response, nil
+	} else {
+		defer func() {
+			d.cache.Store(
+				fmt.Sprintf("%s_prediction", req.GetEventId()),
+				response.Prediction,
+				&utils.StoreOption{Ttl: time.Second * 30})
+		}()
+	}
+
 	eventView, err := d.BetsapiClient.GetEventView(ctx, &betsapiTypes.EventViewRequest{EventId: req.GetEventId()})
 	if err != nil {
 		return nil, err
 	}
-
-	log.Printf("EventView stats: %+v", eventView.GetStats())
 
 	eventOdds, err := d.BetsapiClient.GetEventOdds(ctx, &betsapiTypes.EventOddsRequest{EventId: req.GetEventId()})
 	if err != nil {
