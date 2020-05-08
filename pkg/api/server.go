@@ -9,11 +9,16 @@ import (
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"os"
+	"strconv"
+	"strings"
 )
 
 type DeepOddsServer struct {
 	BetsapiClient    betsapiTypes.BetsapiClient
 	TensorflowClient *tfclient.PredictionClient
+	//TODO cache for event start odds
+
+	//TODO caching event id and last odds update
 }
 
 func (d *DeepOddsServer) Init() error {
@@ -26,7 +31,6 @@ func (d *DeepOddsServer) Init() error {
 
 	d.TensorflowClient = client
 	log.Info("Connected.")
-
 
 	// Set up a connection to the betsapi server.
 	log.Infof("Connecting to betsapi server: %s", os.Getenv("BETSAPI_SERVER"))
@@ -75,14 +79,117 @@ func (d *DeepOddsServer) GetInPlayFootballMatches(ctx context.Context, req *type
 func (d *DeepOddsServer) GetFootballMatchPrediction(ctx context.Context, req *types.FootballMatchPredictionRequest) (*types.FootballMatchPredictionResponse, error) {
 	response := &types.FootballMatchPredictionResponse{}
 
-	//TODO
-	_, err := d.BetsapiClient.GetEventView(ctx, &betsapiTypes.EventViewRequest{EventId: req.GetEventId()})
+	eventView, err := d.BetsapiClient.GetEventView(ctx, &betsapiTypes.EventViewRequest{EventId: req.GetEventId()})
 	if err != nil {
 		return nil, err
+	}
+
+	log.Printf("EventView stats: %+v", eventView.GetStats())
+
+	eventOdds, err := d.BetsapiClient.GetEventOdds(ctx, &betsapiTypes.EventOddsRequest{EventId: req.GetEventId()})
+	if err != nil {
+		return nil, err
+	}
+
+	input := make([]float32, 0, 25)
+	stats := constructInputFromEvent(eventView)
+	liveOdds := getLiveOdds(eventOdds)
+	startOdds := getStartOdds(eventOdds)
+
+	input = append(input, stats...)
+	input = append(input, liveOdds...)
+	input = append(input, startOdds...)
+
+	log.Debug("Inputs: ", input)
+
+	prediction, err := d.TensorflowClient.Predict("model_67", input)
+	if err != nil {
+		return nil, err
+	}
+
+	response.Prediction = &types.Prediction{
+		HomeWin: float64(prediction.HomeWin),
+		Draw:    float64(prediction.Draw),
+		AwayWin: float64(prediction.AwayWin),
 	}
 
 	return response, nil
 }
 
-//TODO
-func constructInputFromEvent(event *betsapiTypes.Event) {}
+func constructInputFromEvent(event *betsapiTypes.EventView) []float32 {
+	result := make([]float32, 0, 19)
+
+	result = append(result, float32(event.GetTimer().GetMinutes()))
+	result = append(result, getGoalsFromScore(event.GetScore())...)
+	result = append(result, stringSliceToFloat32(event.GetStats().GetAttacks())...)
+	result = append(result, stringSliceToFloat32(event.GetStats().GetDangerousAttacks())...)
+	result = append(result, stringSliceToFloat32(event.GetStats().GetOffTarget())...)
+	result = append(result, stringSliceToFloat32(event.GetStats().GetOnTarget())...)
+	result = append(result, stringSliceToFloat32(event.GetStats().GetCorners())...)
+	result = append(result, stringSliceToFloat32(event.GetStats().GetYellowCards())...)
+	result = append(result, stringSliceToFloat32(event.GetStats().GetRedCards())...)
+	result = append(result, stringSliceToFloat32(event.GetStats().GetSubstitutions())...)
+
+	return result
+}
+
+func getGoalsFromScore(score string) []float32 {
+	out := make([]float32, 0, 2)
+	goals := strings.Split(score, "-")
+
+	if len(goals) == 2 {
+		out = append(out, stringToFloat32(goals[0]))
+		out = append(out, stringToFloat32(goals[1]))
+	}
+
+	return out
+}
+
+func stringSliceToFloat32(stringSlice []string) []float32 {
+	out := make([]float32, 0, len(stringSlice))
+	for _, str := range stringSlice {
+		valFloat64, err := strconv.ParseFloat(str, 32)
+		if err != nil {
+			return out
+		}
+
+		out = append(out, float32(valFloat64))
+	}
+
+	return out
+}
+
+func stringToFloat32(valStr string) float32 {
+	valFloat64, err := strconv.ParseFloat(valStr, 32)
+	if err != nil {
+		return 0
+	}
+
+	return float32(valFloat64)
+}
+
+//TODO handling missing odds with -1
+func getLiveOdds(eventOdds *betsapiTypes.EventOdds) []float32 {
+	if len(eventOdds.GetFullTime()) > 0 {
+		return []float32{
+			float32(eventOdds.GetFullTime()[0].GetHomeOdds()),
+			float32(eventOdds.GetFullTime()[0].GetDrawOdds()),
+			float32(eventOdds.GetFullTime()[0].GetAwayOdds()),
+		}
+	} else {
+		return []float32{-1, -1, -1}
+	}
+}
+
+func getStartOdds(eventOdds *betsapiTypes.EventOdds) []float32 {
+	if len(eventOdds.GetFullTime()) > 0 {
+		startOddsIndex := len(eventOdds.GetFullTime()) - 1
+		return []float32{
+			float32(eventOdds.GetFullTime()[startOddsIndex].GetHomeOdds()),
+			float32(eventOdds.GetFullTime()[startOddsIndex].GetDrawOdds()),
+			float32(eventOdds.GetFullTime()[startOddsIndex].GetAwayOdds()),
+		}
+	} else {
+		return []float32{-1, -1, -1}
+	}
+}

@@ -17,7 +17,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	//getInplayEvents(conn)
+	getInplayEvents(conn)
 	getPredictionForEvent(conn)
 }
 
@@ -39,7 +39,7 @@ func getPredictionForEvent(conn *grpc.ClientConn) {
 	client := types.NewDeepOddsClient(conn)
 
 	req := &types.FootballMatchPredictionRequest{
-		EventId: "111",
+		EventId: "2351755",
 	}
 	predictionResponse, err := client.GetFootballMatchPrediction(context.Background(), req)
 	if err != nil {

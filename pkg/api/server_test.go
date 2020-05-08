@@ -68,7 +68,7 @@ func TestDeepOddsServer_GetFootballEventPrediction(t *testing.T) {
 	client := types.NewDeepOddsClient(conn)
 
 	req := &types.FootballMatchPredictionRequest{
-		EventId: "111",
+		EventId: "2352124",
 	}
 
 	predictionResponse, err := client.GetFootballMatchPrediction(context.Background(), req)
