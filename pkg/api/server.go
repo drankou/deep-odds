@@ -6,6 +6,7 @@ import (
 	betsapiTypes "github.com/drankou/deep-odds/pkg/betsapi/types"
 	betsapiConstants "github.com/drankou/deep-odds/pkg/betsapi/types/constants"
 	tfclient "github.com/drankou/deep-odds/pkg/tf-serving/client"
+	"github.com/drankou/deep-odds/pkg/utils"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"os"
@@ -16,12 +17,12 @@ import (
 type DeepOddsServer struct {
 	BetsapiClient    betsapiTypes.BetsapiClient
 	TensorflowClient *tfclient.PredictionClient
-	//TODO cache for event start odds
-
-	//TODO caching event id and last odds update
+	cache            *utils.Cache
 }
 
 func (d *DeepOddsServer) Init() error {
+	d.cache = utils.GetLocalCache()
+
 	// Set up a connection to the tensorflow serving server.
 	log.Infof("Connecting to tensorflow serving: %s", os.Getenv("TF_SERVER"))
 	client, err := tfclient.NewPredictionClient(os.Getenv("TF_SERVER"))

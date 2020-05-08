@@ -36,7 +36,7 @@ func (cache *Cache) LoadAs(interface{}, reflect.Type) (interface{}, bool) {
 	panic("implement me")
 }
 
-// Initialize cache
+// Init cache
 // This methods runs all cronjobs and routines
 func (cache *Cache) Initialize() error {
 	cache.c = cron.New()
