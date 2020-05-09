@@ -20,17 +20,15 @@ import (
 type BetsapiService struct {
 	Client      *http.Client
 	RateLimiter *utils.RateLimiter
-	Cache       *types.Cache
+	Cache       *utils.Cache
 }
 
 func (s *BetsapiService) Init() error {
 	s.Client = &http.Client{}
 
 	//initialize cache
-	s.Cache = &types.Cache{}
-	s.Cache.ResetInterval = "@every 10m"
-	s.Cache.ResetFunc = s.Cache.Clear
-	err := s.Cache.Initialize()
+	s.Cache = &utils.Cache{}
+	err := s.Cache.Init()
 	if err != nil {
 		return err
 	}
@@ -54,6 +52,11 @@ func (s *BetsapiService) GetInPlayEvents(ctx context.Context, req *types.InPlayE
 		response.Events = events
 
 		return response, nil
+	} else {
+		defer func() {
+			log.Debugln("InPlay: Storing value to cache")
+			s.Cache.Store(fmt.Sprintf("inplay_%s", req.GetSportId()), response.Events, &utils.StoreOption{Ttl: time.Minute})
+		}()
 	}
 
 	httpReq, err := http.NewRequest("GET", constants.InPlayEventsUrl, nil)
@@ -86,16 +89,9 @@ func (s *BetsapiService) GetInPlayEvents(ctx context.Context, req *types.InPlayE
 		}
 
 		if inplayEventsResponse.Success == 1 {
-			//save successfull response to cache
-			log.Debugln("InPlay: Storing value to cache")
-
-			var events []*types.EventView
 			for i := range inplayEventsResponse.Results {
-				events = append(events, &inplayEventsResponse.Results[i])
+				response.Events = append(response.GetEvents(), &inplayEventsResponse.Results[i])
 			}
-
-			s.Cache.Store(fmt.Sprintf("inplay_%s", req.GetSportId()), events)
-			response.Events = events
 
 			return response, nil
 		} else {
