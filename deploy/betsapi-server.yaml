@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: betsapi-deployment
+  labels:
+    app: betsapi-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: betsapi-server
+  template:
+    metadata:
+      labels:
+        app: betsapi-server
+    spec:
+      hostname: betsapi-server
+      containers:
+        - name: betsapi-server
+          imagePullPolicy: "Always"
+          image: "gcr.io/deep-odds/betsapi-server:latest"
+          env:
+            - name: SERVER_PORT
+              value: ":50001"
+            - name: BETSAPI_TOKEN
+              value: "25493-N8mbuk79ltAeGs"
+          resources:
+            requests:
+              memory: 150Mi
