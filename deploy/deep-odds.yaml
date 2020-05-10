@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deep-odds-api
+  labels:
+    app: deep-odds-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deep-odds-api
+  template:
+    metadata:
+      labels:
+        app: deep-odds-api
+    spec:
+      hostname: deep-odds-api
+      containers:
+        - name: deep-odds-api
+          imagePullPolicy: "Always"
+          image: "gcr.io/deep-odds/deep-odds:latest"
+          env:
+            - name: SERVER_PORT
+              value: ":8200"
+            - name: BETSAPI_SERVER
+              value: "localhost:50001"
+            - name: TF_SERVER
+              value: "localhost:8500"
+          resources:
+            requests:
+              memory: 100Mi
