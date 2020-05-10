@@ -26,4 +26,4 @@ spec:
               value: "25493-N8mbuk79ltAeGs"
           resources:
             requests:
-              memory: 150Mi
+              memory: 100Mi
