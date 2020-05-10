@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tensorflow-serving
+  labels:
+    app: tensorflow-serving
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tensorflow-serving
+  template:
+    metadata:
+      labels:
+        app: tensorflow-serving
+    spec:
+      hostname: tensorflow-serving
+      containers:
+        - name: tensorflow-serving
+          imagePullPolicy: "Always"
+          image: "gcr.io/deep-odds/tensorflow-serving:latest"
+          env:
+            - name: MODEL_NAME
+              value: "model_67"
