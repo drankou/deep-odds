@@ -5,6 +5,7 @@ import (
 	"github.com/tensorflow/tensorflow/tensorflow/go/core/framework/tensor_shape_go_proto"
 	"github.com/tensorflow/tensorflow/tensorflow/go/core/framework/types_go_proto"
 	tf "tensorflow_serving/apis"
+	"time"
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -21,10 +22,12 @@ type Prediction struct {
 }
 
 func NewPredictionClient(address string) (*PredictionClient, error) {
-	conn, err := grpc.Dial(address, grpc.WithInsecure())
+	ctx, _ := context.WithTimeout(context.Background(), time.Second*5)
+	conn, err := grpc.DialContext(ctx, address, grpc.WithInsecure())
 	if err != nil {
 		return nil, err
 	}
+
 	c := tf.NewPredictionServiceClient(conn)
 	return &PredictionClient{srvClient: c}, nil
 }

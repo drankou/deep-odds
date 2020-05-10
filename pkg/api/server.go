@@ -37,7 +37,8 @@ func (d *DeepOddsServer) Init() error {
 
 	// Set up a connection to the betsapi server.
 	log.Infof("Connecting to betsapi server: %s", os.Getenv("BETSAPI_SERVER"))
-	conn, err := grpc.Dial(os.Getenv("BETSAPI_SERVER"), grpc.WithInsecure(), grpc.WithBlock())
+	ctx, _ := context.WithTimeout(context.Background(), time.Second*5)
+	conn, err := grpc.DialContext(ctx, os.Getenv("BETSAPI_SERVER"), grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
