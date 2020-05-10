@@ -11,8 +11,10 @@ import (
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Panicf("Error loading .env file. #%v", err)
+	if os.Getenv("ENVIRONMENT") == "dev" {
+		if err := godotenv.Load(); err != nil {
+			log.Panicf("Error loading .env file. #%v", err)
+		}
 	}
 
 	grpcServer := grpc.NewServer()
