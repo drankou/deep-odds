@@ -7,11 +7,14 @@ import (
 	"google.golang.org/grpc"
 )
 
-const devAddress = "localhost:8200"
+const (
+	devAddress  = "localhost:8200"
+	prodAddress = "http://34.77.103.163:8200"
+)
 
 func main() {
 	// Set up a connection to the server.
-	conn, err := grpc.Dial(devAddress, grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.Dial(prodAddress, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}

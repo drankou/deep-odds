@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	devAddress  = "localhost:8080"
+	devAddress  = "localhost:50001"
 	prodAddress = "todo"
 )
 
