@@ -1,10 +1,13 @@
 syntax = "proto3";
 
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
-option go_package = "github.com/drankou/deep-odd/pkg/api/types";
+option go_package = "github.com/drankou/deep-odds/pkg/api/types";
 
 service DeepOdds {
     rpc GetInPlayFootballMatches (InPlayFootballMatchesRequest) returns (FootballMatchesResponse) {
+    }
+
+    rpc GetFootballMatchEventView (FootballMatchEventViewRequest) returns (FootballMatchEventViewResponse) {
     }
 
     rpc GetFootballMatchPrediction (FootballMatchPredictionRequest) returns (FootballMatchPredictionResponse) {
@@ -12,12 +15,20 @@ service DeepOdds {
 }
 
 message InPlayFootballMatchesRequest {
-    //league id
-    string league_id = 2; //optional
+    string league_id = 1;
 }
+
+message FootballMatchEventViewRequest {
+    string event_id = 1;
+}
+
 
 message FootballMatchesResponse {
     repeated FootballMatch matches = 1;
+}
+
+message FootballMatchEventViewResponse {
+    FootballMatch event = 1;
 }
 
 message FootballMatchPredictionRequest {
@@ -42,6 +53,31 @@ message FootballMatch {
     string away_team = 5;
     string league_name = 6;
     Time time = 7;
+    FootballMatchStats stats = 8;
+    FootballMatchOdds odds = 9;
+}
+
+message FootballMatchStats {
+    repeated string attacks = 1;
+    repeated string dangerous_attacks = 2;
+    repeated string possession = 3;
+    repeated string off_target = 4;
+    repeated string on_target = 5;
+    repeated string corners = 6;
+    repeated string goals = 7;
+    repeated string yellow_cards = 8;
+    repeated string red_cards = 9;
+    repeated string substitutions = 10;
+}
+
+message FootballMatchOdds {
+    ResultOdds full_time = 1;
+}
+
+message ResultOdds {
+    double home_odds = 1;
+    double draw_odds = 2;
+    double away_odds = 3;
 }
 
 message Time {

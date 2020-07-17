@@ -49,13 +49,14 @@ func (d *DeepOddsServer) Init() error {
 	return nil
 }
 
-func (d *DeepOddsServer) GetInPlayFootballMatches(ctx context.Context, req *types.InPlayFootballMatchesRequest) (*types.FootballMatchesResponse, error) {
+func (d *DeepOddsServer) GetInPlayFootballMatches(ctx context.Context, request *types.InPlayFootballMatchesRequest) (*types.FootballMatchesResponse, error) {
 	response := &types.FootballMatchesResponse{}
 
 	betsapiReq := &betsapiTypes.InPlayEventsRequest{
 		SportId:  betsapiConstants.SoccerId,
-		LeagueId: req.GetLeagueId(),
+		LeagueId: request.GetLeagueId(),
 	}
+
 	eventsResponse, err := d.BetsapiClient.GetInPlayEvents(ctx, betsapiReq)
 	if err != nil {
 		return nil, err
@@ -80,28 +81,92 @@ func (d *DeepOddsServer) GetInPlayFootballMatches(ctx context.Context, req *type
 	return response, nil
 }
 
-func (d *DeepOddsServer) GetFootballMatchPrediction(ctx context.Context, req *types.FootballMatchPredictionRequest) (*types.FootballMatchPredictionResponse, error) {
+func (d *DeepOddsServer) GetFootballMatchEventView(ctx context.Context, request *types.FootballMatchEventViewRequest) (*types.FootballMatchEventViewResponse, error) {
+	response := &types.FootballMatchEventViewResponse{}
+
+	eventView, err := d.BetsapiClient.GetEventView(context.Background(), &betsapiTypes.EventViewRequest{
+		EventId: request.GetEventId(),
+	})
+	if err != nil {
+		log.Error(err)
+	}
+
+	eventOdds, err := d.BetsapiClient.GetEventOdds(context.Background(), &betsapiTypes.EventOddsRequest{
+		EventId:   request.GetEventId(),
+	})
+	if err != nil {
+		log.Error(err)
+	}
+
+	var lastFullTimeOdds *types.ResultOdds
+	if len(eventOdds.GetFullTime()) > 0 {
+		lastFullTimeOdds = &types.ResultOdds{
+			HomeOdds: eventOdds.GetFullTime()[0].GetHomeOdds(),
+			DrawOdds: eventOdds.GetFullTime()[0].GetDrawOdds(),
+			AwayOdds: eventOdds.GetFullTime()[0].GetAwayOdds(),
+		}
+	} else {
+		lastFullTimeOdds = &types.ResultOdds{
+			HomeOdds: -1,
+			DrawOdds: -1,
+			AwayOdds: -1,
+		}
+	}
+
+	response.Event = &types.FootballMatch{
+		Id:         eventView.GetId(),
+		TimeStatus: eventView.GetTimeStatus(),
+		Score:      eventView.GetScore(),
+		HomeTeam:   eventView.GetHomeTeam().GetName(),
+		AwayTeam:   eventView.GetAwayTeam().GetName(),
+		LeagueName: eventView.GetLeague().GetName(),
+		Time: &types.Time{
+			Minutes:   eventView.GetTimer().GetMinutes(),
+			Seconds:   eventView.GetTimer().GetSeconds(),
+			AddedTime: eventView.GetTimer().GetAddedTime(),
+		},
+		Stats: &types.FootballMatchStats{
+			Attacks:          eventView.GetStats().GetAttacks(),
+			DangerousAttacks: eventView.GetStats().GetDangerousAttacks(),
+			Possession:       eventView.GetStats().GetPossession(),
+			OffTarget:        eventView.GetStats().GetOffTarget(),
+			OnTarget:         eventView.GetStats().GetOnTarget(),
+			Corners:          eventView.GetStats().GetCorners(),
+			Goals:            eventView.GetStats().GetGoals(),
+			YellowCards:      eventView.GetStats().GetYellowCards(),
+			RedCards:         eventView.GetStats().GetRedCards(),
+			Substitutions:    eventView.GetStats().GetSubstitutions(),
+		},
+		Odds: &types.FootballMatchOdds{
+			FullTime: lastFullTimeOdds,
+		},
+	}
+
+	return response, nil
+}
+
+func (d *DeepOddsServer) GetFootballMatchPrediction(ctx context.Context, request *types.FootballMatchPredictionRequest) (*types.FootballMatchPredictionResponse, error) {
 	response := &types.FootballMatchPredictionResponse{}
 
 	//check if given match was analyzed in last 30 seconds and is presented in cache
-	if value, cached := d.cache.Load(fmt.Sprintf("%s_prediction", req.GetEventId())); cached {
+	if value, cached := d.cache.Load(fmt.Sprintf("%s_prediction", request.GetEventId())); cached {
 		response.Prediction = value.(*types.Prediction)
 		return response, nil
 	} else {
 		defer func() {
 			d.cache.Store(
-				fmt.Sprintf("%s_prediction", req.GetEventId()),
+				fmt.Sprintf("%s_prediction", request.GetEventId()),
 				response.Prediction,
 				&utils.StoreOption{Ttl: time.Second * 30})
 		}()
 	}
 
-	eventView, err := d.BetsapiClient.GetEventView(ctx, &betsapiTypes.EventViewRequest{EventId: req.GetEventId()})
+	eventView, err := d.BetsapiClient.GetEventView(ctx, &betsapiTypes.EventViewRequest{EventId: request.GetEventId()})
 	if err != nil {
 		return nil, err
 	}
 
-	eventOdds, err := d.BetsapiClient.GetEventOdds(ctx, &betsapiTypes.EventOddsRequest{EventId: req.GetEventId()})
+	eventOdds, err := d.BetsapiClient.GetEventOdds(ctx, &betsapiTypes.EventOddsRequest{EventId: request.GetEventId()})
 	if err != nil {
 		return nil, err
 	}
