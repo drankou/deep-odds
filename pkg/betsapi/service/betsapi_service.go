@@ -18,9 +18,10 @@ import (
 )
 
 type BetsapiService struct {
-	Client      *http.Client
-	RateLimiter *utils.RateLimiter
-	Cache       *utils.Cache
+	Client          *http.Client
+	RateLimiter     *utils.RateLimiter
+	Cache           *utils.Cache
+	excludedLeagues map[string]bool
 }
 
 func (s *BetsapiService) Init() error {
@@ -36,6 +37,11 @@ func (s *BetsapiService) Init() error {
 	// init rate limiter for api requests
 	s.RateLimiter = &utils.RateLimiter{}
 	s.RateLimiter.Init(time.Second)
+
+	s.excludedLeagues = make(map[string]bool)
+	for _, excludedLeague := range constants.ExcludedLeagues {
+		s.excludedLeagues[excludedLeague] = true
+	}
 
 	log.Info("Betsapi service initialized")
 	return nil
@@ -90,7 +96,9 @@ func (s *BetsapiService) GetInPlayEvents(ctx context.Context, req *types.InPlayE
 
 		if inplayEventsResponse.Success == 1 {
 			for i := range inplayEventsResponse.Results {
-				response.Events = append(response.GetEvents(), &inplayEventsResponse.Results[i])
+				if !s.excludedLeagues[inplayEventsResponse.Results[i].GetLeague().GetId()] {
+					response.Events = append(response.GetEvents(), &inplayEventsResponse.Results[i])
+				}
 			}
 
 			return response, nil
@@ -147,7 +155,9 @@ func (s *BetsapiService) GetUpcomingEvents(ctx context.Context, req *types.Upcom
 
 			var events []*types.EventView
 			for i := range eventsPagerResponse.Results {
-				events = append(events, &eventsPagerResponse.Results[i])
+				if !s.excludedLeagues[eventsPagerResponse.Results[i].GetLeague().GetId()] {
+					events = append(events, &eventsPagerResponse.Results[i])
+				}
 			}
 
 			response.Events = events
@@ -211,7 +221,9 @@ func (s *BetsapiService) GetEndedEvents(ctx context.Context, req *types.EndedEve
 
 			var events []*types.EventView
 			for i := range eventsPagerResponse.Results {
-				events = append(events, &eventsPagerResponse.Results[i])
+				if !s.excludedLeagues[eventsPagerResponse.Results[i].GetLeague().GetId()] {
+					events = append(events, &eventsPagerResponse.Results[i])
+				}
 			}
 
 			response.Events = events
