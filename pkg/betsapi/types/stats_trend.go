@@ -12,16 +12,16 @@ func (m *EventStatsTrend) Clean() {
 
 func AddMissingStatsTrend(statsTrend *EventStatsTrend) *EventStatsTrend {
 	return &EventStatsTrend{
-		Attacks:          addMissingStatsTrendValues(statsTrend.Attacks),
-		DangerousAttacks: addMissingStatsTrendValues(statsTrend.DangerousAttacks),
-		Possession:       addMissingStatsTrendValues(statsTrend.Possession),
-		OffTarget:        addMissingStatsTrendValues(statsTrend.OffTarget),
-		OnTarget:         addMissingStatsTrendValues(statsTrend.OnTarget),
-		Corners:          addMissingStatsTrendValues(statsTrend.Corners),
-		Goals:            addMissingStatsTrendValues(statsTrend.Goals),
-		YellowCards:      addMissingStatsTrendValues(statsTrend.YellowCards),
-		RedCards:         addMissingStatsTrendValues(statsTrend.RedCards),
-		Substitutions:    addMissingStatsTrendValues(statsTrend.Substitutions),
+		Attacks:          addMissingStatsTrendValues(statsTrend.GetAttacks()),
+		DangerousAttacks: addMissingStatsTrendValues(statsTrend.GetDangerousAttacks()),
+		Possession:       addMissingStatsTrendValues(statsTrend.GetPossession()),
+		OffTarget:        addMissingStatsTrendValues(statsTrend.GetOffTarget()),
+		OnTarget:         addMissingStatsTrendValues(statsTrend.GetOnTarget()),
+		Corners:          addMissingStatsTrendValues(statsTrend.GetCorners()),
+		Goals:            addMissingStatsTrendValues(statsTrend.GetGoals()),
+		YellowCards:      addMissingStatsTrendValues(statsTrend.GetYellowCards()),
+		RedCards:         addMissingStatsTrendValues(statsTrend.GetRedCards()),
+		Substitutions:    addMissingStatsTrendValues(statsTrend.GetSubstitutions()),
 	}
 }
 
@@ -68,8 +68,8 @@ func addMissingStatsTrendTicks(ticks []*StatsTrendTick) []*StatsTrendTick {
 
 	for _, minute := range minutes {
 		tick := &StatsTrendTick{
-			Time: minute,
-			Value:     minuteValue[minute],
+			Time:  minute,
+			Value: minuteValue[minute],
 		}
 
 		res = append(res, tick)

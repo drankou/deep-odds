@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
-option go_package = "github.com/drankou/deep-odd/pkg/betsapi/types";
+option go_package = "github.com/drankou/deep-odds/pkg/betsapi/types";
 
 service Betsapi {
     rpc GetInPlayEvents (InPlayEventsRequest) returns (EventsResponse) {
@@ -308,8 +308,8 @@ message StatsTrendTick {
 }
 
 message FootballEvent {
-    EventView event = 1;
-    EventHistory history = 2;
-    EventOdds odds = 3;
-    EventStatsTrend stats_trend = 4;
+    EventView event = 1 [(gogoproto.jsontag) = "event", (gogoproto.moretags) = "bson:\"event\""];
+    EventHistory history = 2 [(gogoproto.jsontag) = "history", (gogoproto.moretags) = "bson:\"history\""];
+    EventOdds odds = 3 [(gogoproto.jsontag) = "odds", (gogoproto.moretags) = "bson:\"odds\""];
+    EventStatsTrend stats_trend = 4 [(gogoproto.jsontag) = "stats_trend", (gogoproto.moretags) = "bson:\"stats_trend\""];
 }
