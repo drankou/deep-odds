@@ -151,6 +151,8 @@ func (s *BetsapiService) GetUpcomingEvents(ctx context.Context, req *types.Upcom
 		if eventsPagerResponse.Success == 1 {
 			if eventsPagerResponse.Pager.Page*eventsPagerResponse.Pager.PerPage < eventsPagerResponse.Pager.Total {
 				response.NextPage = eventsPagerResponse.Pager.Page + 1
+			} else {
+				response.NextPage = -1
 			}
 
 			var events []*types.EventView
@@ -464,6 +466,8 @@ func (s *BetsapiService) GetLeagues(ctx context.Context, req *types.LeaguesReque
 		if leagueResponse.Success == 1 {
 			if leagueResponse.Pager.Page*leagueResponse.Pager.PerPage < leagueResponse.Pager.Total {
 				response.NextPage = leagueResponse.Pager.Page + 1
+			} else {
+				response.NextPage = -1
 			}
 
 			var leagues []*types.League
@@ -520,6 +524,8 @@ func (s *BetsapiService) GetTeams(ctx context.Context, req *types.TeamsRequest) 
 		if teamResponse.Success == 1 {
 			if teamResponse.Pager.Page*teamResponse.Pager.PerPage < teamResponse.Pager.Total {
 				response.NextPage = teamResponse.Pager.Page + 1
+			} else {
+				response.NextPage = -1
 			}
 
 			var teams []*types.Team
