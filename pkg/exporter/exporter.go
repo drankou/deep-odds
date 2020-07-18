@@ -1,158 +1,144 @@
 package exporter
 
 import (
+	"context"
+	"errors"
+	"fmt"
 	"github.com/drankou/deep-odds/pkg/betsapi/types"
+	"github.com/drankou/deep-odds/pkg/betsapi/types/constants"
 	"github.com/drankou/deep-odds/pkg/storage"
+	log "github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
+	"os"
+	"strconv"
+	"strings"
+	"time"
 )
 
-//represents endpoint for all requests on betsapi data
+// Exporter for storing data from betsapi API to mongo database
 type Exporter struct {
-	//TODO cache
-	Mongo   *storage.MongoWrapper
-	Betsapi *types.BetsapiClient
+	mongo   *storage.MongoWrapper
+	betsapi types.BetsapiClient
 }
 
 func (e *Exporter) Init() error {
-	e.Mongo = storage.GetMongoWrapper()
-	//e.Betsapi = betsapi.GetBetsapiWrapper()
+	//connect to mongo db
+	e.mongo = storage.GetMongoWrapper()
+
+	// Set up a connection to the betsapi server.
+	log.Info("Connecting to betsapi server")
+	conn, err := grpc.Dial(os.Getenv("BETSAPI_SERVER"), grpc.WithInsecure(), grpc.WithBlock())
+	if err != nil {
+		return err
+	}
+
+	e.betsapi = types.NewBetsapiClient(conn)
 
 	return nil
 }
 
-//func (e *Exporter) ExportFootballEventsByLeague(leagueId string) {
-//	events, err := e.Betsapi.GetEndedEvents(types.SoccerId, leagueId, "", "", "", "")
-//	if err != nil {
-//		log.Errorf("Exporter: ended events: %s", err)
-//	}
-//
-//	log.Infof("Crawling ended events for league: %s", leagueId)
-//	log.Infof("Number of ended events for league: %d", len(events))
-//
-//	//fill additional info about events
-//	for _, event := range events {
-//		footballEvent := e.GetFootballEventById(event.Id)
-//
-//		if footballEvent != nil {
-//			//save event to mongo
-//			err := e.SaveFootballEventToMongo(footballEvent)
-//			if err != nil {
-//				log.Errorf("Mongo error: %s", err)
-//			}
-//		}
-//	}
-//}
-//
-//func (e *Exporter) GetFootballEventById(eventId string) *types.FootballEvent {
-//	//calling event view because ended events could return event with missing data
-//	event, err := e.Betsapi.GetEventView(eventId)
-//	if err != nil {
-//		log.Errorf("Exporter: event view: %s", err)
-//		return nil
-//	}
-//
-//	//fill additional info about event
-//	footballEvent := e.EventToFootballEvent(event)
-//
-//	//clean unnecessary data
-//	footballEvent.Clean()
-//
-//	return footballEvent
-//}
-//
-////Request for stats, odds and history of given event
-//func (e *Exporter) EventToFootballEvent(event *types.Event) *types.FootballEvent {
-//	statsTrend, err := e.Betsapi.GetEventStatsTrend(event.Id)
-//	if err != nil {
-//		log.Errorf("Exporter: event stats: %s: eventId: %s", err, event.Id)
-//	}
-//
-//	//get event's live odds
-//	odds, err := e.Betsapi.GetEventOdds(event.Id)
-//	if err != nil {
-//		log.Errorf("Exporter: event odds: %s: eventId:%s", err, event.Id)
-//	}
-//
-//	//get event's history
-//	history, err := e.Betsapi.GetEventHistory(event.Id, "20")
-//	if err != nil {
-//		log.Errorf("Exporter: event history: %s: eventId: %s", err, event.Id)
-//	}
-//
-//	footballEvent := &types.FootballEvent{
-//		Event:      event,
-//		History:    history,
-//		Odds:       odds,
-//		StatsTrend: statsTrend,
-//	}
-//
-//	return footballEvent
-//}
-//
-//func (e *Exporter) ExportFootballEventsFromDate(from int64, to int64) {
-//	//format YYYYMMDD, eg: 20180814 (min 20160901)
-//
-//	for timestamp := from; timestamp < to; timestamp += 86400 {
-//		year, month, day := time.Unix(timestamp, 0).Truncate(24 * time.Hour).Date()
-//
-//		var monthStr string
-//		var dayStr string
-//
-//		if month < 10 {
-//			monthStr = fmt.Sprintf("0%d", month)
-//		} else {
-//			monthStr = fmt.Sprintf("%d", month)
-//		}
-//
-//		if day < 10 {
-//			dayStr = fmt.Sprintf("0%d", day)
-//		} else {
-//			dayStr = fmt.Sprintf("%d", day)
-//		}
-//
-//		betsapiDay := fmt.Sprintf("%d%s%s", year, monthStr, dayStr)
-//		log.Print(betsapiDay)
-//
-//		events, err := e.Betsapi.GetEndedEvents(types.SoccerId, "", "", "", betsapiDay, "")
-//		if err != nil {
-//			log.Errorf("Exporter: ended events: %s", err)
-//		}
-//
-//		log.Infof("Number of ended events for %s: %d", betsapiDay, len(events))
-//
-//		//fill additional info about events
-//		for _, event := range events {
-//			footballEvent := e.GetFootballEventById(event.Id)
-//
-//			if footballEvent != nil {
-//				//save event to mongo
-//				err := e.SaveFootballEventToMongo(footballEvent)
-//				if err != nil {
-//					log.Errorf("Mongo error: %s", err)
-//				}
-//			}
-//		}
-//	}
-//}
-//
-//func (e *Exporter) UpdateFootballEventStatsTrend(footballEvent *types.FootballEvent) error {
-//	statsTrend, err := e.Betsapi.GetEventStatsTrend(footballEvent.Event.Id)
-//	if err != nil {
-//		return errors.Errorf("Exporter: event stats: %s: eventId: %s", err, footballEvent.Event.Id)
-//	}
-//
-//	log.Info("mongo: entry updated: ", footballEvent.Event.Id)
-//	footballEvent.StatsTrend = statsTrend
-//
-//	return nil
-//}
-//
-//func (e *Exporter) SaveFootballEventToMongo(footballEvent *types.FootballEvent) error {
-//	_, err := e.Mongo.Insert("football_event", footballEvent)
-//	if err != nil {
-//		return err
-//	}
-//
-//	//log.Info("mongo: entry inserted: ", footballEvent.Event.Id)
-//
-//	return nil
-//}
+func (e *Exporter) ExportFootballEventsFromDate(from int64, to int64) {
+	//format YYYYMMDD, eg: 20180814 (min 20160901)
+	for timestamp := from; timestamp < to; timestamp += 86400 {
+		date := time.Unix(timestamp, 0).Truncate(24 * time.Hour).Format("2006-01-02")
+		log.Infof("Exporting events for day: %v", date)
+
+		for page := 1; page > 0; {
+			req := &types.EndedEventsRequest{
+				SportId: constants.SoccerId,
+				Day:     strings.ReplaceAll(date, "-", ""),
+				Page:    strconv.Itoa(page),
+			}
+
+			resp, err := e.betsapi.GetEndedEvents(context.Background(), req)
+			if err != nil {
+				log.Errorf("Exporter: ended events: %s", err)
+			}
+
+			err = e.SaveFootballEvents(resp.GetEvents())
+			if err != nil {
+				log.Error(err)
+				return
+			}
+
+			page = int(resp.GetNextPage())
+		}
+	}
+}
+
+func (e *Exporter) SaveFootballEvents(events []*types.EventView) error {
+	for _, event := range events {
+		footballEvent, err := e.GetFootballEventById(event.GetId())
+		if err != nil {
+			log.Error(err)
+			continue
+		}
+
+		if footballEvent != nil {
+			//save event to mongo
+			_, err := e.mongo.Insert("football_event_validation", footballEvent)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (e *Exporter) GetFootballEventById(eventId string) (*types.FootballEvent, error) {
+	//calling event view because ended events could return event with missing data
+	eventView, err := e.betsapi.GetEventView(context.Background(), &types.EventViewRequest{EventId: eventId})
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("Exporter: GetFootballEventById: %s", err))
+	}
+
+	//fill additional info about event
+	footballEvent := e.EventViewToFootballEvent(eventView)
+
+	//clean unnecessary data
+	footballEvent.Clean()
+
+	return footballEvent, nil
+}
+
+//Request for stats, odds and history of given event
+func (e *Exporter) EventViewToFootballEvent(event *types.EventView) *types.FootballEvent {
+	//get event's stats trend
+	statsTrendRequest := &types.EventStatsTrendRequest{
+		EventId: event.GetId(),
+	}
+	statsTrend, err := e.betsapi.GetEventStatsTrend(context.Background(), statsTrendRequest)
+	if err != nil {
+		log.Errorf("Exporter: event stats: %s: eventId: %s", err, event.GetId())
+	}
+
+	//get event's live odds
+	oddsRequest := &types.EventOddsRequest{
+		EventId: event.GetId(),
+	}
+	odds, err := e.betsapi.GetEventOdds(context.Background(), oddsRequest)
+	if err != nil {
+		log.Errorf("Exporter: event odds: %s: eventId:%s", err, event.GetId())
+	}
+
+	//get event's history
+	historyReq := &types.EventHistoryRequest{
+		EventId: event.GetId(),
+		Qty:     "20",
+	}
+	history, err := e.betsapi.GetEventHistory(context.Background(), historyReq)
+	if err != nil {
+		log.Errorf("Exporter: event history: %s: eventId: %s", err, event.GetId())
+	}
+
+	//construct football event
+	footballEvent := &types.FootballEvent{
+		Event:      event,
+		History:    history,
+		Odds:       odds,
+		StatsTrend: statsTrend,
+	}
+
+	return footballEvent
+}

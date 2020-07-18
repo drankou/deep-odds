@@ -15,7 +15,7 @@ func (m *FootballEvent) Clean() {
 		m.GetOdds().Clean()
 	}
 
-	//if f.StatsTrend != nil {
-	//	f.StatsTrend.Clean()
-	//}
+	if m.GetStatsTrend() != nil {
+		m.GetStatsTrend().Clean()
+	}
 }
