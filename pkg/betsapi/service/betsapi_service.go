@@ -217,11 +217,13 @@ func (s *BetsapiService) GetEndedEvents(ctx context.Context, req *types.EndedEve
 		if eventsPagerResponse.Success == 1 {
 			if eventsPagerResponse.Pager.Page*eventsPagerResponse.Pager.PerPage < eventsPagerResponse.Pager.Total {
 				response.NextPage = eventsPagerResponse.Pager.Page + 1
+			} else {
+				response.NextPage = -1
 			}
 
 			var events []*types.EventView
 			for i := range eventsPagerResponse.Results {
-				if !s.excludedLeagues[eventsPagerResponse.Results[i].GetLeague().GetId()] {
+				if !s.excludedLeagues[eventsPagerResponse.Results[i].GetLeague().GetId()] && eventsPagerResponse.Results[i].GetTimeStatus() == "3"{
 					events = append(events, &eventsPagerResponse.Results[i])
 				}
 			}
