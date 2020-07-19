@@ -293,7 +293,7 @@ message EventStatsTrend {
     StatsTrendValue corners = 6 [(gogoproto.jsontag) = "corners", (gogoproto.moretags) = "bson:\"corners,omitempty\""];
     StatsTrendValue goals = 7 [(gogoproto.jsontag) = "goals", (gogoproto.moretags) = "bson:\"goals,omitempty\""];
     StatsTrendValue yellow_cards = 8 [(gogoproto.jsontag) = "yellowcards", (gogoproto.moretags) = "bson:\"yellow_cards,omitempty\""];
-    StatsTrendValue red_cards = 9 [(gogoproto.jsontag) = "redcards", (gogoproto.moretags) = "bson:\"redcards,omitempty\""];
+    StatsTrendValue red_cards = 9 [(gogoproto.jsontag) = "redcards", (gogoproto.moretags) = "bson:\"red_cards,omitempty\""];
     StatsTrendValue substitutions = 10 [(gogoproto.jsontag) = "substitutions", (gogoproto.moretags) = "bson:\"substitutions,omitempty\""];
 }
 
