@@ -163,7 +163,7 @@ message FootballStats {
     repeated string corners = 6 [(gogoproto.jsontag) = "corners,omitempty", (gogoproto.moretags) = "bson:\"corners,omitempty\""];
     repeated string goals = 7 [(gogoproto.jsontag) = "goals,omitempty", (gogoproto.moretags) = "bson:\"goals,omitempty\""];
     repeated string yellow_cards = 8 [(gogoproto.jsontag) = "yellowcards,omitempty", (gogoproto.moretags) = "bson:\"yellow_cards,omitempty\""];
-    repeated string red_cards = 9 [(gogoproto.jsontag) = "redcards,omitempty", (gogoproto.moretags) = "bson:\"redcards,omitempty\""];
+    repeated string red_cards = 9 [(gogoproto.jsontag) = "redcards,omitempty", (gogoproto.moretags) = "bson:\"red_cards,omitempty\""];
     repeated string substitutions = 10 [(gogoproto.jsontag) = "substitutions,omitempty", (gogoproto.moretags) = "bson:\"substitutions,omitempty\""];
 }
 message Team {
