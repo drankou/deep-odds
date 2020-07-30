@@ -157,7 +157,7 @@ message EventView {
 message FootballStats {
     repeated string attacks = 1 [(gogoproto.jsontag) = "attacks,omitempty", (gogoproto.moretags) = "bson:\"attacks,omitempty\""];
     repeated string dangerous_attacks = 2 [(gogoproto.jsontag) = "dangerous_attacks,omitempty", (gogoproto.moretags) = "bson:\"dangerous_attacks,omitempty\""];
-    repeated string possession = 3 [(gogoproto.jsontag) = "possession_rt,omitempty", (gogoproto.moretags) = "bson:\"possession_rt,omitempty\""];
+    repeated string possession = 3 [(gogoproto.jsontag) = "possession,omitempty", (gogoproto.moretags) = "bson:\"possession,omitempty\""];
     repeated string off_target = 4 [(gogoproto.jsontag) = "off_target,omitempty", (gogoproto.moretags) = "bson:\"off_target,omitempty\""];
     repeated string on_target = 5 [(gogoproto.jsontag) = "on_target,omitempty", (gogoproto.moretags) = "bson:\"on_target,omitempty\""];
     repeated string corners = 6 [(gogoproto.jsontag) = "corners,omitempty", (gogoproto.moretags) = "bson:\"corners,omitempty\""];
