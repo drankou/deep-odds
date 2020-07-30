@@ -15,11 +15,12 @@ import (
 func main() {
 	os.Setenv("ENVIRONMENT", "prod")
 	os.Setenv("MONGO_CONNECTION_STRING", "mongodb://localhost:27017")
+
 	BasicCsvDataset()
 }
 
 func BasicCsvDataset() {
-	file, err := os.Create("football_events.csv")
+	file, err := os.Create("football_events_v2.csv")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -38,7 +39,6 @@ func BasicCsvDataset() {
 		"goals.home", "goals.away",
 		"attacks.home", "attacks.away",
 		"dang_attacks.home", "dang_attacks.away",
-		//"possession.home", "possession.away",
 		"off_target.home", "off_target.away",
 		"on_target.home", "on_target.away",
 		"corners.home", "corners.away",
@@ -50,7 +50,6 @@ func BasicCsvDataset() {
 		"final_score",
 		"result",
 	}
-	//TODO check possession and to to the result dataset
 
 	err = csvWriter.Write(header)
 	if err != nil {
@@ -73,7 +72,6 @@ func BasicCsvDataset() {
 		var base []string
 		footballEvent := event.(*types.FootballEvent)
 		statsTrend := types.AddMissingStatsTrend(footballEvent.GetStatsTrend())
-		//TODO Use map minute -> odds
 		odds := types.AddMissingResultOdds(footballEvent.GetOdds().GetFullTime())
 		finalScore := footballEvent.GetEvent().GetScore()
 
@@ -85,9 +83,61 @@ func BasicCsvDataset() {
 		base = append(base, footballEvent.GetEvent().GetLeague().GetId())
 		base = append(base, footballEvent.GetEvent().GetLeague().GetCountryCode())
 
-		for i := 0; i <= 90; i++ {
-			var record []string
+		var allMinutesRecords [][]string
 
+		correctData := true
+		for i := 0; i <= 90; i++ {
+			//remove anomalies
+			if statsTrend.GetAttacks().GetHome()[0].GetValue() > 10 || statsTrend.GetAttacks().GetAway()[0].GetValue() > 10 {
+				correctData = false
+				break
+			}
+
+			if statsTrend.GetDangerousAttacks().GetHome()[0].GetValue() > 10 || statsTrend.GetDangerousAttacks().GetAway()[0].GetValue() > 10 {
+				correctData = false
+				break
+			}
+
+			if statsTrend.GetAttacks().GetHome()[90].GetValue() < 30 && statsTrend.GetAttacks().GetAway()[90].GetValue() < 30 {
+				correctData = false
+				break
+			}
+
+
+			//missing data at the start of the matcg
+			if i > 2 {
+				if statsTrend.GetAttacks().GetHome()[i].GetValue() == 0 && statsTrend.GetAttacks().GetAway()[i].GetValue() == 0 {
+					correctData = false
+					break
+				}
+			}
+
+			//skip matches with incorrect stats sequences
+			if i != 0 {
+				if statsTrend.GetGoals().GetHome()[i-1].GetValue() > statsTrend.GetGoals().GetHome()[i].GetValue() ||
+					statsTrend.GetGoals().GetAway()[i-1].GetValue() > statsTrend.GetGoals().GetAway()[i].GetValue() ||
+					statsTrend.GetAttacks().GetHome()[i-1].GetValue() > statsTrend.GetAttacks().GetHome()[i].GetValue() ||
+					statsTrend.GetAttacks().GetAway()[i-1].GetValue() > statsTrend.GetAttacks().GetAway()[i].GetValue() ||
+					statsTrend.GetDangerousAttacks().GetHome()[i-1].GetValue() > statsTrend.GetDangerousAttacks().GetHome()[i].GetValue() ||
+					statsTrend.GetDangerousAttacks().GetAway()[i-1].GetValue() > statsTrend.GetDangerousAttacks().GetAway()[i].GetValue() ||
+					statsTrend.GetOnTarget().GetHome()[i-1].GetValue() > statsTrend.GetOnTarget().GetHome()[i].GetValue() ||
+					statsTrend.GetOnTarget().GetAway()[i-1].GetValue() > statsTrend.GetOnTarget().GetAway()[i].GetValue() ||
+					statsTrend.GetOffTarget().GetHome()[i-1].GetValue() > statsTrend.GetOffTarget().GetHome()[i].GetValue() ||
+					statsTrend.GetOffTarget().GetAway()[i-1].GetValue() > statsTrend.GetOffTarget().GetAway()[i].GetValue() ||
+					statsTrend.GetCorners().GetHome()[i-1].GetValue() > statsTrend.GetCorners().GetHome()[i].GetValue() ||
+					statsTrend.GetCorners().GetAway()[i-1].GetValue() > statsTrend.GetCorners().GetAway()[i].GetValue() ||
+					statsTrend.GetYellowCards().GetHome()[i-1].GetValue() > statsTrend.GetYellowCards().GetHome()[i].GetValue() ||
+					statsTrend.GetYellowCards().GetAway()[i-1].GetValue() > statsTrend.GetYellowCards().GetAway()[i].GetValue() ||
+					statsTrend.GetRedCards().GetHome()[i-1].GetValue() > statsTrend.GetRedCards().GetHome()[i].GetValue() ||
+					statsTrend.GetRedCards().GetAway()[i-1].GetValue() > statsTrend.GetRedCards().GetAway()[i].GetValue() ||
+					statsTrend.GetSubstitutions().GetHome()[i-1].GetValue() > statsTrend.GetSubstitutions().GetHome()[i].GetValue() ||
+					statsTrend.GetSubstitutions().GetAway()[i-1].GetValue() > statsTrend.GetSubstitutions().GetAway()[i].GetValue() {
+					correctData = false
+					break
+				}
+			}
+
+			var record []string
 			//event info
 			record = append(record, base...)
 
@@ -99,8 +149,6 @@ func BasicCsvDataset() {
 			record = append(record, strconv.FormatInt(statsTrend.GetAttacks().GetAway()[i].GetValue(), 10))
 			record = append(record, strconv.FormatInt(statsTrend.GetDangerousAttacks().GetHome()[i].GetValue(), 10))
 			record = append(record, strconv.FormatInt(statsTrend.GetDangerousAttacks().GetAway()[i].GetValue(), 10))
-			//record = append(record, strconv.FormatInt(statsTrend.Possession.GetAway()[i].GetValue(), 10))
-			//record = append(record, string(statsTrend.Possession.GetAway()[i].GetValue(), 10))
 			record = append(record, strconv.FormatInt(statsTrend.GetOffTarget().GetHome()[i].GetValue(), 10))
 			record = append(record, strconv.FormatInt(statsTrend.GetOffTarget().GetAway()[i].GetValue(), 10))
 			record = append(record, strconv.FormatInt(statsTrend.GetOnTarget().GetHome()[i].GetValue(), 10))
@@ -127,14 +175,20 @@ func BasicCsvDataset() {
 
 			goals := strings.Split(finalScore, "-")
 			goalsHome, err := strconv.Atoi(goals[0])
-			if err != nil{
+			if err != nil {
 				log.Print(footballEvent.Event.Id)
 				continue
 			}
 			goalsAway, err := strconv.Atoi(goals[1])
-			if err != nil{
+			if err != nil {
 				log.Print(footballEvent.Event.Id)
 				continue
+			}
+
+			//wrong goals (in a given minute more than in final result)
+			if statsTrend.GetGoals().GetHome()[i].GetValue() > int64(goalsHome) || statsTrend.GetGoals().GetAway()[i].GetValue() > int64(goalsAway) {
+				correctData = false
+				break
 			}
 
 			if goalsHome > goalsAway {
@@ -145,9 +199,15 @@ func BasicCsvDataset() {
 				record = append(record, []string{"0"}...)
 			}
 
-			err = csvWriter.Write(record)
-			if err != nil {
-				log.Error(err)
+			allMinutesRecords = append(allMinutesRecords, record)
+		}
+
+		if correctData {
+			for _, record := range allMinutesRecords {
+				err = csvWriter.Write(record)
+				if err != nil {
+					log.Error(err)
+				}
 			}
 		}
 	}
