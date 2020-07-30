@@ -7,7 +7,7 @@ import (
 )
 
 func (m *EventStatsTrend) Clean() {
-
+//
 }
 
 func AddMissingStatsTrend(statsTrend *EventStatsTrend) *EventStatsTrend {
@@ -47,6 +47,19 @@ func addMissingStatsTrendTicks(ticks []*StatsTrendTick) []*StatsTrendTick {
 	}
 	sort.Slice(minutes, func(i, j int) bool { return minutes[i] < minutes[j] })
 
+	//check edge cases when stats trend time series data may have a sequence such as
+	// [44 45 46 45] where 46 represents stoppage time, hence 45+1, and second 45 is a start of the second half
+	//so it could lead that value of 45th minute is larger than value of 46th
+	for i := int64(45); i <= 55; i++ {
+		for j := i - 1; j >= 45; j-- {
+			if minuteValue[i] != 0 && minuteValue[j] != 0 {
+				if minuteValue[j] > minuteValue[i] {
+					minuteValue[i] = minuteValue[j]
+				}
+			}
+		}
+	}
+
 	//check if first available minute is 0 - start of the match
 	if (len(minutes) > 0 && minutes[0] != 0) || len(minutes) == 0 {
 		// add first minute value
@@ -55,7 +68,6 @@ func addMissingStatsTrendTicks(ticks []*StatsTrendTick) []*StatsTrendTick {
 	}
 
 	lastMinute := int64(90)
-	//TODO get last minute of the match
 	for i := int64(1); i <= lastMinute; i++ {
 		if _, ok := minuteValue[i]; !ok {
 			//add missing minute value from the previous minute
@@ -78,6 +90,7 @@ func addMissingStatsTrendTicks(ticks []*StatsTrendTick) []*StatsTrendTick {
 	return res
 }
 
+//Extracting stats about yellow cards from match' text events
 func YellowCardsStatsFromEvents(footballEvent *FootballEvent) *StatsTrendValue {
 	result := &StatsTrendValue{
 		Home: []*StatsTrendTick{},
@@ -113,16 +126,42 @@ func YellowCardsStatsFromEvents(footballEvent *FootballEvent) *StatsTrendValue {
 	return result
 }
 
-func sortAndFillValue(ticks []*StatsTrendTick) []*StatsTrendTick {
-	sort.Slice(ticks, func(i, j int) bool { return ticks[i].GetTime() < ticks[j].GetTime() })
-
-	for i := range ticks {
-		ticks[i].Value = int64(i + 1)
+func RedCardsStatsFromEvents(footballEvent *FootballEvent) *StatsTrendValue {
+	result := &StatsTrendValue{
+		Home: []*StatsTrendTick{},
+		Away: []*StatsTrendTick{},
 	}
 
-	return ticks
+	for _, event := range footballEvent.Event.Events {
+		minuteStr := strings.Split(event.Text, `'`)[0]
+		var minute int64
+		if strings.Contains(minuteStr, "+") {
+			minute, _ = strconv.ParseInt(strings.Split(minuteStr, `+`)[0], 10, 64)
+		} else {
+			minute, _ = strconv.ParseInt(minuteStr, 10, 64)
+		}
+
+		if strings.Contains(event.Text, "Red Card") {
+			newTick := &StatsTrendTick{
+				Time: minute,
+			}
+
+			teamName := strings.Split(event.Text, `-`)[2]
+			if strings.Contains(teamName, footballEvent.Event.HomeTeam.Name) {
+				result.Home = append(result.Home, newTick)
+			} else {
+				result.Away = append(result.Away, newTick)
+			}
+		}
+	}
+
+	result.Home = sortAndFillValue(result.Home)
+	result.Away = sortAndFillValue(result.Away)
+
+	return result
 }
 
+//Extracting stats about corners from match' text events
 func CornersStatsFromEvents(footballEvent *FootballEvent) *StatsTrendValue {
 	result := &StatsTrendValue{
 		Home: []*StatsTrendTick{},
@@ -156,4 +195,14 @@ func CornersStatsFromEvents(footballEvent *FootballEvent) *StatsTrendValue {
 	result.Away = sortAndFillValue(result.Away)
 
 	return result
+}
+
+func sortAndFillValue(ticks []*StatsTrendTick) []*StatsTrendTick {
+	sort.Slice(ticks, func(i, j int) bool { return ticks[i].GetTime() < ticks[j].GetTime() })
+
+	for i := range ticks {
+		ticks[i].Value = int64(i + 1)
+	}
+
+	return ticks
 }
