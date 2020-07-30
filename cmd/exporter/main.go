@@ -6,8 +6,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const LeaguesTotal = 1665
-
 func main() {
 	//Load environmental variables
 	err := godotenv.Load()
@@ -24,17 +22,6 @@ func main() {
 
 	log.Info("Exporter initialized")
 
-	//start, err := strconv.Atoi(os.Getenv("START_LEAGUE"))
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//end, err := strconv.Atoi(os.Getenv("END_LEAGUE"))
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//
-	//for i := start; i <= end; i++ {
-	//	leagueId := strconv.FormatInt(int64(i), 10)
-	//	betsapiExporter.ExportFootballEventsByLeague(leagueId)
-	//}
+	//from 01.06.2020 to now
+	betsapiExporter.ExportFootballEventsFromDate(1583625600, 1595096336)
 }
