@@ -1,0 +1,1 @@
+docker run -p 8501:8501 -p 8500:8500 --mount type=bind,source="$(dirname $(dirname $PWD))"/models/feedforward/1,target=/models/feedforward/1 -e MODEL_NAME=feedforward -t tensorflow/serving
